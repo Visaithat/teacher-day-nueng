@@ -1,0 +1,286 @@
+/* ---------------------------------------------------------------------------
+   Handwritten signature
+   Each line is an SVG whose glyphs are masked by a stroked pen path. Animating
+   that path's stroke-dashoffset reveals the ink in the order a hand would lay
+   it down, so the crossbar of the "t" and the loop of the "g" arrive when the
+   pen gets to them rather than in left-to-right order.
+   --------------------------------------------------------------------------- */
+
+.signature {
+  --sig-size: clamp(2.25rem, 10.5vw, 8rem);
+
+  display: flex;
+  flex-direction: column;
+  /* The block is centred as a whole, but the lines hang off a common left
+     edge, so the second one steps in from the first like a real signature. */
+  align-items: flex-start;
+  color: var(--ink);
+  font-family: var(--font-allura), "Segoe Script", cursive;
+}
+
+.signature__line {
+  display: block;
+  overflow: visible;
+  font-size: var(--sig-size);
+  width: var(--line-width);
+  height: var(--line-height);
+}
+
+/* Real handwriting drifts: the lines are not rigidly parallel, and the second
+   sits lower and indented the way a signature's second line does. */
+.signature__line--1 {
+  /* Independent `rotate`, not `transform`: the exit animation owns transform. */
+  rotate: -0.6deg;
+}
+
+.signature__line--2 {
+  margin-top: 0.28em;
+  margin-left: 1.25em;
+  rotate: 1.4deg;
+}
+
+/* Timing comes from the two custom properties on the line, so a stroke can be
+   retimed without touching the animation itself. */
+.signature__ink,
+.signature__nib {
+  --stroke-start: calc(var(--sign-delay) + var(--sign-duration) * var(--stroke-from));
+  --stroke-duration: calc(var(--sign-duration) * (var(--stroke-to) - var(--stroke-from)));
+}
+
+.signature__ink {
+  /* Gap longer than the dash: at offset 1 the whole path sits inside the gap,
+     so an unstarted stroke leaves no stray dot behind. */
+  stroke-dasharray: 1 2;
+  stroke-dashoffset: 1;
+  will-change: stroke-dashoffset;
+  animation: sig-write var(--stroke-duration) linear var(--stroke-start) forwards;
+}
+
+.signature__nib {
+  opacity: 0;
+  offset-path: var(--stroke-path);
+  offset-rotate: 0deg;
+  will-change: offset-distance, opacity;
+  /* Slightly quicker than the ink, so the nib rides just ahead of it. */
+  animation:
+    sig-trace calc(var(--stroke-duration) * 0.97) linear var(--stroke-start)
+      forwards,
+    sig-nib calc(var(--stroke-duration) * 0.97) linear var(--stroke-start)
+      forwards;
+}
+
+/* The hand speeds up through joined letters and eases at loops and turns. */
+/* The hand still breathes - a touch quicker through joined letters, a touch
+   steadier at loops - but never enough to read as a stall. */
+@keyframes sig-write {
+  0% {
+    stroke-dashoffset: 1;
+  }
+  13% {
+    stroke-dashoffset: 0.885;
+  }
+  28% {
+    stroke-dashoffset: 0.735;
+  }
+  44% {
+    stroke-dashoffset: 0.585;
+  }
+  59% {
+    stroke-dashoffset: 0.42;
+  }
+  74% {
+    stroke-dashoffset: 0.27;
+  }
+  88% {
+    stroke-dashoffset: 0.13;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes sig-trace {
+  0% {
+    offset-distance: 0%;
+  }
+  13% {
+    offset-distance: 11.5%;
+  }
+  28% {
+    offset-distance: 26.5%;
+  }
+  44% {
+    offset-distance: 41.5%;
+  }
+  59% {
+    offset-distance: 58%;
+  }
+  74% {
+    offset-distance: 73%;
+  }
+  88% {
+    offset-distance: 87%;
+  }
+  100% {
+    offset-distance: 100%;
+  }
+}
+
+@keyframes sig-nib {
+  0% {
+    opacity: 0;
+  }
+  3% {
+    opacity: 0.7;
+  }
+  97% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Subtitle: hidden outright until the writing is finished, but holding its
+   place from the first frame so nothing shifts when it appears.
+   --------------------------------------------------------------------------- */
+
+.subtitle {
+  visibility: hidden;
+  opacity: 0;
+  /* A warm halo and a close shadow, so the line lifts off the paper. */
+  text-shadow:
+    0 1px 0 rgba(255, 253, 246, 0.7),
+    0 2px 3px rgba(90, 22, 17, 0.26),
+    0 6px 14px rgba(120, 30, 24, 0.16);
+  will-change: opacity, transform;
+  animation: subtitle-in 1.2s cubic-bezier(0.22, 0.61, 0.36, 1) 4.8s forwards;
+}
+
+@keyframes subtitle-in {
+  0% {
+    visibility: visible;
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  100% {
+    visibility: visible;
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .signature__ink {
+    stroke-dashoffset: 0;
+    animation: none;
+    will-change: auto;
+  }
+
+  .signature__nib {
+    display: none;
+  }
+
+  .signature__line {
+    opacity: 0;
+    animation: sig-appear 0.6s ease-out 0.2s forwards;
+  }
+
+  .subtitle {
+    animation-duration: 0.6s;
+    animation-delay: 0.9s;
+  }
+
+  @keyframes sig-appear {
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Leaving the welcome page
+   The whole viewport is the button. On the click the three pieces of text
+   drift up and out, one after another, and the background is left untouched:
+   it is the one thing that carries over to the collage.
+   --------------------------------------------------------------------------- */
+
+.welcome__veil {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-block-end: clamp(1.25rem, 5vh, 3rem);
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.welcome__hint {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  color: color-mix(in srgb, var(--foreground) 55%, var(--background));
+  opacity: 0;
+  will-change: opacity;
+  /* Starts once the subtitle has settled, then breathes. */
+  animation: hint-breathe 5s ease-in-out 6.3s infinite;
+}
+
+.welcome__veil:focus-visible .welcome__hint {
+  animation: none;
+  opacity: 1;
+  border-radius: 4px;
+  outline: 2px solid currentColor;
+  outline-offset: 5px;
+}
+
+@keyframes hint-breathe {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  25%,
+  58% {
+    opacity: 0.8;
+  }
+}
+
+.welcome--leaving .welcome__veil {
+  pointer-events: none;
+}
+
+.welcome--leaving .welcome__hint {
+  animation: welcome-leave 0.4s ease-in forwards;
+}
+
+.welcome--leaving .signature__line--1 {
+  animation: welcome-leave 0.6s ease-in forwards;
+}
+
+.welcome--leaving .signature__line--2 {
+  animation: welcome-leave 0.6s ease-in 0.1s forwards;
+}
+
+.welcome--leaving .subtitle {
+  animation: welcome-leave 0.6s ease-in 0.2s forwards;
+}
+
+@keyframes welcome-leave {
+  from {
+    visibility: visible;
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    visibility: visible;
+    opacity: 0;
+    transform: translate3d(0, -20px, 0);
+  }
+}

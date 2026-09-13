@@ -16,7 +16,7 @@ const allura = Allura({
   variable: "--font-allura",
   subsets: ["latin"],
   weight: "400",
-  display: "swap",
+  display: "block",
 });
 
 export const metadata: Metadata = {

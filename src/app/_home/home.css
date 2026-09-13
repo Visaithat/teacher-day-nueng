@@ -1,0 +1,186 @@
+/* ---------------------------------------------------------------------------
+   The composed card
+   Three pictures making one: the Happy Teacher Day card is the backdrop, and
+   the portrait and the note are laid on top of it. All three start offset toward
+   an edge - already partly on screen - and drift inward together until the
+   composition closes up. Each layer nests its animations in separate boxes, so
+   the entry drift, the idle drift and the resting tilt never write over one
+   another. Only transform and opacity ever move.
+   --------------------------------------------------------------------------- */
+
+.home {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 4vmin;
+  /* The layers overhang the viewport on their way in. */
+  overflow: hidden;
+}
+
+.postcard {
+  position: relative;
+  /* A definite height from the very first frame. The pieces are already in
+     flight by then, and their top/left percentages must not resolve against a
+     not-yet-laid-out image. */
+  aspect-ratio: var(--card-ratio);
+  width: min(88vw, calc(84vh * var(--card-ratio)));
+  /* Short enough that all three layers are there from the first moment. */
+  animation: postcard-appear 220ms ease-out both;
+}
+
+@keyframes postcard-appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.postcard__base {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.postcard__piece {
+  position: absolute;
+  left: calc(var(--x) * 1%);
+  top: calc(var(--y) * 1%);
+  width: var(--w);
+  transform: translate3d(-50%, -50%, 0);
+  z-index: var(--z);
+}
+
+.postcard__enter {
+  display: block;
+  transform: var(--enter-from);
+  will-change: transform;
+  /* Near-even pacing so the layers are visibly closing in for the whole three
+     seconds, with soft ends: a gentle start from a standstill and a
+     decelerating arrival. No overshoot - three layers travelling on different
+     vectors must not fly past each other at the moment they meet. */
+  animation: postcard-slide var(--enter-duration)
+    cubic-bezier(0.42, 0.12, 0.45, 0.98) forwards;
+}
+
+@keyframes postcard-slide {
+  from {
+    transform: var(--enter-from);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.postcard__walk {
+  display: block;
+  will-change: transform;
+  /* Rides along inside the travel: six rocking steps that fade out as the
+     layer reaches its place, so it walks over rather than gliding. The lean is
+     the readable part, so it runs well ahead of the sideways sway. Each swing
+     eases like a pendulum, and --walk scales it (and flips which way the layer
+     leans off first) so the three never sway in unison. */
+  animation: postcard-walk var(--enter-duration) ease-in-out forwards;
+}
+
+@keyframes postcard-walk {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  8% {
+    transform: translate3d(calc(2.4% * var(--walk)), 0, 0)
+      rotate(calc(2.5deg * var(--walk)));
+  }
+  16% {
+    transform: translate3d(calc(-2.2% * var(--walk)), 0, 0)
+      rotate(calc(-2.3deg * var(--walk)));
+  }
+  25% {
+    transform: translate3d(calc(1.95% * var(--walk)), 0, 0)
+      rotate(calc(2.05deg * var(--walk)));
+  }
+  33% {
+    transform: translate3d(calc(-1.7% * var(--walk)), 0, 0)
+      rotate(calc(-1.78deg * var(--walk)));
+  }
+  41% {
+    transform: translate3d(calc(1.45% * var(--walk)), 0, 0)
+      rotate(calc(1.5deg * var(--walk)));
+  }
+  50% {
+    transform: translate3d(calc(-1.2% * var(--walk)), 0, 0)
+      rotate(calc(-1.25deg * var(--walk)));
+  }
+  58% {
+    transform: translate3d(calc(0.95% * var(--walk)), 0, 0)
+      rotate(calc(1deg * var(--walk)));
+  }
+  66% {
+    transform: translate3d(calc(-0.72% * var(--walk)), 0, 0)
+      rotate(calc(-0.75deg * var(--walk)));
+  }
+  75% {
+    transform: translate3d(calc(0.5% * var(--walk)), 0, 0)
+      rotate(calc(0.52deg * var(--walk)));
+  }
+  83% {
+    transform: translate3d(calc(-0.32% * var(--walk)), 0, 0)
+      rotate(calc(-0.34deg * var(--walk)));
+  }
+  91% {
+    transform: translate3d(calc(0.15% * var(--walk)), 0, 0)
+      rotate(calc(0.17deg * var(--walk)));
+  }
+}
+
+.postcard__drift {
+  display: block;
+  will-change: transform;
+  /* Out of step with the other piece, so the card breathes rather than pulses. */
+  animation: postcard-drift var(--drift-duration) ease-in-out var(--drift-delay)
+    infinite;
+}
+
+@keyframes postcard-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(var(--drift-x), var(--drift-y), 0)
+      rotate(var(--drift-rotate));
+  }
+}
+
+.postcard__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  transform: rotate(var(--rotate));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* No assembly: the finished card simply arrives. */
+  .postcard {
+    animation-duration: 0.8s;
+  }
+
+  .postcard__enter {
+    transform: none;
+    animation: none;
+    will-change: auto;
+  }
+
+  .postcard__walk {
+    animation: none;
+    will-change: auto;
+  }
+
+  .postcard__drift {
+    animation: none;
+    will-change: auto;
+  }
+}

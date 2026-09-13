@@ -1,14 +1,19 @@
-export default function Home() {
-  return (
-    <main className="flex w-full min-w-0 flex-1 flex-col items-center justify-center gap-6 px-6 py-16 text-center">
-      <h1 className="font-title text-foreground text-[clamp(2rem,9vw,6.5rem)] leading-[1.75]">
-        <span className="block">Greeting,</span>
-        <span className="mt-2 block sm:ml-[0.5em]">Teacher Nueng</span>
-      </h1>
+"use client";
 
-      <p className="text-foreground text-sm font-bold tracking-tight sm:text-base">
-        It&rsquo;s been such a long time no talk
-      </p>
-    </main>
-  );
+import { HOME_ASSEMBLE_MS, Home } from "./_home/home";
+import { HOME_SOURCES } from "./_home/home-data";
+import { useCardStage } from "./_stage/use-card-stage";
+import { Welcome } from "./_welcome/welcome";
+
+/**
+ * The card has two pages. This is the only place that knows about both: the
+ * welcome page is clicked away, and the home page assembles in its place.
+ */
+export default function Page() {
+  const { leaving, showSecond, open } = useCardStage({
+    preload: HOME_SOURCES,
+    assembleMs: HOME_ASSEMBLE_MS,
+  });
+
+  return showSecond ? <Home /> : <Welcome leaving={leaving} onOpen={open} />;
 }

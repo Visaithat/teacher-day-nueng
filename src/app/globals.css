@@ -1,15 +1,21 @@
 @import "tailwindcss";
 
+/* Each page keeps its own styles beside its component. */
+@import "./_welcome/welcome.css";
+@import "./_home/home.css";
+
 :root {
   --background: #f5f2e9;
   --foreground: #a12920;
   --highlight: #ffe88b;
+  --ink: #a12920;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-highlight: var(--highlight);
+  --color-ink: var(--ink);
   --font-title: var(--font-allura);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
