@@ -1,0 +1,550 @@
+/* ---------------------------------------------------------------------------
+   The mail box
+   A locked box and a key. Drag the key to the lock and the front panel — a
+   clone of the one painted into the artwork — swings open on its hinge, taking
+   the keyhole and the key with it, the way a door actually does. A present is
+   waiting inside.
+
+   Every position is a percentage of .mailbox__box, which carries the artwork's
+   exact aspect ratio, so the lock and the door track the illustration at any
+   size. The numbers all come from mailbox-data.ts.
+   --------------------------------------------------------------------------- */
+
+.mailbox {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  align-content: center;
+  justify-items: center;
+  gap: clamp(0.75rem, 2.5dvh, 2rem);
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 4vmin;
+  overflow: clip;
+}
+
+.mailbox:focus {
+  outline: none;
+}
+
+.mailbox__title {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-postmark), "Comic Sans MS", cursive;
+  font-size: clamp(1.5rem, 4.4vw, 3rem);
+  font-weight: 400;
+  line-height: 1.25;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.mailbox__stage {
+  display: grid;
+  /* An empty column on the left mirrors the aside, so the box itself lands in
+     the middle of the page rather than the box-and-aside pair. */
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: clamp(0.5rem, 2vw, 2rem);
+  width: 100%;
+}
+
+.mailbox__box {
+  grid-column: 2;
+}
+
+.mailbox__aside {
+  grid-column: 3;
+  justify-self: start;
+}
+
+/* --- the box ------------------------------------------------------------- */
+
+.mailbox__box {
+  /* Named, so the flowers' overhang can be reserved in the same terms. */
+  --box-h: min(74dvh, calc(40vw / var(--art-ratio)));
+
+  position: relative;
+  aspect-ratio: var(--art-ratio);
+  height: var(--box-h);
+  /* The flowers are absolutely positioned and reach about 28% of the box's
+     width past each side. Reserve it, or the right one lands on the
+     instruction text. Symmetric, so the grid still centres the box. */
+  margin-inline: calc(var(--box-h) * var(--art-ratio) * 0.28);
+}
+
+.mailbox__art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Four decaying swings as the lock gives. */
+.mailbox[data-state="open"] .mailbox__box {
+  animation: mailbox-shake 320ms ease-in-out 2;
+}
+
+@keyframes mailbox-shake {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate3d(-0.5%, 0, 0) rotate(-1deg);
+  }
+  75% {
+    transform: translate3d(0.5%, 0, 0) rotate(1deg);
+  }
+}
+
+/* --- what is behind the door --------------------------------------------- */
+
+.mailbox__interior {
+  position: absolute;
+  left: var(--door-left);
+  top: var(--door-top);
+  width: var(--door-width);
+  height: var(--door-height);
+  border-radius: var(--door-radius);
+  /* Clips the present's glow to the mouth of the box: light must not spill
+     over the solid front panel below it. */
+  overflow: hidden;
+  background: radial-gradient(
+    120% 90% at 50% 0%,
+    #3d0f0c 0%,
+    #250807 70%,
+    #1b0504 100%
+  );
+}
+
+/* Percentages of the cavity, not of the whole box. */
+.mailbox__gift {
+  position: absolute;
+  left: var(--gift-left);
+  bottom: var(--gift-bottom);
+  width: var(--gift-width);
+  aspect-ratio: var(--gift-ratio);
+  padding: 0;
+  border: 0;
+  background: none;
+  appearance: none;
+  /* The cavity around it is pointer-events: none. This is the one thing in
+     there that can be touched — and only once it has finished arriving. */
+  pointer-events: none;
+  cursor: default;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  opacity: 0;
+  transform: translate3d(0, 26%, 0) scale(0.9);
+  transform-origin: 50% 100%;
+  transition:
+    opacity 200ms ease-out,
+    transform var(--gift-ms) cubic-bezier(0.22, 1.02, 0.36, 1);
+}
+
+.mailbox[data-state="open"] .mailbox__gift {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+  transition-delay: var(--gift-delay);
+}
+
+/* Not [data-state="open"]: the present is invisible for the first 920ms of
+   that state, and an invisible button must not be clickable or tabbable. */
+.mailbox[data-gift="ready"] .mailbox__gift {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* The cavity clips at its own edge and cannot be allowed to stop — that clip is
+   what holds the glow inside the mouth of the box. So the ring lives inside the
+   cavity instead. There is room: the present leaves 23% of the cavity's width
+   clear either side and 10% of its height below, which is 34px and 15px on the
+   narrowest phone this lays out for. 3px of ring at 4px of offset reaches 7px.
+   --highlight against the near-black cavity is about 15:1, and about 8:1
+   against the dimmest part of the halo — which is amber over near-black rather
+   than the bright gold it looks like. White would fail the second of those. */
+.mailbox__gift:focus-visible {
+  outline: 3px solid var(--highlight);
+  outline-offset: 4px;
+  border-radius: 10px;
+}
+
+/* The lift goes on the image, not on the button: the button's own transform is
+   its entry, and the open-state rule carries transition-delay: var(--gift-delay),
+   so a hover written on the button would arrive 320ms late and fight the entry
+   for the same property. Same reasoning as the signature's independent rotate. */
+.mailbox__gift img {
+  transition: scale 220ms cubic-bezier(0.22, 1.02, 0.36, 1);
+}
+
+.mailbox[data-gift="ready"] .mailbox__gift:hover img,
+.mailbox[data-gift="ready"] .mailbox__gift:focus-visible img {
+  scale: 1.05;
+}
+
+/* The light in the air around it. Steady, by request — there are no keyframes
+   here at all, so reduced motion has nothing to switch off. */
+.mailbox__gift::before {
+  content: "";
+  position: absolute;
+  left: -36%;
+  top: -32%;
+  width: 172%;
+  height: 168%;
+  background: radial-gradient(
+    62% 58% at 50% 52%,
+    rgba(255, 228, 166, 0.55) 0%,
+    rgba(255, 200, 100, 0.3) 40%,
+    rgba(255, 178, 66, 0.11) 68%,
+    rgba(255, 170, 58, 0) 100%
+  );
+}
+
+.mailbox__gift img {
+  /* Positioned, so tree order paints it above the halo. Not z-index: the gift
+     is only sometimes a stacking context, so z-index would flip mid-open. */
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  /* The rim follows the present's own silhouette, which a box-shadow cannot. */
+  filter: drop-shadow(0 0 clamp(2px, 0.35dvh, 5px) rgba(255, 242, 212, 0.85))
+    drop-shadow(0 0 clamp(6px, 1.4dvh, 22px) rgba(255, 198, 92, 0.5));
+}
+
+.mailbox__door {
+  position: absolute;
+  left: var(--door-left);
+  top: var(--door-top);
+  width: var(--door-width);
+  height: var(--door-height);
+  border-radius: var(--door-radius);
+  background: var(--door-colour);
+  transform: translate3d(0, 0, 0) rotate(0deg);
+}
+
+/* Ready the layer one state early, and let it go once the flight is over. */
+.mailbox[data-state="turning"] .mailbox__door {
+  will-change: transform, opacity;
+}
+
+.mailbox[data-state="open"] .mailbox__door {
+  animation: mailbox-flap-fly var(--door-ms) linear var(--door-delay) both;
+}
+
+/* The lock gives: the panel dips inward, is kicked off the box, and tumbles
+   away off the top-left. The pacing lives in the frames rather than in one
+   easing curve, so the anticipation and the coast can differ. The z-index
+   exists only while this runs, which is what lets the flap pass in front of
+   the flowers on its way out and sit behind them at rest. */
+@keyframes mailbox-flap-fly {
+  0% {
+    z-index: 3;
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.45, 0, 0.75, 0.2);
+  }
+  12% {
+    transform: translate3d(2.5%, 3%, 0) rotate(2.5deg) scale(0.985);
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.05, 0.65, 0.35, 1);
+  }
+  40% {
+    transform: translate3d(-40%, -38%, 0) rotate(-21deg) scale(1.06);
+    opacity: 1;
+    animation-timing-function: linear;
+  }
+  74% {
+    /* Flatter than it is tall, and already fading: it leaves past the side
+       rather than sailing across the headline. */
+    transform: translate3d(-112%, -92%, 0) rotate(-48deg) scale(1.01);
+    opacity: 0.5;
+  }
+  100% {
+    z-index: 3;
+    transform: translate3d(-206%, -146%, 0) rotate(-78deg) scale(0.9);
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* The lock, painted on the door so it swings with it. */
+.mailbox__door-hole {
+  position: absolute;
+  left: 50%;
+  top: 10%;
+  width: 4.72%;
+  aspect-ratio: 0.53;
+  transform: translate3d(-50%, 0, 0);
+  border-radius: 45% 45% 28% 28%;
+  background: #761611;
+}
+
+/* --- the flowers at its feet --------------------------------------------- */
+
+.mailbox__flower {
+  position: absolute;
+  height: auto;
+  object-fit: contain;
+}
+
+.mailbox__interior,
+.mailbox__door,
+.mailbox__flower,
+.mailbox__hole-point {
+  pointer-events: none;
+}
+
+.mailbox__flower--left {
+  left: -28%;
+  bottom: -1.5%;
+  width: 54%;
+}
+
+.mailbox__flower--right {
+  right: -26%;
+  bottom: -0.5%;
+  width: 58%;
+}
+
+/* A zero-size point the key's tip is measured against. */
+.mailbox__hole-point {
+  position: absolute;
+  left: var(--hole-x);
+  top: var(--hole-y);
+  width: 0;
+  height: 0;
+}
+
+/* --- the aside ----------------------------------------------------------- */
+
+.mailbox__aside {
+  position: relative;
+  display: grid;
+  align-self: end;
+  justify-items: start;
+  gap: 0.4rem;
+  width: clamp(10rem, 22vw, 17rem);
+  /* Sits high on the box and out toward the margin, clear of the flowers. */
+  padding-block-end: 16dvh;
+  margin-inline-start: clamp(0.75rem, 3.5vw, 3.5rem);
+}
+
+.mailbox__instruction {
+  margin: 0;
+  color: #000;
+  font-family: var(--font-note), "Comic Sans MS", cursive;
+  font-size: clamp(1rem, 2.05vw, 1.6rem);
+  line-height: 1.5;
+  transition: opacity 200ms ease-out;
+}
+
+.mailbox__arrow {
+  width: clamp(4rem, 8.5vw, 7rem);
+  height: auto;
+  margin-inline-start: 18%;
+  pointer-events: none;
+  animation: arrow-nudge 2.4s ease-in-out infinite;
+  transition: opacity 200ms ease-out;
+}
+
+/* Both have done their job once the key is moving. They come back if the
+   drag is abandoned, since the state returns to idle. */
+.mailbox:not([data-state="idle"]) .mailbox__arrow,
+.mailbox:not([data-state="idle"]) .mailbox__instruction {
+  opacity: 0;
+}
+
+@keyframes arrow-nudge {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(-4%, 5%, 0);
+  }
+}
+
+/* --- the key ------------------------------------------------------------- */
+
+.mailbox__key {
+  --drag-x: 0px;
+  --drag-y: 0px;
+
+  position: relative;
+  /* Tucked up beside the arrow's head, the way the sketch has it. */
+  margin-block-start: -13%;
+  margin-inline-start: 2%;
+  padding: 0;
+  border: 0;
+  background: none;
+  /* The drag must not be stolen by the scroller: on a snapping document that
+     would fling the reader onto another page mid-gesture. */
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mailbox__key:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 6px;
+  border-radius: 8px;
+}
+
+.mailbox[data-state="dragging"] .mailbox__key {
+  cursor: grabbing;
+}
+
+.mailbox[data-state="open"] .mailbox__key {
+  cursor: default;
+  /* It is in the lock, and the lock has swung away with the door. Visibility
+     goes with it once the fade is over: an invisible button that is still
+     focusable and still announced is a trap for anyone reading by keyboard. */
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 320ms ease-out var(--door-delay),
+    visibility 0s linear calc(var(--door-delay) + 320ms);
+}
+
+.key__travel,
+.key__lie,
+.key__turn {
+  display: block;
+}
+
+.key__travel {
+  transform: translate3d(var(--drag-x), var(--drag-y), 0);
+}
+
+.mailbox[data-state="dragging"] .key__travel {
+  will-change: transform;
+}
+
+.mailbox[data-state="returning"] .key__travel {
+  transition: transform 340ms cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+
+.mailbox[data-state="seating"] .key__travel,
+.mailbox[data-state="turning"] .key__travel,
+.mailbox[data-state="open"] .key__travel {
+  transition: transform var(--seat-ms) cubic-bezier(0.2, 0.8, 0.25, 1);
+}
+
+/* The resting tilt lives on its own box so nothing overwrites it. */
+.key__lie {
+  transform: rotate(var(--key-rest));
+}
+
+/* A flat key cannot turn about its long axis, so it turns about the point
+   where the shaft meets the lock — which is what you see anyway. */
+.key__turn {
+  transform-origin: 8% 50%;
+  transform: rotate(0deg);
+  transition: transform var(--turn-ms) cubic-bezier(0.3, 0.9, 0.3, 1);
+}
+
+.mailbox[data-state="turning"] .key__turn,
+.mailbox[data-state="open"] .key__turn {
+  transform: rotate(92deg);
+}
+
+.mailbox__key img {
+  display: block;
+  width: clamp(2.9rem, 6.8vw, 5.4rem);
+  height: auto;
+}
+
+/* Zero-size marker at the tip of the shaft, inside every rotation. */
+.key__tip {
+  position: absolute;
+  left: 6%;
+  top: 50%;
+  width: 0;
+  height: 0;
+}
+
+/* --- portrait ------------------------------------------------------------ */
+
+@media (max-aspect-ratio: 1 / 1) {
+  .mailbox__stage {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: clamp(0.5rem, 2dvh, 1.5rem);
+  }
+
+  /* The landscape layout pins these to columns 2 and 3; with one column left
+     those would spill into implicit tracks and push the page sideways. */
+  .mailbox__box,
+  .mailbox__aside {
+    grid-column: 1;
+  }
+
+  .mailbox__box {
+    /* The flowers widen the footprint by ~1.56x, so the width cap has to
+       leave room for them. */
+    --box-h: min(58dvh, calc(56vw / var(--art-ratio)));
+  }
+
+  .mailbox__aside {
+    width: min(88vw, 22rem);
+    grid-template-columns: 1fr auto;
+    align-self: center;
+    justify-self: center;
+    align-items: center;
+    justify-items: center;
+    padding-block-end: 0;
+    margin-inline-start: 0;
+  }
+
+  .mailbox__arrow {
+    grid-row: 2;
+    width: clamp(3rem, 12vw, 5rem);
+    margin-inline-start: 0;
+    rotate: -18deg;
+  }
+
+  .mailbox__key {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    margin-block-start: 0;
+    margin-inline-start: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mailbox__arrow {
+    animation: none;
+  }
+
+  .mailbox__gift img {
+    transition-duration: 1ms;
+  }
+
+  .mailbox[data-state="open"] .mailbox__box {
+    animation: none;
+  }
+
+  .key__travel,
+  .key__turn {
+    transition-duration: 1ms;
+  }
+
+  /* The flap is an animation now: cancel it and apply its end state directly. */
+  .mailbox[data-state="open"] .mailbox__door {
+    animation: none;
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  /* Literal values, not var(): the timings arrive as inline styles on the
+     section and would outrank anything in here. The delay must be restated
+     too — the shorthand's reset loses to the more specific open-state rule. */
+  .mailbox[data-state="open"] .mailbox__gift {
+    transition:
+      opacity 240ms ease-out,
+      transform 240ms ease-out;
+    transition-delay: 120ms;
+  }
+}

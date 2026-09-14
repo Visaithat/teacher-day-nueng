@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
-import { Allura, Geist, Geist_Mono } from "next/font/google";
+import {
+  Allura,
+  Architects_Daughter,
+  Geist,
+  Geist_Mono,
+  Gloria_Hallelujah,
+} from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -10,6 +16,20 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const architectsDaughter = Architects_Daughter({
+  variable: "--font-postmark",
+  subsets: ["latin"],
+  weight: "400",
+  display: "swap",
+});
+
+const gloriaHallelujah = Gloria_Hallelujah({
+  variable: "--font-note",
+  subsets: ["latin"],
+  weight: "400",
+  display: "swap",
 });
 
 const allura = Allura({
@@ -28,7 +48,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${allura.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${allura.variable} ${architectsDaughter.variable} ${gloriaHallelujah.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

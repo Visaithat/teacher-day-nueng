@@ -30,10 +30,15 @@ function motionVars(layer: PhotoMotion): CSSProperties {
   } as CSSProperties;
 }
 
+export type HomeProps = {
+  /** Every layer has settled: the scroll hint may appear. */
+  settled: boolean;
+};
+
 /** The home page: three pictures walking in to make one card. */
-export function Home() {
+export function Home({ settled }: HomeProps) {
   return (
-    <main className="home">
+    <section className="home">
       <div
         className="postcard"
         style={{ "--card-ratio": HOME_CARD.ratio } as CSSProperties}
@@ -95,6 +100,15 @@ export function Home() {
           </div>
         ))}
       </div>
-    </main>
+
+      {/* Wait for the card to settle before inviting a scroll. */}
+      <a
+        className={`home__hint${settled ? " home__hint--shown" : ""}`}
+        href="#mailbox"
+      >
+        <span className="home__hint-label">There is mail for you</span>
+        <span className="home__hint-chevron" aria-hidden="true" />
+      </a>
+    </section>
   );
 }

@@ -9,13 +9,18 @@
    --------------------------------------------------------------------------- */
 
 .home {
+  position: relative;
   display: flex;
-  flex: 1;
+  /* Not flex: 1. The mail box below must not compete for this page's height,
+     and `clip` rather than `hidden` keeps this from becoming a scroll
+     container, whose automatic minimum size would be zero. */
+  min-height: 100vh;
+  min-height: 100dvh;
   align-items: center;
   justify-content: center;
   padding: 4vmin;
   /* The layers overhang the viewport on their way in. */
-  overflow: hidden;
+  overflow: clip;
 }
 
 .postcard {
@@ -24,7 +29,7 @@
      flight by then, and their top/left percentages must not resolve against a
      not-yet-laid-out image. */
   aspect-ratio: var(--card-ratio);
-  width: min(88vw, calc(84vh * var(--card-ratio)));
+  width: min(88vw, calc(84dvh * var(--card-ratio)));
   /* Short enough that all three layers are there from the first moment. */
   animation: postcard-appear 220ms ease-out both;
 }
@@ -162,6 +167,71 @@
   transform: rotate(var(--rotate));
 }
 
+/* ---------------------------------------------------------------------------
+   The invitation to scroll
+   A plain anchor, so it is keyboard-operable and announced without any script.
+   --------------------------------------------------------------------------- */
+
+.home__hint {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(0.6rem, 2.5dvh, 1.75rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  color: color-mix(in srgb, var(--foreground) 60%, var(--background));
+  text-decoration: none;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(-50%, 8px, 0);
+  transition:
+    opacity 600ms ease-out,
+    transform 600ms ease-out;
+}
+
+.home__hint--shown {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate3d(-50%, 0, 0);
+}
+
+.home__hint:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 6px;
+  border-radius: 6px;
+}
+
+.home__hint-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+/* Drawn, not an asset. `rotate` keeps the corner turned while `transform`
+   does the bobbing, so the two never overwrite one another. */
+.home__hint-chevron {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  rotate: 45deg;
+}
+
+.home__hint--shown .home__hint-chevron {
+  animation: hint-bob 2.6s ease-in-out 700ms infinite;
+}
+
+@keyframes hint-bob {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, 5px, 0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   /* No assembly: the finished card simply arrives. */
   .postcard {
@@ -182,5 +252,13 @@
   .postcard__drift {
     animation: none;
     will-change: auto;
+  }
+
+  .home__hint {
+    transition-duration: 200ms;
+  }
+
+  .home__hint--shown .home__hint-chevron {
+    animation: none;
   }
 }

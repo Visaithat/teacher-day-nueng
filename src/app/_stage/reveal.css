@@ -1,0 +1,120 @@
+/* ---------------------------------------------------------------------------
+   The hand-over
+   The present becomes a light, the light swallows the screen, and the card is
+   somewhere else by the time it lifts.
+
+   This is a sibling of every page and a child of none: it has to keep animating
+   through the very commit that unmounts one page and mounts the next. Which
+   means nothing above it may ever take `transform`, `filter`, `backdrop-filter`,
+   `perspective`, `contain`, or a `will-change` of any of them — any one of those
+   makes that ancestor the containing block for this fixed layer and pins the
+   light inside the page it was meant to cover. `.mailbox__box` takes a transform
+   while it shakes, which is exactly why the light does not live in there.
+   --------------------------------------------------------------------------- */
+
+.reveal {
+  position: fixed;
+  inset: 0;
+  /* Above .welcome__veil's 20, the highest anything else in the card reaches. */
+  z-index: 50;
+  /* The light overshoots the viewport by design; it must not lengthen the page. */
+  overflow: clip;
+  /* Never a target: the page underneath is inert while this runs, and if a timer
+     were ever lost this must not become an invisible lid over the whole card. */
+  pointer-events: none;
+  opacity: 1;
+  will-change: opacity;
+}
+
+.reveal__light {
+  position: absolute;
+  /* Pixels frozen at the click, not percentages: a phone's URL bar sliding away
+     mid-flight must not drag the centre of the light along with it. */
+  left: var(--burst-x);
+  top: var(--burst-y);
+  width: calc(var(--burst-r) * 2);
+  height: calc(var(--burst-r) * 2);
+  margin: calc(var(--burst-r) * -1);
+  border-radius: 50%;
+  /* Warm at the core like the present's own halo, cold white at the rim. A flat
+     #fff reads as a camera flash; this reads as the box giving off light. */
+  background: radial-gradient(
+    circle at 50% 50%,
+    #fffaf0 0%,
+    #fffdf8 42%,
+    #ffffff 100%
+  );
+  transform: scale(var(--burst-from));
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* `both`, and the selector still matches while clearing: the light holds at
+   full size through the whole of the swap and the fade. */
+.reveal[data-phase="flooding"] .reveal__light,
+.reveal[data-phase="clearing"] .reveal__light {
+  animation: reveal-flood var(--flood-ms) both;
+}
+
+/* The pacing lives in the frames rather than in one curve, the way the flap's
+   flight does: a beat of gathering at the present's own size, then the rush. */
+@keyframes reveal-flood {
+  0% {
+    transform: scale(var(--burst-from));
+    animation-timing-function: cubic-bezier(0.55, 0, 0.85, 0.35);
+  }
+  26% {
+    transform: scale(calc(var(--burst-from) * 2.4));
+    /* Eased out, but not so hard that it arrives early. Together with the 7%
+       of reach the hook holds in reserve, this keeps the screen uncovered
+       until about four fifths of the way through, so the light is still
+       visibly travelling almost to the end instead of stalling on a white
+       screen for the last half of its run. */
+    animation-timing-function: cubic-bezier(0.3, 0.4, 0.6, 0.98);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* The new page is already underneath, already laid out, already painted. The
+   delay is the guarantee: several frames of solid white before any of it can
+   show. Sinusoidal rather than ease-out — an ease-out is below 90% within 60ms
+   and the page ghosts through before the light has begun to feel like it is
+   leaving. */
+.reveal[data-phase="clearing"] {
+  opacity: 0;
+  transition: opacity var(--clear-ms) cubic-bezier(0.37, 0, 0.63, 1)
+    var(--clear-delay);
+}
+
+/* --- motion is unwelcome -------------------------------------------------- */
+
+/* A disc the size of the screen sweeping outward from a point is the exact
+   shape of effect that causes vestibular trouble. Take the travel away and keep
+   the light: it is already everywhere, and only its opacity moves. The card
+   answers reduced motion this way throughout — the home page's whole assembly
+   becomes a single fade — so this is the house style, not a special case. */
+.reveal[data-calm] .reveal__light {
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border-radius: 0;
+  transform: none;
+  animation: none;
+  /* Flat, and barely brighter than the paper it covers: a radial hot spot on a
+     still layer reads as glare rather than as light. */
+  background: #fffdf8;
+}
+
+.reveal[data-calm][data-phase="flooding"] {
+  animation: reveal-veil var(--flood-ms) ease-out both;
+}
+
+@keyframes reveal-veil {
+  from {
+    opacity: 0;
+  }
+}

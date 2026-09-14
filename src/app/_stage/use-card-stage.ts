@@ -19,6 +19,8 @@ export type CardStage = {
   leaving: boolean;
   /** The text has cleared and every photo has loaded: show the second page. */
   showSecond: boolean;
+  /** Every layer of the second page has come to rest. */
+  assembled: boolean;
   /** Dismiss the first page. */
   open: () => void;
 };
@@ -82,6 +84,9 @@ export function useCardStage({
 
   useEffect(() => {
     if (!leaving || assembled) return;
+    // Browsers restore the scroll offset on reload. With a snapping document a
+    // restored offset would fling the reader straight past the second page.
+    window.scrollTo(0, 0);
     const root = document.documentElement;
     const previous = root.style.overflow;
     root.style.overflow = "hidden";
@@ -92,5 +97,5 @@ export function useCardStage({
 
   const open = useCallback(() => setLeaving(true), []);
 
-  return { leaving, showSecond, open };
+  return { leaving, showSecond, assembled, open };
 }
