@@ -140,6 +140,34 @@ export type Letter = {
    * two kinds mean and how a real file replaces a link.
    */
   song: Song;
+  /** Hers to send on the postcard's own page. */
+  postcard: Postcard;
+};
+
+/**
+ * What one person wrote on the postcard.
+ *
+ * Three fields because the card is printed with three places to write, and the
+ * artwork is what decided that - see `POSTCARD` in `@/lib/constants/kept` for
+ * where each one lands.
+ *
+ * Lines and not paragraphs, for the same reason {@link Letter.wish} is: a hand
+ * chooses where to break, and a box that reflows them has thrown away the half
+ * of it that looks hand-written. On a card with printed rules it is stricter
+ * still - a reflowed line would fall between two of them.
+ */
+export type Postcard = {
+  /** One name, onto the short rule beside `From :`. */
+  from: string;
+  /**
+   * Onto the five printed rules under `For :`, one line each.
+   *
+   * At most five, and nothing checks that: a sixth would be written below the
+   * last rule, on blank card, which reads as a mistake rather than as a line.
+   */
+  address: readonly string[];
+  /** The left half of the card. An empty string is a blank line. */
+  note: readonly string[];
 };
 
 /**

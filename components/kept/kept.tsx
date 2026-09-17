@@ -1,4 +1,3 @@
-import Link from "next/link";
 /* From the App Router's React, which is a canary and has it. `node_modules/react`
    is 19.2.8 stable and does NOT export ViewTransition. */
 import { ViewTransition } from "react";
@@ -7,9 +6,21 @@ import type { CssVars } from "@/types/css-vars";
 import { PAN } from "@/lib/constants/mail-transition";
 import { contentView } from "@/lib/utils/mail-routes";
 import type { Content, Letter } from "@/types/mails";
-import { STANDS } from "@/lib/constants/kept";
+import { POSTCARD, STANDS } from "@/lib/constants/kept";
+import BackLink from "./back-link";
+import PostcardNote from "./postcard-note";
+import Snapshot from "./snapshot";
 import Tape from "./tape";
 import Wish from "./wish";
+
+/** The box the postcard and its photograph stand in, in the card's own widths. */
+function groupVars(): CssVars {
+  const { group } = POSTCARD;
+  return {
+    "--group-wide": `calc(var(--wide) * ${(group.wide / 100).toFixed(4)})`,
+    "--group-tall": `calc(var(--wide) * ${(group.tall / 100).toFixed(4)})`,
+  } as CssVars;
+}
 
 /** Where the thing stands on this page, in the window's own units. */
 function standVars(item: Content): CssVars {
@@ -52,6 +63,21 @@ export default function Kept({
   letter: Letter;
   content: Content;
 }) {
+  const hero = (
+    <ViewTransition
+      name={contentView(letter.slug, content.slug)}
+      share="morph"
+      default="none"
+    >
+      <div className="kept__hero">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="kept__art" src={content.src} alt="" draggable={false} />
+        {content.slug === "letter" ? <Wish letter={letter} /> : null}
+        {content.slug === "postcard" ? <PostcardNote letter={letter} /> : null}
+      </div>
+    </ViewTransition>
+  );
+
   return (
     <ViewTransition enter={PAN} exit={PAN} default="none">
       <main
@@ -65,31 +91,23 @@ export default function Kept({
         </h1>
 
         {/* Back the way the reader came, and reversed rather than repeated:
-            the same pan, the other way up. */}
-        <Link
-          href="/mails"
-          className="cloth__back"
-          transitionTypes={["pan-down"]}
-        >
-          Back to the letters
-        </Link>
+            the same pan, the other way up. The postcard holds it open for a
+            beat first, to put its photograph away. */}
+        <BackLink
+          retract={content.slug === "postcard" ? POSTCARD.reveal.back : 0}
+        />
 
-        <ViewTransition
-          name={contentView(letter.slug, content.slug)}
-          share="morph"
-          default="none"
-        >
-          <div className="kept__hero">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              className="kept__art"
-              src={content.src}
-              alt=""
-              draggable={false}
-            />
-            {content.slug === "letter" ? <Wish letter={letter} /> : null}
+        {/* The postcard has a photograph lying on its corner, so the two are
+            wrapped in a box that places them against each other. The other two
+            have nothing beside them and stay laid out in the column. */}
+        {content.slug === "postcard" ? (
+          <div className="kept__group" style={groupVars()}>
+            {hero}
+            <Snapshot cardRatio={content.ratio} />
           </div>
-        </ViewTransition>
+        ) : (
+          hero
+        )}
 
         {content.slug === "cassette" ? (
           <Tape song={letter.song} from={letter.name} />

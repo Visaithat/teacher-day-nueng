@@ -138,7 +138,10 @@ export const CONTENTS: Content[] = [
     slug: "postcard",
     guide: { left: -12, top: -13, width: 7, turn: -72, ink: "ink" },
     label: "postcard",
-    ratio: 1.506,
+    /* The artwork is deskewed - the card is drawn upright and the lean it
+       carries on either side of the cut is a transform, not the picture. That
+       is why STANDS.postcard turns it and this does not. */
+    ratio: 1.4066,
     left: 2,
     top: 35,
     width: 65,

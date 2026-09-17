@@ -1,0 +1,224 @@
+/* The writing on the postcard, and the photograph taped under it. */
+
+/* ---------------------------------------------------------------------------
+   Every measurement below arrives as a custom property from POSTCARD in
+   lib/constants/kept.ts. None of them is written here, for the same reason the
+   wish's are not: they are measurements of one piece of artwork, and there
+   should be exactly one place to retune them against it.
+
+   The card is DESKEWED artwork, so a percentage of `.kept__hero` really is a
+   percentage of the card, and the printed rules can be landed on rather than
+   aimed at. The hero's own `--level` turns the pair together, so none of this
+   has to know the card is leaning.
+   --------------------------------------------------------------------------- */
+
+.card {
+  position: absolute;
+  inset: 0;
+  /* The ink of a ballpoint on cream card. Not black: black reads as printing,
+     and the printing on this card is the gold and the rules. */
+  color: #2f2a22;
+  font-family: var(--font-hand), var(--font-note), cursive;
+  font-weight: 500;
+}
+
+/* --- one name, on the short rule beside `From :` -------------------------- */
+
+.card__from {
+  position: absolute;
+  left: var(--from-left);
+  /* `top` IS the printed rule; the writing is then lifted off it by its own
+     `--sit`, so the letters rest on the line and the descenders hang under it.
+     See POSTCARD.sit for why that lift is in em and not in percent. */
+  top: var(--rule);
+  font-size: var(--from-size);
+  line-height: 1;
+  transform: translateY(calc(var(--sit) * -1em));
+}
+
+/* --- the left half -------------------------------------------------------- */
+
+.card__note {
+  position: absolute;
+  left: var(--note-left);
+  right: var(--note-right);
+  top: var(--note-top);
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  font-size: var(--note-size);
+  /* Unruled card, so this is only what a hand leaves between its own lines. */
+  line-height: 1.5;
+}
+
+.card__line {
+  display: block;
+  /* Nobody rules a line. From `jitter`, so the server and the browser agree. */
+  transform: rotate(var(--lean));
+}
+
+/* A blank string in the note is half a line of air, not an empty box carrying a
+   stray lean of its own. */
+.card__gap {
+  display: block;
+  height: 0.5em;
+}
+
+/* --- onto the five printed rules ------------------------------------------ */
+
+.card__address {
+  /* Only a box to hang the lines in; each one places itself. */
+  display: contents;
+}
+
+.card__to {
+  position: absolute;
+  left: var(--to-left);
+  /* Its own rule, off the artwork's own spacing - so no line-height has to be
+     trusted to land on five separate lines in a row. */
+  top: var(--rule);
+  font-size: var(--to-size);
+  line-height: 1;
+  /* Lifted before it is leaned: the lift is along the card, and a line rotated
+     first would be lifted along itself instead. */
+  transform: translateY(calc(var(--sit) * -1em)) rotate(var(--lean));
+}
+
+/* --- the photograph ------------------------------------------------------- */
+
+/* The box the card and the photograph share.
+   Laid out as one item in the page's column, so the PAIR are centred in the
+   window rather than the card being centred and the photograph hanging off the
+   middle of it. Both children are placed against its top left corner, which is
+   the card's own, so every offset below is a share of the card's width. */
+.kept__group {
+  position: relative;
+  flex: 0 0 auto;
+  width: var(--group-wide);
+  height: var(--group-tall);
+}
+
+/* Inside the group the card is placed rather than laid out. It keeps its own
+   width and ratio, so the writing over it is unaffected. */
+.kept__group .kept__hero {
+  position: absolute;
+  left: 0;
+  top: 0;
+  /* Over the photograph: the card is the thing this page is about and the one
+     that has writing on it, so it is the one lying on top. Said explicitly
+     because both are positioned and the snapshot comes after it in the markup,
+     which would otherwise be enough to put the photograph on top. */
+  z-index: 2;
+}
+
+.snapshot {
+  position: absolute;
+  left: var(--snap-x);
+  top: var(--snap-y);
+  width: var(--snap-wide);
+  aspect-ratio: var(--snap-ratio);
+  transform: rotate(var(--snap-level));
+  /* Under the card, tucked beneath its corner - and the reason the slide below
+     reads as coming out from behind it rather than as sliding across it. */
+  z-index: 1;
+  /* `both`, so the backwards fill holds it behind the card for the whole of the
+     delay. Without it the photograph would sit where it belongs, jump back
+     under the card when the delay ran out, and slide out from there. */
+  animation: snapshot-out var(--snap-ms) cubic-bezier(0.22, 0.61, 0.25, 1)
+    var(--snap-at) both;
+}
+
+/**
+ * Out from behind the card.
+ *
+ * It starts centred on the card and small enough to be hidden by it, then
+ * travels down and to the right into its own place. Scaled as well as moved
+ * because the photograph is wider than the card and cannot hide behind it at
+ * full size - and the growth is what sells it, since a thing drawn out from
+ * under something else comes toward the reader as it comes out.
+ *
+ * THE OPACITY IS NOT A FADE, IT IS THE ONLY THING THAT ACTUALLY HIDES IT.
+ * Being behind the card is enough once the page is standing still, but not
+ * during the cut: the card is lifted out of the page into its own
+ * `::view-transition-group(.morph)` so that it can travel from the deck, which
+ * means for the whole of the pan there is no card in the room to hide behind.
+ * The photograph would ride the room up in plain sight and then be covered when
+ * the card landed on it. So it is not painted at all until this animation
+ * begins, and it begins behind the card - the step from 0 to 1 happens where
+ * nothing can see it.
+ *
+ * `--snap-from-*` are worked out in snapshot.tsx from where the photograph
+ * rests, so this never has to be retuned when that moves.
+ */
+@keyframes snapshot-out {
+  0% {
+    opacity: 0;
+    transform: translate(var(--snap-from-x), var(--snap-from-y))
+      scale(var(--snap-from-scale)) rotate(var(--snap-level));
+  }
+  1% {
+    opacity: 1;
+    transform: translate(var(--snap-from-x), var(--snap-from-y))
+      scale(var(--snap-from-scale)) rotate(var(--snap-level));
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1) rotate(var(--snap-level));
+  }
+}
+
+/**
+ * And back behind it, before the camera goes down.
+ *
+ * The same path in reverse, and it ends unpainted for the same reason it
+ * started unpainted: the moment the cut begins the card leaves the room, and a
+ * photograph still standing there would be uncovered exactly as it was being
+ * put away. It is behind the card by then, so the last hundredth - where the
+ * opacity goes - is not a frame anybody sees.
+ */
+@keyframes snapshot-back {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1) rotate(var(--snap-level));
+  }
+  99% {
+    opacity: 1;
+    transform: translate(var(--snap-from-x), var(--snap-from-y))
+      scale(var(--snap-from-scale)) rotate(var(--snap-level));
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--snap-from-x), var(--snap-from-y))
+      scale(var(--snap-from-scale)) rotate(var(--snap-level));
+  }
+}
+
+/* The way back, pressed. The link holds the navigation open for exactly this
+   long (BackLink's `retract`), so the photograph is behind the card before the
+   room starts to move. A sibling selector rather than a state on some ancestor:
+   the link is the thing that knows, and it is written before the group. */
+.cloth__back[data-going] ~ .kept__group .snapshot {
+  animation: snapshot-back var(--snap-back-ms) cubic-bezier(0.4, 0, 0.7, 0.4)
+    both;
+}
+
+.snapshot__art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  /* Nearer the cloth than the card is, so a shorter shadow. The card's own is
+     1.2rem/2.2rem; a photograph lying on top of it has less air underneath. */
+  filter: drop-shadow(0 0.7rem 1.3rem rgba(70, 44, 16, 0.28));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The photograph is simply already out, and stays out - `BackLink` does not
+     hold the navigation open at this setting either, so there is nothing to
+     put away. The leans stay: they are a drawing of handwriting and not a
+     movement, and they look the same at every setting. */
+  .snapshot,
+  .cloth__back[data-going] ~ .kept__group .snapshot {
+    animation: none;
+  }
+}

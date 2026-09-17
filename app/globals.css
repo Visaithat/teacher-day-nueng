@@ -30,6 +30,9 @@
    opened. After mails.css, because it lands on the same ground. */
 @import "../components/kept/kept.css";
 @import "../components/kept/wish.css";
+/* The postcard is written on and has a photograph taped under it; both land
+   on the same page as kept.css, so they come after it. */
+@import "../components/kept/postcard-note.css";
 @import "../components/kept/tape.css";
 @import "../components/kept/cloth-back.css";
 
