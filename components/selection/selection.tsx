@@ -2,6 +2,9 @@
 
 import { useEffect, useRef } from "react";
 
+import Parcel from "./parcel";
+import Vinyl from "./vinyl";
+
 /**
  * The fourth page: what was inside the present.
  *
@@ -28,12 +31,14 @@ export default function Selection() {
       tabIndex={-1}
       aria-labelledby="selection-title"
     >
-      {/* Nothing is here yet, which is exactly why it needs a name: a landmark
-          with no heading is a room with no sign on the door. Swap this for the
-          real heading the moment there is one. */}
       <h1 id="selection-title" className="sr-only">
         Your present
       </h1>
+
+      <div className="selection__display">
+        <Vinyl />
+        <Parcel />
+      </div>
     </main>
   );
 }

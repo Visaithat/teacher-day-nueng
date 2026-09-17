@@ -1,0 +1,16 @@
+/* ---------------------------------------------------------------------------
+   The selection page
+   What was inside the present: a record to play, and a box of letters to
+   open. Two things standing near each other on the cloth, not one
+   composition - each settles in on its own.
+   --------------------------------------------------------------------------- */
+
+.selection__display {
+  flex: 1 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(2.5rem, 8vw, 6rem);
+  padding: 4vmin;
+}

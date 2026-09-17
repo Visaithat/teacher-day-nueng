@@ -1,0 +1,98 @@
+/* ---------------------------------------------------------------------------
+   The parcel
+   The box the letters are waiting in. The whole thing is the link into /mails,
+   so it has to look pressable without a rectangle drawn around it saying so.
+   --------------------------------------------------------------------------- */
+
+.parcel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+  width: min(58vw, 20rem);
+  color: inherit;
+  text-decoration: none;
+  animation: parcel-appear 640ms 140ms ease-out both;
+}
+
+.parcel__art {
+  display: block;
+  width: 100%;
+  height: auto;
+  animation: parcel-nudge 3.2s ease-in-out infinite;
+}
+
+@keyframes parcel-nudge {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(0, -3%, 0) rotate(-1deg);
+  }
+}
+
+@keyframes parcel-appear {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+  }
+}
+
+.parcel__hint {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  color: var(--foreground);
+  text-align: left;
+}
+
+/* Same file vinyl.css's own hint points with (`/art/arrow.svg`, drawn
+   pointing down-left) — `scale` mirrors it vertically so the tail points up
+   at the box instead of down at the text. */
+.parcel__hint-arrow {
+  width: 1.8rem;
+  height: auto;
+  flex: 0 0 auto;
+  scale: 1 -1;
+  animation: parcel-hint-nudge 2.4s ease-in-out infinite;
+}
+
+.parcel__hint-label {
+  font-family: var(--font-hand), var(--font-note), cursive;
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+@keyframes parcel-hint-nudge {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 3px -5px;
+  }
+}
+
+.parcel:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 6px;
+  border-radius: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .parcel {
+    animation-duration: 200ms;
+    animation-delay: 0ms;
+  }
+
+  .parcel__art {
+    animation: none;
+  }
+
+  .parcel__hint-arrow {
+    animation: none;
+  }
+}

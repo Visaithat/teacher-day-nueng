@@ -1,0 +1,213 @@
+/* ---------------------------------------------------------------------------
+   The record
+   A postcard and a vinyl leaning against it, resting still until pressed. The
+   disc doubles as its own button - there is nothing else on its face to press.
+   --------------------------------------------------------------------------- */
+
+.vinyl {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+  animation: vinyl-appear 640ms ease-out both;
+}
+
+.vinyl__group {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(70vw, 23rem);
+  /* The slide-out translates the record past the postcard's own edge, and a
+     transform never grows this box to make room for itself — so the room has
+     to be reserved by hand, or the hint below reads as cut off rather than
+     pointed at. Padding rather than a wider `width` so the postcard/record
+     percentages below keep meaning what they already do: it pads the grid's
+     own content box, leaving the resting pair sitting left-of-centre in the
+     wider element this creates, and the slide's rightward travel lands inside
+     that reserved strip instead of running into the parcel beside it. */
+  padding-right: clamp(3rem, 22vw, 7.5rem);
+  margin-top: -1rem;
+  margin-bottom: 2rem;
+}
+
+/* Both layers share one grid cell so they sit exactly concentric at rest —
+   the record is sized to disappear fully behind the cover, not just mostly. */
+.vinyl__postcard {
+  grid-area: 1 / 1;
+  z-index: 2;
+  /* Decorative on top, but not the target: the record underneath is still the
+     only thing this control has ever pressed, so a click here has to fall
+     straight through to it rather than land on inert artwork. */
+  pointer-events: none;
+  display: block;
+  width: 82%;
+  height: auto;
+  rotate: -6deg;
+  border-radius: 2px;
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.18);
+}
+
+/**
+ * Tucked exactly behind the cover until the first press, then slid out along
+ * the same diagonal to leave half of it standing clear. `translate` moves the
+ * button itself — hit area and artwork together — so the generous click
+ * target the hidden state needs travels with the disc rather than being left
+ * behind at the cover's centre once it has moved.
+ */
+.vinyl__record {
+  grid-area: 1 / 1;
+  position: relative;
+  z-index: 1;
+  width: 90%;
+  aspect-ratio: 1;
+  padding: 0;
+  border: none;
+  background: none;
+  rotate: 4deg;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  translate: 0 0;
+  transition:
+    translate 700ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    rotate 700ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.vinyl__record:not([data-state="idle"]) {
+  translate: 46% -6%;
+  rotate: 12deg;
+}
+
+.vinyl__disc {
+  grid-area: 1 / 1;
+  display: block;
+  width: 86%;
+  height: 86%;
+  border-radius: 999px;
+  filter: drop-shadow(0 14px 22px rgba(0, 0, 0, 0.3));
+  animation: vinyl-spin var(--spin-duration) linear infinite paused;
+}
+
+.vinyl__record[data-state="playing"] .vinyl__disc {
+  animation-play-state: running;
+}
+
+@keyframes vinyl-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes vinyl-appear {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+  }
+}
+
+/**
+ * The glyph, drawn rather than typed. Two shapes doing the same job
+ * `.tape__glyph` does for the cassette's own transport, but this is a
+ * different control and gets its own selector rather than sharing that one.
+ */
+.vinyl__glyph {
+  grid-area: 1 / 1;
+  width: 0;
+  height: 1.3rem;
+  border-left: 1rem solid #fdf6e3;
+  border-top: 0.65rem solid transparent;
+  border-bottom: 0.65rem solid transparent;
+  margin-left: 0.3rem;
+  opacity: 0;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+  transition: opacity 200ms ease;
+}
+
+.vinyl__record:hover .vinyl__glyph,
+.vinyl__record:focus-visible .vinyl__glyph {
+  opacity: 1;
+}
+
+.vinyl__record[data-state="playing"] .vinyl__glyph {
+  width: 0.85rem;
+  margin-left: 0;
+  border: none;
+  background: #fdf6e3;
+  /* Two bars cut from one box, so pausing swaps a shape rather than a count of
+     children. */
+  clip-path: polygon(
+    0 0,
+    34% 0,
+    34% 100%,
+    0 100%,
+    0 0,
+    66% 0,
+    100% 0,
+    100% 100%,
+    66% 100%,
+    66% 0
+  );
+}
+
+.vinyl__record:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 4px;
+  border-radius: 999px;
+}
+
+/* ---------------------------------------------------------------------------
+   The hint
+   Same technique as home.css's own scroll hint: a label plus a drawn corner,
+   nudging toward what it is pointing at.
+   --------------------------------------------------------------------------- */
+
+.vinyl__hint {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  color: var(--foreground);
+  text-align: left;
+}
+
+.vinyl__hint-arrow {
+  width: 1.8rem;
+  height: auto;
+  flex: 0 0 auto;
+  animation: vinyl-hint-nudge 2.4s ease-in-out infinite;
+}
+
+.vinyl__hint-label {
+  font-family: var(--font-hand), var(--font-note), cursive;
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+@keyframes vinyl-hint-nudge {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: -3px 5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vinyl {
+    animation-duration: 200ms;
+  }
+
+  .vinyl__disc {
+    animation: none;
+  }
+
+  .vinyl__record {
+    transition: none;
+  }
+
+  .vinyl__hint-arrow {
+    animation: none;
+  }
+}

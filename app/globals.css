@@ -16,6 +16,11 @@
    to a page of its own. Beside the light, because it does the same job. */
 @import "../components/stage/travel.css";
 @import "../components/cloth/cloth.css";
+/* The fourth page, laid on the cloth like /mails is — and before it, because a
+   reader meets this one first. */
+@import "../components/selection/selection.css";
+@import "../components/selection/vinyl.css";
+@import "../components/selection/parcel.css";
 /* Laid on the cloth, so it comes after it. Beside its own route, because that is
    where the rest of the scene lives. */
 @import "../components/mails/mails.css";
