@@ -1,0 +1,107 @@
+/* ---------------------------------------------------------------------------
+   The cloth
+   Woven gingham, and nothing else. Not a page: the ground two of them stand on
+   — the selection page it was tuned for, and /mails.
+
+   The cloth is two threads crossed over the card's own paper, and they MULTIPLY
+   rather than stack up alpha — which is what two passes of dye actually do, and
+   the only model that fits the reference. Measured off it: bare paper #f5f2e9,
+   one thread #f5e7c5, the crossings #f5dda5. Alpha compounding cannot reach
+   that last one — the crossing is darker than any single translucent colour
+   over that band can go, and solving for it lands outside the gamut. Multiply
+   #fff3d8 twice and all three land within 2/255. Retune the thread, not the
+   squares.
+   --------------------------------------------------------------------------- */
+
+.cloth {
+  /* One square. Bounded at both ends, because a check is a physical size on
+     cloth: a bare viewport fraction gives a phone four enormous squares and a
+     wide monitor a beige haze. This lands on the reference's own ~15px at
+     laptop height and stops growing before it turns into a picnic blanket. */
+  --check: clamp(12px, 1.9vmin, 20px);
+  --thread: #fff3d8;
+
+  position: relative;
+  flex: 1 0 auto;
+  /* A column, because under /mails the cloth is the layout's and the page it
+     carries is a child rather than the element itself. On the selection page
+     there is one child and it fills the same box, so nothing there changes. */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  /* The card's own paper is the cloth's ground, so any sliver that ever shows
+     past this page — a rubber band, a rounded display, a resize mid-swap — is
+     the right colour by construction. body's background needs no override. */
+  background-color: var(--background);
+  /* `clip` rather than `hidden`, so this never becomes a scroll container: the
+     cloth overhangs by 6% while it settles. */
+  overflow: clip;
+}
+
+/**
+ * A page standing on a cloth that is not its own.
+ *
+ * Under /mails the gingham belongs to the layout, so that a move between those
+ * routes cannot take the ground down with the page — see the note in
+ * mails/layout.tsx. What is left for a page to be is this: the same box the
+ * cloth would have given it, minus the cloth.
+ *
+ * Nothing is positioned against it that was not already positioned against
+ * `.cloth`: it is `position: relative` and it fills the column, so `.mails`'
+ * `inset: 0` resolves to exactly the rectangle it did before.
+ */
+.cloth__page {
+  position: relative;
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  /* No z-index. It is positioned and so is the gingham, both at auto, so they
+     paint in document order and a ::before comes before its element's content
+     — which puts this over the weave without opening a stacking context that
+     everything inside would then have to be reasoned about. */
+}
+
+/* A page swapped in mid-card has to take focus to move the reading position
+   with it, and a container that does never wants the ring the browser would
+   otherwise draw around the whole viewport. A page navigated to — /mails —
+   never lands here, because the browser resets the reading position itself. */
+.cloth:focus {
+  outline: none;
+}
+
+/* The cloth is a layer of its own, so it can settle without taking whatever
+   ends up on top of it along for the ride. */
+.cloth::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: var(--background);
+  background-image:
+    linear-gradient(90deg, var(--thread) 0 50%, transparent 50% 100%),
+    linear-gradient(180deg, var(--thread) 0 50%, transparent 50% 100%);
+  background-size: calc(var(--check) * 2) calc(var(--check) * 2);
+  /* Where the two threads cross, the second darkens the first. Transparent
+     stretches are a no-op under multiply, so the bare squares stay paper. */
+  background-blend-mode: multiply;
+  will-change: transform;
+  /* On the selection page the light is still lifting while this runs: the cloth
+     is already there and only relaxes the last few percent, which reads as
+     settling rather than as a second entrance competing with the first. Landed
+     on directly, as /mails is, the same relax is the whole entry. Only
+     transform moves — background-size would repaint every gradient in the
+     viewport every frame. */
+  animation: cloth-settle 1100ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes cloth-settle {
+  from {
+    transform: scale(1.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cloth::before {
+    animation: none;
+  }
+}

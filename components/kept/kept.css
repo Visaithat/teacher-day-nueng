@@ -1,0 +1,62 @@
+/* A thing out of an envelope, standing on the cloth on its own page. */
+
+/* ---------------------------------------------------------------------------
+   What was inside the envelope
+   One thing, out, on the same cloth it was lying on a moment ago. Three pages
+   share this file because they are the same page with a different object on
+   it: a sheet of paper with a wish on it, a cassette with a deck under it, and
+   a postcard with nothing on it yet.
+
+   A DIFFERENT UNIT FROM THE SCENE. On the cloth every distance is a tenth of
+   the envelope, because the envelope is what sets the size of what lies on it.
+   There is no envelope here — a thing out of one is alone on the window — so
+   the window is what everything is measured against. `--wide` and `--tall` and
+   `--top` come in from kept-data.ts on the page's own element, and everything
+   below reads them rather than guessing again.
+
+   THE HERO IS THE THING THAT CROSSED. It carries the shared view-transition
+   name, so whatever is written ON it has to be inside it: anything outside
+   travels with the room instead, and the words would come loose from the paper
+   halfway over. That is the rule that decides what goes where in kept.tsx.
+   --------------------------------------------------------------------------- */
+
+.kept {
+  /**
+   * The thing and whatever stands under it, centred in the window.
+   *
+   * Laid out rather than placed. `.cloth__page` is already a column, so this
+   * only has to say where in it — and then a thing that is too tall simply is
+   * not made that tall, instead of being positioned at a `top` that was right
+   * on the window the numbers were written against. The one distance left is
+   * the gap, which the artwork's own turn decides.
+   */
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap);
+  /* Clear of the way back, which sits over the top left corner. */
+  padding: 5.5rem 1rem 2rem;
+}
+
+/* --- the thing ------------------------------------------------------------ */
+
+.kept__hero {
+  position: relative;
+  flex: 0 0 auto;
+  width: var(--wide);
+  aspect-ratio: var(--ratio);
+  /* Levelled. `rotate` would say the same and say it wrong: Lightning CSS
+     folds it into `transform`, and a rule declaring both keeps one. */
+  transform: rotate(var(--level));
+}
+
+.kept__art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  /* The same recipe the scene casts, grown to this size. A shadow that changed
+     weight across the cut would read as the light moving rather than as the
+     paper — and the cut is a crossfade between two pictures of the same
+     object, so anything that differs between them is what the eye finds. */
+  filter: drop-shadow(0 1.2rem 2.2rem rgba(70, 44, 16, 0.3));
+}

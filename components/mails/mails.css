@@ -1,0 +1,549 @@
+/* The mail scene's stage: the cloth it stands on, the greeting over it,
+   the dots, and the Skip. The letters are in letter.css and the box it
+   pours them out of is in cardboard-box.css. */
+
+/* ---------------------------------------------------------------------------
+   The mail scene
+   A box tips over, letters fall out onto the cloth, and each one waits with its
+   wax seal unbroken.
+
+   ONE UNIT RUNS THROUGH THIS FILE. Every distance the design quotes was measured
+   against a 440px-wide envelope, so all of them are written here as tenths of
+   that: `em`, off the single font-size on .mails__letters. 10px of prefix is 1em,
+   26px of name is 2.6em, 580px of deck spacing is 58em, an 18px hop is 1.8em.
+   One clamp scales the entire scene and nothing else has to know it happened.
+   The discipline that buys: `em` on `font-size` resolves against the PARENT, and
+   everywhere else against the element's OWN font-size — so font-size in em
+   appears only on the three leaf text elements, and nothing inside them uses an
+   em length.
+
+   THE OPENING IS ONE TIMELINE AND IT IS HERE, not in a chain of callbacks. Every
+   part of it is an animation whose delay is counted off the same zero. JS holds
+   only the two moments a stylesheet cannot: measuring the box's mouth, and
+   taking the Skip button away.
+
+   NOTHING ABOVE A TINT MAY TAKE A FILTER. mix-blend-mode is stopped dead by a
+   filter on an ancestor, silently — the dye would simply stop dyeing. Hence the
+   drop shadows sit on the <img> itself, the moving shadow is a gradient rather
+   than a blur, and the letters hide with `visibility` rather than fading.
+   --------------------------------------------------------------------------- */
+
+/**
+ * The two properties the opening does arithmetic on, and the only registered
+ * ones in this file.
+ *
+ * An unregistered custom property substitutes as a stream of TOKENS, so
+ * `calc(var(--rise) * var(--rise-of))` is the parser being handed a clamp() and
+ * two numbers and asked to sort it out — which it does by computing zero, with
+ * no error and nothing in the console. Registered, each one computes to a real
+ * length and a real number before anybody multiplies them, and it is arithmetic
+ * again. Measured either way: 0px unregistered, -195.84px registered.
+ */
+@property --rise {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
+@property --rise-of {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+@property --rise-over {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+/**
+ * And a fourth, for the same reason: the float's distance is a `max()` of two
+ * terms, one of which is `--rise` multiplied by a number, and the keyframe then
+ * turns the whole thing round to go up. Unregistered that is three token
+ * streams in a trench coat; registered it is one length, worked out once.
+ */
+@property --float-by {
+  syntax: "<length>";
+  /* Inherited, and it has to be: it is worked out on the item, where `--sink`
+     is written, and spent one box further down on the float. */
+  inherits: true;
+  initial-value: 0px;
+}
+
+/** How far a thing still hangs below the envelope's foot. See `sinkOf`. */
+@property --sink {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
+.mails {
+  /* Absolute, so a scene taller than the cloth cannot stretch it: the cloth
+     clips at its own edge and the box starts and ends well outside it. */
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  /* Above the gingham, which is the cloth's own ::before at auto z-index. */
+  z-index: 1;
+  /* Where a letter at the front of the deck comes to rest. The mouth marker is
+     measured against this exact point, so the two must never drift apart. */
+  --deck-y: 53%;
+  /* One tenth of the envelope, and the seed of every distance in this file.
+     Bounded at both ends: a letter is a physical size, and a viewport fraction
+     alone gives a phone a postage stamp and a monitor a bedsheet.
+     Declared here rather than on the deck, where it used to be the deck's own
+     font-size, because the greeting and the hint are not inside the deck and
+     they are sized against the envelope too. `em` still works below — the deck
+     takes this as its font-size — and anything outside it reads the property. */
+  /**
+   * Was 1.9dvh, which only ever bit below a 526px window — so a 1280x760 laptop
+   * drew the scene at full size with nowhere to put it. The opened envelope
+   * needs 76% of its own height ABOVE itself for the standing flap, and there is
+   * only 203px of room up there at that size; the flap's tip was cut off by the
+   * window. 1.15dvh keeps full size from about 870px of window and eases the
+   * whole scene down below that, which is the same answer the bundle's rise
+   * gives: as big as the window allows, whole, rather than full size and cropped.
+   */
+  --unit: clamp(5.4px, min(1.7vw, 1.15dvh), 10px);
+}
+
+/* It can take focus, but only ever because the keyboard handed it here when the
+   letter it moved to had no seal left to take it. Nobody tabs to a whole scene,
+   so nobody should see a ring around one. */
+.mails:focus {
+  outline: none;
+}
+
+.mails__stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* A point, not a box: something for getBoundingClientRect to find. */
+.mails__origin,
+.mails__mouth {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.mails__origin {
+  left: 50%;
+  top: var(--deck-y);
+}
+
+/* Percentages are of SEAL_MS, 880ms: the press ends at 160 (18.18%) and the
+   crack has reached the bottom at 360 (40.91%), which is the moment the halves
+   start to move. Retune SEAL_TIMING and these come with it. */
+@keyframes mails-crack {
+  0%,
+  18.18% {
+    -webkit-mask-size: 100% 0%;
+    mask-size: 100% 0%;
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+  }
+  40.91% {
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.3, 0.68, 0.42, 1);
+  }
+  /* It belongs to neither half, so it cannot travel with them — it fades on the
+     spot instead, and is gone before they are. */
+  78% {
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    opacity: 0;
+  }
+  100% {
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    opacity: 0;
+  }
+}
+
+@keyframes mails-shard {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  22% {
+    transform: translate3d(calc(var(--away) * 0.5em), 0, 0)
+      rotate(calc(var(--away) * 2deg));
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(calc(var(--away) * 2.6em), 0, 0)
+      rotate(calc(var(--away) * 9deg));
+    opacity: 0;
+  }
+}
+
+@keyframes mails-guide-in {
+  from {
+    opacity: 0;
+    scale: 0.82;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+/* A nudge along the way it points, not a wobble in place: the arrow is asking
+   for a press, so it leans toward the thing it is asking about and comes back.
+   Small — it runs for as long as the letter is open, and anything bigger would
+   be the only thing on the page a reader could look at. */
+@keyframes mails-guide-bob {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 0.42em;
+  }
+}
+
+@keyframes mails-float {
+  to {
+    transform: translate3d(0, calc(var(--float-by) * -1), 0);
+  }
+}
+
+/* 40% across the mouth's opening and a third down it — the point a letter would
+   really slide over. Outside the mirror, so it is stated where it is seen. */
+.mails__mouth {
+  left: 56.9%;
+  top: 34.6%;
+}
+
+/* --- the greeting -------------------------------------------------------- */
+
+/**
+ * The greeting sits just over the front letter, and the mirror of the hint that
+ * sits just under it: `--deck-y` is the letter's CENTRE, so half an envelope
+ * (44em over its 1.408 ratio, halved: 15.6) is stepped over, and then the gap
+ * the reference leaves above the paper.
+ *
+ * `top: 0` with the content packed to the end, rather than a box only as tall as
+ * what is in it. It gives the flower the whole of the stage above the letter to
+ * stand in, so a window too short to hold both simply runs the greeting up
+ * towards its own top edge instead of off it.
+ */
+.mails__dress {
+  position: absolute;
+  left: 50%;
+  translate: -50% 0;
+  top: 0;
+  bottom: calc(100% - var(--deck-y) + 17.6 * var(--unit));
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  /* The reference stands the flower well clear of the greeting rather than
+     stacking the two. Against the envelope, like everything else here. */
+  gap: calc(2.4 * var(--unit));
+  width: max-content;
+  max-width: 90vw;
+  padding: 0;
+  pointer-events: none;
+}
+
+.mails__flower,
+.mails__title,
+.mails__hint {
+  opacity: 0;
+}
+
+.mails__flower {
+  display: block;
+  /* By height, not width. The rose is taller than it is wide and the sunflower
+     is wider than it is tall, so matching widths would draw the sunflower as the
+     smaller flower. The ratio comes from the data, so the box is the right shape
+     before the picture has loaded. */
+  height: clamp(52px, 9vh, 92px);
+  width: auto;
+  aspect-ratio: var(--flower-ratio);
+  /* A drop-shadow follows the flower's own alpha; a box-shadow would only
+     outline the rectangle it sits in. */
+  filter: drop-shadow(0 8px 12px rgba(120, 70, 40, 0.28));
+}
+
+/* A swap is a new flower, not the same one changed. Only once the scene is
+   settled: during the opening the drop below owns this element. */
+.mails[data-act="ready"] .mails__flower {
+  animation: mails-fade 320ms ease-out both;
+}
+
+/**
+ * The two messages, one over the envelope and one under it.
+ *
+ * Both are sized against the envelope rather than against the window, because
+ * that is the relation the design holds: in the reference the greeting runs a
+ * little under a third of the envelope's width and the hint a little over half,
+ * and a title in `vh` would break both the moment the window changed shape. The
+ * rem floor is for the phone end of --unit, where the scene is small enough that
+ * the proportion would take the type below reading size.
+ *
+ * One ink for the pair, sampled off the reference rather than guessed: the
+ * darkest strokes there sit on (155,48,39), and the greeting and the hint are
+ * the same colour as each other.
+ */
+.mails__title {
+  margin: 0;
+  font-family: var(--font-hand), var(--font-note), cursive;
+  font-size: max(1.05rem, calc(2.4 * var(--unit)));
+  line-height: 1.05;
+  color: #9b3027;
+  text-shadow: 0 2px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* Hung off the front letter's resting place, which is its CENTRE — so half an
+   envelope (44em over its 1.408 ratio, halved: 15.6) is stepped over before the
+   reference's own gap below it is added. Absolute, so the empty stage under the
+   deck cannot push it away from the paper it is talking about. */
+.mails__hint {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--deck-y) + 17 * var(--unit));
+  translate: -50% 0;
+  z-index: 1;
+  width: max-content;
+  max-width: 90vw;
+  margin: 0;
+  font-family: var(--font-hand), var(--font-note), cursive;
+  font-size: max(0.9rem, calc(2 * var(--unit)));
+  line-height: 1.1;
+  text-align: center;
+  color: #9b3027;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+  /* The deck's <ul> covers the whole stage to catch the swipe and sits above
+     this anyway; nothing here should ever be in the way of a finger. */
+  pointer-events: none;
+}
+
+.mails[data-act="intro"] .mails__flower {
+  animation: mails-drop var(--dress-ms) cubic-bezier(0.34, 1.8, 0.64, 1)
+    var(--flower-at) both;
+}
+
+.mails[data-act="intro"] .mails__title {
+  animation: mails-rise 550ms cubic-bezier(0.25, 0.46, 0.45, 0.94)
+    var(--title-at) both;
+}
+
+.mails[data-act="intro"] .mails__hint {
+  animation: mails-fade 500ms ease-out var(--hint-at) both;
+}
+
+/**
+ * The greeting is answered, so it goes.
+ *
+ * An animation rather than a plain `opacity: 0`, and not for the fade's sake: two
+ * of these are held open by animations that fill `both`, and an animation's value
+ * beats a declaration at any specificity at all. A rule that only set `opacity`
+ * would lose to the flower and win against the title, and the greeting would
+ * leave in halves.
+ *
+ * Placed after the `data-act="ready"` rules on purpose — it ties them on weight,
+ * so source order is what decides it.
+ */
+.mails[data-read] .mails__flower,
+.mails[data-read] .mails__title,
+.mails[data-read] .mails__hint {
+  animation: mails-dim var(--dress-out-ms) ease-in var(--dress-out-at) both;
+}
+
+@keyframes mails-dim {
+  to {
+    opacity: 0;
+  }
+}
+
+/* Once the opening is over these hold their end state on their own, so the
+   animations can stop applying without anything blinking. */
+.mails[data-act="ready"] .mails__flower,
+.mails[data-act="ready"] .mails__title,
+.mails[data-act="ready"] .mails__hint,
+.mails[data-act="ready"] .mails__dots {
+  opacity: 1;
+}
+
+@keyframes mails-drop {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -150px, 0) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes mails-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes mails-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* --- the dots and the way out -------------------------------------------- */
+
+.mails__dots {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0 0 4vh;
+  list-style: none;
+  opacity: 0;
+}
+
+.mails[data-act="intro"] .mails__dots {
+  animation: mails-fade 500ms ease-out var(--hint-at) both;
+}
+
+.mails__dot {
+  /* 11px of dot inside 44px of target: the dot is the drawing, not the button. */
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.mails__dot::before {
+  content: "";
+  display: block;
+  width: 11px;
+  height: 11px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: #d9c08a;
+  transition:
+    background 250ms ease,
+    scale 250ms ease;
+}
+
+.mails__dot[aria-current]::before {
+  background: #8e2a2a;
+  scale: 1.25;
+}
+
+.mails__dot:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: -8px;
+  border-radius: 50%;
+}
+
+.mails__skip {
+  position: absolute;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 5;
+  padding: 0.55rem 1.1rem;
+  border: 1px solid rgba(176, 58, 58, 0.4);
+  border-radius: 999px;
+  background: rgba(253, 246, 227, 0.85);
+  color: #8e2a2a;
+  font-family: var(--font-letter), Georgia, serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background 200ms ease,
+    color 200ms ease;
+}
+
+.mails__skip:hover {
+  background: #b03a3a;
+  color: #fdf6e3;
+}
+
+.mails__skip:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+}
+
+/**
+ * And the greeting the front letter's seal took away.
+ *
+ * Literal, where the letters above are given timings: this hangs off the scene,
+ * and the scene's timings are inline styles on that very element. Ties
+ * `[data-read]` on weight — one attribute selector either way — so source order
+ * is what decides it, the same bargain the rule above it struck with the fade.
+ */
+.mails[data-read="kept"] .mails__flower,
+.mails[data-read="kept"] .mails__title,
+.mails[data-read="kept"] .mails__hint {
+  animation: none;
+  opacity: 0;
+}
+
+/* --- motion is unwelcome ------------------------------------------------- */
+
+/**
+ * No box, no pour, no fall: the letters are simply already on the cloth. The card
+ * answers reduced motion this way throughout — the home page's whole assembly
+ * becomes a single fade — so this is the house style, not a special case here.
+ *
+ * Every selector below repeats the one it is undoing, attribute for attribute.
+ * Anything lighter loses: `.mails[data-act="intro"][data-poured] .letter__fall` carries an
+ * attribute selector, and a plain `.mails .letter__fall` in here would be
+ * outranked by it and the letters would hop and grow anyway. Weight, not order.
+ */
+@media (prefers-reduced-motion: reduce) {
+/* The greeting keeps its fade and loses its travel. */
+  .mails[data-act="intro"] .mails__flower,
+  .mails[data-act="intro"] .mails__title,
+  .mails[data-act="intro"] .mails__hint,
+  .mails[data-act="intro"] .mails__dots {
+    animation: none;
+  }
+
+.mails .mails__flower,
+  .mails .mails__title,
+  .mails .mails__hint,
+  .mails .mails__dots {
+    opacity: 1;
+  }
+
+/* The seal still answers the press — silence reads as a broken button — it
+     just goes straight, with no crack and no shake. Literal values, not var():
+     the timings arrive as inline styles on the section and would outrank
+     anything in here. */
+  .mails[data-act="ready"] .mails__flower {
+    animation: none;
+  }
+
+/* The greeting is gone rather than going. */
+  .mails[data-read] .mails__flower,
+  .mails[data-read] .mails__title,
+  .mails[data-read] .mails__hint {
+    animation: none;
+    opacity: 0;
+  }
+}

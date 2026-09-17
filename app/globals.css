@@ -1,0 +1,78 @@
+@import "tailwindcss";
+/* Prose is not a class list. Tailwind scans every file it is not told to skip,
+   so a bare word like "relative" or "static" in a comment or a doc mints a real
+   utility into the bundle. Markdown is documentation only - nothing in it is a
+   class name. */
+@source not "../**/*.md";
+
+/* Each page keeps its own styles beside its component. */
+@import "../components/welcome/welcome.css";
+@import "../components/home/home.css";
+@import "../components/mailbox/mailbox.css";
+/* Not pages: the light that carries the card between two of them, and the
+   gingham the last of them — and /mails — is laid out on. */
+@import "../components/stage/reveal-light.css";
+/* The other hand-over: the one that carries a thing out of an envelope and on
+   to a page of its own. Beside the light, because it does the same job. */
+@import "../components/stage/travel.css";
+@import "../components/cloth/cloth.css";
+/* Laid on the cloth, so it comes after it. Beside its own route, because that is
+   where the rest of the scene lives. */
+@import "../components/mails/mails.css";
+/* The box, then the letters it pours out. This is the order mails.css was
+   written in, and it is load-bearing: the reduced-motion rules at the foot of
+   each file tie the rules they switch off on weight, so only source order
+   decides them. A rule that switched off both the box's animation and the
+   letters' was split in two rather than filed under one of them. */
+@import "../components/mails/cardboard-box.css";
+@import "../components/mails/letter.css";
+/* And what is on the cloth once one of the things inside an envelope has been
+   opened. After mails.css, because it lands on the same ground. */
+@import "../components/kept/kept.css";
+@import "../components/kept/wish.css";
+@import "../components/kept/tape.css";
+@import "../components/kept/cloth-back.css";
+
+:root {
+  --background: #f5f2e9;
+  --foreground: #a12920;
+  --highlight: #ffe88b;
+  --ink: #a12920;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-highlight: var(--highlight);
+  --color-ink: var(--ink);
+  --font-title: var(--font-allura);
+  --font-postmark: var(--font-postmark);
+  --font-note: var(--font-note);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html {
+  /* The pages scroll freely: the reader is in charge of the wheel, and nothing
+     snaps or slides them to the next page on its own. */
+  /* A self-contained card: no pull-to-refresh, no chaining to the browser. */
+  overscroll-behavior-y: contain;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* The two scrolling pages, stacked. Plain block: body's flex column must not
+   reach in and resize them. */
+.deck {
+  display: block;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}

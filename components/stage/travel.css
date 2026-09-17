@@ -1,0 +1,181 @@
+/* ---------------------------------------------------------------------------
+   The cut
+   Beat two of leaving an envelope. The thing that was pressed crosses to the
+   next page as ITSELF, and the camera pans up to follow it: the mail scene
+   travels down and off the bottom, and what was inside the envelope arrives
+   over the top.
+
+   THE GROUND IS NOT IN THE CUT. The gingham lives in mails/layout.tsx, which
+   Next keeps across a move between its own children, so it is the same element
+   on both sides — nothing to snapshot, nothing to settle twice, nothing for the
+   two pages to disagree about. That is the whole reason the camera reads as a
+   camera: a floor that moved would be an earthquake.
+
+   THE STAGGER IS THE POINT. The thing goes first and the room follows it, which
+   is what the delay on the pan buys and nothing else does. Two movements less
+   than about 100ms apart read as one movement; 140 is the least that reads as
+   one thing chasing another.
+
+   NOTHING HERE HAS A JS SIDE, AND THESE NUMBERS LIVE ONLY HERE. The
+   pseudo-elements hang off the document root, which no component in this card
+   owns, so there is nowhere to push a custom property in from — unlike every
+   other timing in the scene, which arrives on `.mails`. A copy of them in
+   mails-data.ts would read nicely beside LEAVE_TIMING and be wrong within a
+   month, because nothing in JS waits on any of them and nothing would ever
+   catch the two drifting apart. The first beat is over there; this is the
+   second, and the two meet on the screen rather than in a constant.
+   --------------------------------------------------------------------------- */
+
+:root {
+  /* The thing crossing. It covers about a third of the window and changes size
+     on the way; 400ms reads as a flick over that distance, and past 600 the
+     whole cut stops fitting inside a second. */
+  --morph-ms: 560ms;
+  /* Starts with the float's momentum already in it rather than from rest. */
+  --morph-ease: cubic-bezier(0.32, 0.08, 0.24, 1);
+  --pan-at: 140ms;
+  /* A window's height of travel. 400 is a jolt and 800 is a wait. It ends at
+     760ms, two hundred after the thing has settled — so the object is standing
+     still while the last of the room arrives, which is what a camera catching
+     up actually looks like. */
+  --pan-ms: 620ms;
+  /* A camera has weight at both ends. */
+  --pan-ease: cubic-bezier(0.5, 0, 0.2, 1);
+}
+
+/**
+ * What is left unnamed is the cloth and the card's own paper under it, and they
+ * are the same on both sides.
+ *
+ * Held still rather than cross-faded. The browser's default is to dissolve the
+ * old root into the new one, which here is a quarter-second of dissolving one
+ * picture into an identical copy of itself — paid for in a compositor layer the
+ * size of the window, and visible as a wash over the gingham if the two ever
+ * differ by a pixel.
+ */
+::view-transition-group(root) {
+  animation: none;
+}
+
+::view-transition-old(root) {
+  display: none;
+}
+
+::view-transition-new(root) {
+  animation: none;
+}
+
+/**
+ * The overlay is over the page for as long as the cut lasts, and it takes every
+ * click with it unless it is told otherwise. A reader who presses Back while
+ * the room is still arriving should be heard.
+ */
+::view-transition {
+  pointer-events: none;
+}
+
+/**
+ * The one thing that crosses.
+ *
+ * Above both pages, because it is what the camera is following and a camera
+ * does not lose its subject behind the scenery. Its group is a SIBLING of the
+ * pages' groups rather than a child of either, which is the mechanism the whole
+ * gesture rests on: it does not ride the pan, it flies its own path from where
+ * the float left it to where it comes to rest. And a named element is taken out
+ * of its ancestor's snapshot, so the page it leaves has a hole exactly where it
+ * was — by then, bare cloth, because the float already sent the other two away.
+ */
+::view-transition-group(.morph) {
+  animation-duration: var(--morph-ms);
+  animation-timing-function: var(--morph-ease);
+  z-index: 10;
+}
+
+/**
+ * The two snapshots dissolving into one another underneath the move.
+ *
+ * Blurred through the middle, and not for prettiness: the cassette is drawn
+ * leaning eight degrees and comes to rest level, so the crossfade is between
+ * two pictures at different angles. A blur at the halfway mark is what makes
+ * that read as one object turning rather than as two pictures swapping.
+ */
+::view-transition-image-pair(.morph) {
+  animation-name: travel-blur;
+}
+
+@keyframes travel-blur {
+  40% {
+    filter: blur(3px);
+  }
+}
+
+/* Pan up, and the world goes down. */
+::view-transition-old(.pan-up) {
+  animation: travel-down var(--pan-ms) var(--pan-ease) var(--pan-at) both;
+}
+
+::view-transition-new(.pan-up) {
+  animation: travel-from-above var(--pan-ms) var(--pan-ease) var(--pan-at) both;
+}
+
+/* And the other way on the way out, so putting a thing back is the reverse of
+   taking it out rather than a second departure. */
+::view-transition-old(.pan-down) {
+  animation: travel-up var(--pan-ms) var(--pan-ease) var(--pan-at) both;
+}
+
+::view-transition-new(.pan-down) {
+  animation: travel-from-below var(--pan-ms) var(--pan-ease) var(--pan-at) both;
+}
+
+/* `dvh` rather than a percentage. A percentage here is of the SNAPSHOT, and a
+   snapshot that came out a pixel shy of the window would leave a seam of the
+   page being left behind standing at the edge for the whole of the pan. Both
+   pages are a window tall by construction — `.cloth` is `min-height: 100dvh`
+   and neither of them scrolls — so the window is the honest distance. */
+@keyframes travel-down {
+  to {
+    transform: translateY(100dvh);
+  }
+}
+
+@keyframes travel-from-above {
+  from {
+    transform: translateY(-100dvh);
+  }
+}
+
+@keyframes travel-up {
+  to {
+    transform: translateY(-100dvh);
+  }
+}
+
+@keyframes travel-from-below {
+  from {
+    transform: translateY(100dvh);
+  }
+}
+
+/* --- motion is unwelcome -------------------------------------------------- */
+
+/**
+ * The whole cut goes. A full-window slide is the most common trigger there is,
+ * and the morph is riding on top of one; what is left when both are switched
+ * off is the pages simply swapping, which is what the browser does unasked.
+ *
+ * `!important` here and nowhere else in this card. Everywhere else the
+ * reduced-motion twin wins by repeating the weight of the rule it undoes, which
+ * works because both selectors are ordinary. These are not: whether
+ * `::view-transition-group(.morph)` outranks `::view-transition-group(*)` is a
+ * question about pseudo-element argument specificity, and a reader's comfort is
+ * not the thing to bet on the answer.
+ */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}

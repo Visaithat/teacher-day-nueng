@@ -1,0 +1,51 @@
+/* The words over the paper, when the thing standing there is a letter. */
+
+/* --- the wish ------------------------------------------------------------- */
+
+.wish {
+  position: absolute;
+  /* All four come in from WISH in kept-data.ts, because they are measurements
+     of one piece of artwork and there should be exactly one place to retune
+     them against it. */
+  left: var(--wish-left);
+  right: var(--wish-right);
+  top: var(--wish-top);
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-hand), var(--font-note), cursive;
+  font-weight: 500;
+  /* A share of the SHEET, not of the window: a hand does not write taller on a
+     taller page, it writes the same letters, and the page is what changes
+     size. Tied to the sheet, the writing and the paper can only scale
+     together. */
+  font-size: var(--wish-size);
+  /* About where handwriting on unruled paper sits. */
+  line-height: 1.44;
+  /* Not black. Black on cream reads as printing, and the brush across the top
+     of this sheet IS printing — it is in the artwork. This is a pen, and the
+     difference between the two is the whole of what says somebody sat down. */
+  color: #33302a;
+}
+
+/* One line, leaning by a fraction of a degree of its own. */
+.wish__line {
+  display: block;
+  /* Nobody rules a line. Deterministic, from `jitter`, so the server and the
+     browser draw the same crooked page. */
+  transform: rotate(var(--lean));
+}
+
+/* A paragraph break is a blank line in the wish, so it is half a line of air
+   rather than an empty box with a stray lean on it. */
+.wish__gap {
+  display: block;
+  height: 0.55em;
+}
+
+.wish__sign {
+  align-self: flex-end;
+  margin-top: 1.2em;
+  /* Clear of the crease, which by this far down the sheet has left the page. */
+  margin-right: 2%;
+}

@@ -1,0 +1,200 @@
+/* The cardboard box: how it comes in, tips, and goes. */
+
+/* --- the box ------------------------------------------------------------- */
+
+.mails__box {
+  /* Its own height, named, because the centring below has to do arithmetic on it
+     and `aspect-ratio` cannot be asked what it worked out. */
+  --box-h: clamp(180px, 46vh, 420px);
+
+  position: absolute;
+  left: 13%;
+  /**
+   * High enough that the top of the box clears the stage it is anchored in and
+   * reaches up into the greeting's band. That is allowed, and it is the reason
+   * the box can sit this high at all: the box is gone by 5050ms and the greeting
+   * does not begin to fade in until 5800ms, so the two are never on screen at
+   * the same moment and cannot crowd one another. Nothing clips it on the way —
+   * only `.cloth` clips, at the window's edge.
+   *
+   * The floor on this number is the window, not the stage: at 28% the box's top
+   * stays about 100px clear of it down to a 620px-tall window.
+   */
+  top: 28%;
+  height: var(--box-h);
+  /* 1.04 is the artwork's 520 / 500. */
+  width: calc(var(--box-h) * 1.04);
+
+  /**
+   * Centred on its anchor by margins, NOT by `translate: -50% -50%`.
+   *
+   * That is not a style preference. Tailwind v4 compiles this file through
+   * Lightning CSS, which folds the individual `translate` property back into
+   * `transform` for its browser targets — and this rule sets `transform` itself,
+   * a line later, which then wins outright. The centring vanished from the built
+   * stylesheet with no warning anywhere, and the box spent its whole life
+   * hanging by its top-left corner: 146px below the stage and 65px below the
+   * window, with its base cut off. Margins cannot collide with `transform`, so
+   * they cannot lose this argument. `.mails__letter` gets away with `translate`
+   * only because it never declares a `transform` of its own.
+   */
+  margin-left: calc(var(--box-h) * -0.52);
+  margin-top: calc(var(--box-h) / -2);
+
+  /* Off-stage is where the box RESTS, not where it is put by an animation. That
+     is what makes the first frame — before anything has been decided, and every
+     frame under reduced motion — show no box at all, with nothing to hide. */
+  transform: translate3d(-80vw, 0, 0);
+  /* Above the letters, which is what hides each one while it waits its turn at
+     the lip. Nothing is clipped and nothing is faded to achieve that. */
+  z-index: 20;
+  pointer-events: none;
+}
+
+/* `forwards` on the exit and not `both`: both of these write `transform`, and a
+   backwards fill would make the exit live from the first frame and swallow the
+   arrival whole. Without it the exit simply does not exist until its turn. */
+.mails[data-act="intro"] .mails__box {
+  will-change: transform, opacity;
+  animation:
+    mails-box-in var(--box-in-ms) var(--box-in) both,
+    mails-box-out var(--box-out-ms) var(--box-out) forwards;
+}
+
+.mails__box-tip {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  /* The corner it stands on. 87% and not the design's 13% because the mirror
+     below has already swapped left for right: this number is in screen terms,
+     which is the only way the rest of this rule can be read. */
+  transform-origin: 87% 100%;
+}
+
+/* Two animations, both on `rotate`, and they never overlap in time: the tip runs
+   from --tip-at, the righting from --box-out, which is long after it has ended.
+   The later one in the list wins while it is live, which is the right one. */
+.mails[data-act="intro"] .mails__box-tip {
+  will-change: rotate, scale;
+  animation:
+    mails-box-tip var(--tip-ms) var(--tip-at) both,
+    mails-box-right var(--box-out-ms) var(--box-out) forwards;
+}
+
+.mails__box-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  /* The mirror, and nothing but the mirror. Keeping it on the artwork alone is
+     what lets both boxes above it be written in plain screen terms. */
+  transform: scaleX(-1);
+}
+
+/* In from off-stage left, heavy: slow to start, and it arrives with weight. Two
+   segments of the design's own curve, each normalised into its own frame. */
+@keyframes mails-box-in {
+  0% {
+    transform: translate3d(-80vw, 0, 0);
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.455, 0, 0.682, 0.15);
+  }
+  44% {
+    transform: translate3d(-48vw, 0, 0);
+    animation-timing-function: cubic-bezier(0.25, 0.6, 0.464, 1);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+/* It rocks back onto its corner, swings over, hangs while it empties, then
+   stands up and goes. */
+@keyframes mails-box-tip {
+  0% {
+    rotate: 0deg;
+    scale: 1 1;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
+  }
+  11% {
+    rotate: -6deg;
+    scale: 1 0.97;
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  35% {
+    rotate: 34deg;
+    scale: 1 1.02;
+    animation-timing-function: cubic-bezier(0.33, 0, 0.3, 1);
+  }
+  /* The settle: overshoot decaying 1 → .16 → .07 → .025, sampled off
+     elastic.out. No cubic has this shape. */
+  52% {
+    rotate: 29.4deg;
+  }
+  63% {
+    rotate: 30.3deg;
+  }
+  72% {
+    rotate: 29.9deg;
+  }
+  100% {
+    rotate: 30deg;
+    scale: 1 1;
+  }
+}
+
+@keyframes mails-box-out {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.34, 1.3, 0.64, 1);
+  }
+  55% {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+  }
+  100% {
+    transform: translate3d(-85vw, 0, 0);
+    opacity: 0;
+  }
+}
+
+/* The box stands back up before it leaves: the rotation has to come home while
+   the slide is still waiting, so the righting rides the tip box, not the one
+   that travels. */
+@keyframes mails-box-right {
+  0% {
+    rotate: 30deg;
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  14% {
+    rotate: 36deg;
+    animation-timing-function: cubic-bezier(0.34, 1.4, 0.64, 1);
+  }
+  55%,
+  100% {
+    rotate: 0deg;
+  }
+}
+
+/* --- motion is unwelcome ------------------------------------------------- */
+
+/**
+ * No box, no pour, no fall: the letters are simply already on the cloth. The card
+ * answers reduced motion this way throughout — the home page's whole assembly
+ * becomes a single fade — so this is the house style, not a special case here.
+ *
+ * Every selector below repeats the one it is undoing, attribute for attribute.
+ * Anything lighter loses: `.mails[data-act="intro"][data-poured] .letter__fall` carries an
+ * attribute selector, and a plain `.mails .letter__fall` in here would be
+ * outranked by it and the letters would hop and grow anyway. Weight, not order.
+ */
+@media (prefers-reduced-motion: reduce) {
+.mails[data-act="intro"] .mails__box,
+.mails[data-act="intro"] .mails__box-tip {
+    animation: none;
+    will-change: auto;
+  }
+}

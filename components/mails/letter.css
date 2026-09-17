@@ -1,0 +1,1139 @@
+/* One letter, and the deck of them: the paper, the seal, the opened
+   envelope, what is inside it, and how a thing leaves for its own page. */
+
+/* --- the deck ------------------------------------------------------------ */
+
+.mails__letters {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  /* A stacking context of its own, and the reason the box can hide a letter
+     waiting its turn at the lip. Without it each letter's z-index — which has to
+     count up to 100 so the deck can order itself — would be measured against the
+     box's 20 directly, and every letter would paint over the box it is still
+     inside. The ladder belongs inside the deck, not against the scene. */
+  z-index: 10;
+  /* What makes every `em` below this line a tenth of the envelope. */
+  font-size: var(--unit);
+  /* The swipe is ours; the page's vertical scroll stays the reader's. */
+  touch-action: pan-y;
+}
+
+.mails__letter {
+  position: absolute;
+  left: 50%;
+  top: var(--deck-y);
+  width: 44em;
+  aspect-ratio: var(--envelope-ratio);
+  /* Centring is a property of its own, so `transform` stays free for the deck. */
+  translate: -50% -50%;
+
+  /* Its distance from the front, signed and unsigned. The deck holds --active
+     and every letter works out its own, so bringing one forward writes a single
+     property on a single element. abs() is too young to rely on; max() of a
+     number and its negation is the same answer everywhere. */
+  --d: calc(var(--i) - var(--active));
+  --dist: max(var(--d), var(--d) * -1);
+  z-index: calc(100 - var(--dist));
+
+  /* Hidden rather than faded: an opacity here would isolate the dye below it. */
+  visibility: hidden;
+}
+
+.mails[data-poured] .mails__letter {
+  visibility: visible;
+}
+
+/* Its place in the line. Transitions, never animates: the opening owns the
+   boxes below this one and the deck owns this one. */
+.letter__slot {
+  display: block;
+  transform: translate3d(
+    calc(var(--d) * var(--spacing) + var(--drag-x, 0px)),
+    calc(var(--dist) * var(--lift)),
+    0
+  );
+  transition: transform var(--slide-ms) cubic-bezier(0.22, 0.8, 0.26, 1);
+}
+
+/* A finger is on it. Nothing lags behind a finger. */
+.mails[data-drag] .letter__slot {
+  transition: none;
+}
+
+/* Front or behind. The only part of the deck that is not arithmetic, so it is
+   the only part driven by an attribute. */
+.letter__rank {
+  display: block;
+  position: relative;
+  scale: 1;
+  opacity: 1;
+  transition:
+    scale var(--slide-ms) cubic-bezier(0.22, 0.8, 0.26, 1),
+    opacity var(--slide-ms) ease-out;
+}
+
+/* Smaller is what says "further back"; the fade only helps it along. The design
+   halves the opacity, which it can afford against its own flat backdrop — over
+   gingham that reads as paper you can see through, which is not a thing paper
+   does. Most of the recede is the scale. */
+.mails__letter[data-pos="behind"] .letter__rank {
+  scale: 0.74;
+  opacity: 0.82;
+}
+
+/* The whole letter, as one thing to press. Above everything on the paper: the
+   layers number 1 to 5 and they are not in a stacking context of their own, so
+   anything left at auto here would sit under every one of them and never see the
+   click — the envelope would swallow it and the wax would swallow the rest.
+
+   The ladder they are all rungs of belongs to `.letter__rank`, which makes one
+   by declaring `scale`. Take that away and the whole deck's ordering leaks out
+   into the list above it. */
+.letter__target {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+/* The ring goes round the letter, because the letter is what is focused. It was
+   a circle on the wax when the wax was the button, and a ring that small on a
+   target this big only tells a reader where not to aim. */
+.letter__target:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 6px;
+  border-radius: 1em;
+}
+
+/* --- one letter ---------------------------------------------------------- */
+
+.letter__paper {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: var(--envelope-ratio);
+}
+
+/**
+ * A piece of paper. The dye multiplies with the artwork inside this box and
+ * stops here — without the isolation it would reach past the paper and dye the
+ * gingham as well.
+ */
+.letter__layer {
+  position: absolute;
+  isolation: isolate;
+  /* Every layer is a picture, and a picture is not a target. They are also not
+     transparent to the pointer by nature: an <img> is a rectangle to hit-testing
+     whatever its alpha says, and one at `opacity: 0` still takes the click — so
+     the closed envelope went on swallowing everything long after it had faded.
+     What is pressable on a letter says so itself: `.letter__target` while it is
+     shut, the three things inside once it is open. */
+  pointer-events: none;
+}
+
+.letter__layer--body {
+  position: relative;
+  inset: 0;
+  z-index: 3;
+}
+
+.letter__layer--card {
+  z-index: 4;
+}
+
+/* The two that float. Their box is a percentage of the envelope's, their height
+   comes from the artwork's own ratio, and `rotate` is a property of its own so
+   `transform` is left free for the landing jog. */
+.letter__layer--card,
+.letter__seal {
+  left: var(--left);
+  top: var(--top);
+  width: var(--w);
+  aspect-ratio: var(--ratio);
+  rotate: var(--rotate);
+}
+
+.letter__art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  /* On the image, not on the layer: a filter on the layer would rasterise the
+     dye along with the paper and cast the shadow of the pair. Here it is cast
+     from the artwork's own alpha, which is the shape the shadow should be. */
+  filter: drop-shadow(0 0.4em 0.7em rgba(70, 44, 16, 0.3));
+}
+
+.letter__layer--body .letter__art {
+  filter: drop-shadow(0 1.1em 1.7em rgba(95, 62, 28, 0.26));
+  transition: filter 250ms ease-out;
+}
+
+.mails__letter[data-pos="front"]:hover .letter__layer--body .letter__art {
+  filter: drop-shadow(0 2.4em 3em rgba(95, 62, 28, 0.42));
+}
+
+/**
+ * The dye. A flat colour, multiplied through the artwork's own alpha, so one set
+ * of neutral paper images covers every letter there will ever be.
+ *
+ * The mask is the same file as the image under it, and it is fitted the same
+ * way: `contain` here against `object-fit: contain` there. Sized `100% 100%` it
+ * is stretched where the image is letterboxed, and a layer whose `--ratio`
+ * disagrees with its file by even a few per cent then wears a rim of undyed grey
+ * paper where the mask has slid off the silhouette.
+ */
+.letter__tint {
+  position: absolute;
+  inset: 0;
+  background: var(--tint);
+  mix-blend-mode: multiply;
+  /* The prefixed one first: Firefox has no -webkit- shorthand at all and Safari
+     has had bugs in the unprefixed one, so each engine takes the one it can read
+     and the standard wins wherever both are understood. */
+  -webkit-mask: var(--tint-src) center / contain no-repeat;
+  mask: var(--tint-src) center / contain no-repeat;
+  pointer-events: none;
+}
+
+/* The name. Written over the card, never into it. */
+.letter__written {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6% 9%;
+  text-align: center;
+  /* The card is tilted and the writing is on the card. */
+  line-height: 1.1;
+}
+
+.letter__prefix,
+.letter__surname {
+  font-family: var(--font-letter), Georgia, serif;
+  font-size: 1em;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  /* The letter-spacing is added to the right of the last glyph too, which walks
+     a centred line half a space left. Give it back. */
+  text-indent: 0.22em;
+  color: #6b5b44;
+}
+
+.letter__given {
+  font-family: var(--font-letter), Georgia, serif;
+  font-size: 2.6em;
+  font-style: italic;
+  line-height: 1.1;
+  margin: 0.12em 0;
+  color: #241b12;
+}
+
+/* --- the wax seal -------------------------------------------------------- */
+
+/* Drawn, never pressed: the press belongs to the whole envelope, which lies
+   under this one but takes the click anyway — `.letter__target` sits a layer
+   above all of it. Transparent to the pointer, so the cursor over the wax is the
+   letter's and not this element's. */
+.letter__seal {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+}
+
+/**
+ * Half the wax each, clipped to opposite sides of the same crooked seam.
+ *
+ * The two polygons are complements traced in opposite directions, so together
+ * they tile the seal exactly — while the wax is whole there is no seam to see,
+ * and when it breaks there are two things to move instead of one thing to fade.
+ *
+ * `clip-path` makes each of these a stacking context, and that is wanted rather
+ * than merely tolerated: the dye inside multiplies against ITS OWN half of the
+ * wax and stops there. That is why the isolation that used to sit on the seal
+ * belongs down here now — there are two blends to keep apart, not one.
+ */
+.letter__shard {
+  position: absolute;
+  inset: 0;
+  isolation: isolate;
+  clip-path: var(--clip);
+}
+
+.letter__shard .letter__art {
+  filter: drop-shadow(0 0.5em 0.9em rgba(70, 40, 20, 0.38));
+}
+
+/**
+ * The crack itself: the same seam again, traced down one side and back up the
+ * other, which makes a zigzag ribbon rather than the straight bar this used to
+ * be. Wax does not split along a ruler.
+ *
+ * It is drawn on top of both halves and grows downward, so the crack arrives
+ * before anything moves — the seal is seen to fail, and only then to come apart.
+ */
+.letter__crack {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  clip-path: var(--clip);
+  background: rgba(40, 20, 10, 0.55);
+  /* Drawn top-down by a MASK, not by scaling. `transform` runs after `clip-path`
+     on the same element, so scaling this would squash the ribbon flat and then
+     stretch it back out — a zigzag being un-concertinaed, not a crack running
+     down the wax. A mask uncovers what is already the right shape.
+     Prefixed first, unprefixed second, for the reason given on the tint. */
+  -webkit-mask: linear-gradient(#000 0 0) top / 100% 0% no-repeat;
+  mask: linear-gradient(#000 0 0) top / 100% 0% no-repeat;
+}
+
+/* The whole 880ms, not just its own 200: the crack has to outlive the drawing
+   of it so it can go WITH the halves. Given only its own slice and `both`, it
+   held its end state for ever and left a black crooked line lying on the
+   envelope after the wax had gone. */
+.mails__letter[data-open] .letter__crack {
+  animation: mails-crack var(--seal-ms) linear both;
+}
+
+/* One class heavier than the landing jog further down, which also claims this
+   element's `animation`. Specificity rather than source order, because the two
+   rules belong in different parts of this file and one of them must not have to
+   know where the other was written. */
+.mails .mails__letter[data-open] .letter__seal {
+  animation: mails-seal-press var(--seal-ms) ease-out both;
+}
+
+/* The seal takes the press and nothing else. Coming apart is the halves' own
+   business, one rule down, which is what keeps this one out of a fight with the
+   landing jog over `transform`. */
+@keyframes mails-seal-press {
+  0% {
+    transform: scale(1);
+    animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  18% {
+    transform: scale(1.15);
+  }
+  41% {
+    transform: scale(1.15);
+    animation-timing-function: ease-out;
+  }
+  100% {
+    transform: scale(1.04);
+  }
+}
+
+/* Once the crack has finished drawing, the two halves lean apart and go. Sideways
+   and not downward: the wax is being opened, not dropped. Nothing but `transform`
+   and `opacity` moves, and nothing else in this file claims either on a shard, so
+   these two rules need no weight games. */
+.mails__letter[data-open] .letter__shard {
+  animation: mails-shard var(--split-ms) cubic-bezier(0.3, 0.68, 0.42, 1)
+    calc(var(--press-ms) + var(--crack-ms)) both;
+}
+
+/* Which way each half leans. One property, one sign. */
+.letter__shard[data-side="left"] {
+  --away: -1;
+}
+
+.letter__shard[data-side="right"] {
+  --away: 1;
+}
+
+/* --- the envelope, opened -------------------------------------------------- */
+
+/**
+ * The same envelope again, in two pieces of one drawing: its back with the flap
+ * standing, and its front pocket. The bundle goes between them, which is the
+ * whole mechanism — the front is opaque paper, so it hides everything inside the
+ * envelope's rectangle and nothing above it.
+ *
+ * Both are hidden until the wax breaks, and hidden with `visibility` rather than
+ * held at `opacity: 0`: two copies of the same paper stacked do not composite to
+ * one copy, and along the antialiased rim the one behind shows through and the
+ * outline comes out denser. Measured at 28/255 when this was tried the other way.
+ */
+.letter__layer--back,
+.letter__layer--front {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.letter__layer--back {
+  left: var(--left);
+  top: var(--top);
+  width: var(--w);
+  aspect-ratio: var(--ratio);
+  z-index: 1;
+}
+
+.letter__layer--front {
+  inset: 0;
+  z-index: 3;
+}
+
+/* Open: the two halves of the open envelope come up as the closed one goes, and
+   they trade over the same box so nothing on the face moves. */
+.mails__letter[data-open] .letter__layer--back,
+.mails__letter[data-open] .letter__layer--front {
+  visibility: visible;
+  animation: mails-fade var(--flap-ms) ease-out var(--flap-at) both;
+}
+
+/* The closed envelope steps aside. One class heavier than nothing else claims
+   it, and the hover rule on its artwork is left alone — by the time anybody
+   could hover it, it is gone. */
+.mails__letter[data-open] .letter__layer--body {
+  animation: mails-dim var(--flap-ms) ease-out var(--flap-at) both;
+}
+
+/**
+ * The pocket's shape, as far as the pointer is concerned.
+ *
+ * Traced off `open-front.webp`'s own alpha: two straight edges running from the
+ * top corners down to a point at the middle, and solid paper from there to the
+ * foot. Measured, not guessed — the notch closes at 43.5% of the envelope's
+ * height, and the edges reach the sides within a percent of the top.
+ *
+ * It sits at the front's own rung and after it, so it is over the three things
+ * inside and under nothing that matters. Nothing is painted: it is a shape that
+ * stops clicks, and that is all it is.
+ */
+.letter__pocket {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  clip-path: polygon(0 0, 50% 43.5%, 100% 0, 100% 100%, 0 100%);
+  pointer-events: none;
+}
+
+/* Only once there is something behind it to shield. While the letter is shut,
+   `.letter__target` is over the whole envelope anyway and this would only be
+   one more thing between the reader and it. */
+.mails__letter[data-open] .letter__pocket {
+  pointer-events: auto;
+}
+
+/* --- the arrows ---------------------------------------------------------- */
+
+/**
+ * What says the three things can be pressed.
+ *
+ * Over everything, and transparent to the pointer throughout: an arrow that
+ * swallowed the click it was asking for would be a joke at the reader's expense.
+ * The whole layer is the envelope's box, and each arrow is placed in it the way
+ * every other thing on this letter is — a percentage of that box — so they
+ * travel with the letter and shrink with it.
+ */
+.letter__guides {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+
+  /**
+   * The cloth beside the envelope, which is where two of the three arrows are
+   * drawn — and which runs out.
+   *
+   * The envelope is `44em` of `--unit` wide and the deck is centred, so the
+   * strip left over on each side is arithmetic and CSS can do it: half the
+   * window less half the envelope, less the room the words underneath need,
+   * which are wider than the arrow above them and hang off both of its sides.
+   *
+   * Without this the two outside arrows keep the place they were drawn for and
+   * a narrow window simply cuts them in half — measured, at 520px and under.
+   */
+  --room: calc((100vw - 44 * var(--unit)) / 2 - 0.6 * var(--unit));
+}
+
+.letter__guide {
+  position: absolute;
+  /* Where it was drawn for, or as near as the window allows. The arrow keeps
+     its aim either way: it is pointing from outside the envelope inwards, and
+     coming in a little closer does not change what it points at. */
+  left: clamp(
+    calc(var(--room) * -1 + var(--spill) + 4.3em),
+    var(--left),
+    calc(100% + var(--room) - var(--w) - var(--spill) - 4.3em)
+  );
+  top: var(--top);
+  width: var(--w);
+  font-family: var(--font-hand), var(--font-note), cursive;
+  font-size: max(0.8rem, calc(1.75 * var(--unit)));
+  line-height: 1;
+  text-align: center;
+  /* In, then breathing. The fade is `both`, so it holds its end state once it
+     has run and the bob takes over from there without a blink between them. */
+  animation:
+    mails-guide-in var(--guide-ms) ease-out var(--guide-at) both,
+    mails-guide-bob 2.4s ease-in-out calc(var(--guide-at) + var(--guide-ms))
+      infinite;
+}
+
+/* On the cloth, and on the envelope's own paper. The second is not the first
+   with the brightness turned up: red ink on red paper is a smudge at any
+   lightness, and the only thing that reads there is the cream the rest of this
+   card is written on. */
+.letter__guide[data-ink="ink"] {
+  color: #9b3027;
+}
+
+.letter__guide[data-ink="paper"] {
+  color: #f3ead6;
+}
+
+/* Turned to face its own thing. On the arrow rather than on the box around it,
+   so the words under it stay level however far round the arrow has gone.
+
+   The drawing is a mask, not a picture: it is a flat white silhouette, so what
+   is worth keeping from the file is its alpha, and the ink is then whatever this
+   inherits. One file, two colours, and no second copy of the artwork tinted a
+   different shade. */
+.letter__arrow {
+  display: block;
+  width: 100%;
+  aspect-ratio: var(--arrow-ratio);
+  background: currentColor;
+  /* The prefixed one first: Safari's unprefixed support is newer than its
+     prefixed, and Firefox has never had the prefixed form at all — so each
+     browser takes whichever of the two it knows and the later one wins where
+     both are understood. */
+  -webkit-mask: var(--arrow-src) center / contain no-repeat;
+  mask: var(--arrow-src) center / contain no-repeat;
+  rotate: var(--turn);
+  /* It is a thin mark on busy cloth and busier paper. A shadow its own shape —
+     from the mask, not from the box — is what lifts it off both. */
+  filter: drop-shadow(0 0.08em 0.14em rgba(60, 30, 14, 0.3));
+}
+
+/**
+ * The words, at the thin end of the arrow.
+ *
+ * Placed off the box's middle rather than under the box, because "under" stops
+ * meaning anything once the arrow has been turned — one of these points up. The
+ * two offsets come from the same turn the arrow was given, so wherever the tail
+ * swings to, the words are already there.
+ *
+ * It does not turn with it. An arrow may lie at any angle and still read as an
+ * arrow; words at 178 degrees are upside down.
+ */
+.letter__guide-note {
+  position: absolute;
+  left: calc(50% + var(--note-x));
+  top: calc(50% + var(--note-y));
+  /* Written out rather than left to `translate`: Lightning CSS folds that one
+     into `transform`, and a rule holding both keeps only the last. */
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+
+/**
+ * The bundle. Above the envelope's back, below its front.
+ *
+ * Nothing between here and the window clips, so these simply paint outside the
+ * envelope's box on their way up. What makes them look like they came out of
+ * something is paint order alone: the front is opaque paper across its whole
+ * rectangle, so it covers every one of them while the seal is whole and none of
+ * them above its top edge.
+ */
+.letter__bundle {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  /**
+   * Open on three sides, closed along the envelope's bottom edge.
+   *
+   * The paper letter is taller than the envelope it comes out of — at the size
+   * the reference draws it, half again as tall — so paint order alone cannot
+   * hide it while the seal is whole: whatever does not fit inside pokes out of
+   * one end or the other. Clipped at the foot, it can hang as far below as it
+   * likes and still be covered by the front, which frees its size entirely.
+   *
+   * It stays clipped once open, and that is wanted too: nothing in the bundle
+   * should ever be seen below the envelope it is coming out of.
+   */
+  clip-path: inset(-200% -200% 0 -200%);
+
+  /**
+   * How far the bundle comes up: the mock's 82% of the envelope's height, or as
+   * much of it as there is window above the envelope, whichever is less.
+   *
+   * The second term is arithmetic on this file's own numbers rather than a
+   * guess. The stage is the window less the row of dots; the front letter's
+   * middle is --deck-y down it; half an envelope is 15.6em; and 2em is left over
+   * the top so no paper sits on the window's edge. The tallest piece travels 1.1
+   * rises, so the room is shared out over that before it is spent.
+   *
+   * The cloth clips at the window, and a letter with its head cut off by the top
+   * of the screen is not a letter anybody is reading. Measured, the mock's full
+   * rise only fits above about 890px of window — which is taller than the laptop
+   * most of this will be read on.
+   */
+  --room: calc(50.9dvh - 23px - 26 * var(--unit));
+  --rise: clamp(11em, calc((var(--room) + 0.8em) / 1.1), 18em);
+}
+
+.letter__item {
+  position: absolute;
+  left: var(--left);
+  top: var(--top);
+  width: var(--w);
+  aspect-ratio: var(--ratio);
+  z-index: calc(var(--rise-step) + 1);
+  /* Its resting style, and the animation's first frame. `rotate` is NOT a
+     property of its own here, the way it is on the name card: the rise spends
+     this element's `transform`, Lightning CSS folds `rotate` into `transform`,
+     and a rule declaring both loses one. The lean is written into the function
+     list instead, and `--rotate` is deliberately left unread. */
+  transform: translate3d(0, 0, 0) rotate(0deg);
+}
+
+/* From the artwork's own alpha: these are the only things in the scene that ever
+   leave the paper they were lying on. */
+.letter__item .letter__art {
+  filter: drop-shadow(0 0.5em 1.1em rgba(70, 44, 16, 0.32));
+  /* The lift lives on the artwork, not on the box: the box's `transform` is
+     spent on the rise, whose `both` fill holds its last frame for ever, and a
+     hover written there would simply lose to it. */
+  transform: scale(1);
+  transition:
+    transform 220ms cubic-bezier(0.22, 1.02, 0.36, 1),
+    filter 220ms ease-out;
+}
+
+/**
+ * Once a letter is out and in front, each of the three is a link.
+ *
+ * The bundle above is `pointer-events: none` so that nothing in it ever stands
+ * between a reader and the envelope; these take it back, and only these.
+ */
+a.letter__item {
+  display: block;
+  pointer-events: auto;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+a.letter__item:hover .letter__art,
+a.letter__item:focus-visible .letter__art {
+  transform: scale(1.035);
+  filter: drop-shadow(0 0.8em 1.5em rgba(70, 44, 16, 0.42));
+}
+
+/* Round the outline, because none of these is a rectangle to the eye — the
+   paper is torn, the card is scalloped, the tape has corners of its own. */
+a.letter__item:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 4px;
+  border-radius: 0.6em;
+}
+
+.mails__letter[data-open] .letter__item {
+  will-change: transform;
+  animation: mails-lift var(--rise-ms)
+    calc(var(--rise-at) + var(--rise-step) * var(--rise-gap)) both;
+}
+
+/* --- leaving ------------------------------------------------------------- */
+
+/**
+ * The box the leaving beat moves, and the third of three inside one link.
+ *
+ * It has to be its own. The item's `transform` is spent on the rise, whose
+ * `both` fill holds its last frame for ever and would simply outlast anything
+ * written over it; the artwork's is spent on the hover. One box, one property,
+ * the same rule the five boxes the letter itself rides on are built to.
+ *
+ * In the tree whether the letter is live or not, so a letter coming live does
+ * not restructure what is under it mid-scene.
+ */
+.letter__float {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* Its resting frame, and the float's first. */
+  transform: translate3d(0, 0, 0);
+}
+
+/**
+ * How far the pressed thing goes up, and why it is a `max()` of two things.
+ *
+ * The first is the look: `--leave-by` is a hand's breadth of daylight, enough
+ * that the float reads as a second move after the rise rather than as more of
+ * it.
+ *
+ * The second is the bundle's clip. `.letter__bundle` is cut flush at the
+ * envelope's foot, and on a short window `--rise` bottoms out at 11em with the
+ * paper letter's foot still below that line — invisible at rest, but a view
+ * transition captures a named element hoisted out of its ancestors and does
+ * NOT apply their clips to the snapshot. So a thing still hanging below the
+ * line would grow its foot back on the first frame of the cut. `--sink` is how
+ * far it hangs before the rise pays for any of it; `--rise-of` is already
+ * negative, so adding is how the rise is taken off; and what is left over, if
+ * anything, is what the float has to beat.
+ *
+ * Which of the two wins is a property of the window, not of the design: on
+ * anything roomy the clip term is zero and the first wins outright.
+ */
+.letter__item {
+  --float-by: max(
+    var(--leave-by),
+    calc(
+      max(0em, calc(var(--sink) + var(--rise-of) * var(--rise))) +
+        var(--leave-clear)
+    )
+  );
+}
+
+/**
+ * Beat one: the pressed thing floats up, on its own, before the camera has
+ * moved at all.
+ *
+ * It overshoots by a whisker and comes back. Paper pulled free of paper does,
+ * and the same easing the rise uses would read as the rise having simply not
+ * finished.
+ */
+.mails__letter[data-leaving] .letter__item[data-go] .letter__float {
+  will-change: transform;
+  animation: mails-float var(--leave-ms) cubic-bezier(0.34, 1.32, 0.5, 1) both;
+}
+
+/**
+ * And the other two step back out of its way.
+ *
+ * `opacity` rather than a second transform, because this box has one property
+ * and the other two are spoken for — and because there is no dye anywhere in
+ * the bundle to isolate. The envelope is not touched at all for exactly that
+ * reason: its paper is coloured with `mix-blend-mode`, and an opacity anywhere
+ * above a tint would quietly stop it dyeing.
+ */
+.mails__letter[data-leaving] .letter__item:not([data-go]) .letter__float {
+  animation: mails-recede var(--recede-ms) ease-out both;
+}
+
+/* The arrows go with them. On the layer rather than on each arrow: every one of
+   them is already running two animations of its own, and the second never ends. */
+.mails__letter[data-leaving] .letter__guides {
+  animation: mails-recede var(--recede-ms) ease-out both;
+}
+
+@keyframes mails-recede {
+  to {
+    opacity: 0;
+  }
+}
+
+/* Done at 260ms, a clear beat before the push at 420 — so the page that travels
+   down is a page with one thing missing rather than two things half there. */
+.mails__letter[data-leaving] .letter__item {
+  pointer-events: none;
+}
+
+/* Up, aside and leaning. Paper pulled out of an envelope goes past its mark and
+   comes back, so the overshoot is in the frames rather than in one curve. */
+@keyframes mails-lift {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    animation-timing-function: cubic-bezier(0.34, 0.58, 0.4, 1);
+  }
+  74% {
+    transform: translate3d(
+        calc(var(--fan) * 1.08),
+        calc(var(--rise) * var(--rise-over)),
+        0
+      )
+      rotate(calc(var(--tilt) * 1.14));
+    animation-timing-function: cubic-bezier(0.32, 0, 0.3, 1);
+  }
+  100% {
+    transform: translate3d(var(--fan), calc(var(--rise) * var(--rise-of)), 0)
+      rotate(var(--tilt));
+  }
+}
+
+/* --- the shadow on the cloth --------------------------------------------- */
+
+/**
+ * Not a shadow: a gradient shaped like one. The design blurs a real drop-shadow
+ * from 22px to 9px over the fall, and animating a blur is the most expensive
+ * thing this scene could possibly do — a full-frame filter re-run every frame.
+ * A radial gradient IS a blur, already rasterised, and only scale and opacity
+ * ever move on it.
+ */
+.letter__cast {
+  position: absolute;
+  left: 50%;
+  bottom: -1.4em;
+  width: 92%;
+  aspect-ratio: 3.4;
+  translate: -50% 0;
+  background: radial-gradient(
+    50% 50% at 50% 50%,
+    rgba(95, 62, 28, 0.34) 0%,
+    rgba(95, 62, 28, 0.17) 46%,
+    rgba(95, 62, 28, 0) 100%
+  );
+  opacity: 0.32;
+  pointer-events: none;
+  transition:
+    opacity 250ms ease-out,
+    scale 250ms ease-out;
+}
+
+.mails__letter[data-pos="front"]:hover .letter__cast {
+  opacity: 0.44;
+  scale: 1.1 1.06;
+}
+
+/* --- the pour ------------------------------------------------------------ */
+
+/**
+ * Where a letter falls from: the box's mouth, less wherever this letter is
+ * headed. --mouth-x and --mouth-y are measured off the real box once, just
+ * before the first letter moves, and written straight onto .mails. Until then
+ * they are zero, and the letters are invisible, so the zero is never seen.
+ */
+.mails__letter {
+  --pour-delay: calc(var(--pour-order) * var(--pour-gap));
+  --from-x: calc(var(--mouth-x, 0px) - var(--d) * var(--spacing));
+  --from-y: var(--mouth-y, 0px);
+  --drift-ms: calc(var(--fall-ms) + 240ms);
+  --flight-ms: calc(var(--fall-ms) + var(--bounce-ms));
+}
+
+.letter__drift,
+.letter__fall,
+.letter__grow {
+  display: block;
+  /* Every one of these end frames is the element's own resting style, which is
+     what lets the animation simply stop applying when the pour is over without
+     anything snapping. Change one and you must change the other. */
+  transform: translate3d(0, 0, 0);
+}
+
+.letter__grow {
+  transform: scale(1);
+}
+
+.mails[data-act="intro"][data-poured] .letter__drift {
+  will-change: transform;
+  animation: mails-drift var(--drift-ms) linear var(--pour-delay) both;
+}
+
+.mails[data-act="intro"][data-poured] .letter__fall {
+  will-change: transform, rotate;
+  animation:
+    mails-fall var(--flight-ms) var(--pour-delay) both,
+    mails-flutter var(--flight-ms) var(--pour-delay) both;
+}
+
+.mails[data-act="intro"][data-poured] .letter__grow {
+  will-change: transform;
+  animation: mails-grow var(--grow-ms)
+    cubic-bezier(0.34, 1.56, 0.64, 1)
+    calc(var(--grow-at) + var(--pour-order) * var(--grow-gap)) both;
+}
+
+/* Sideways: a near-linear drift that sails past the slot and eases back. Paper
+   falling has no sideways force on it worth the name. */
+@keyframes mails-drift {
+  0% {
+    transform: translate3d(var(--from-x), 0, 0);
+  }
+  78% {
+    transform: translate3d(var(--drift), 0, 0);
+    animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/**
+ * Downward: it slips up over the lip, falls under gravity, then hops twice with
+ * the height falling off. The pacing lives in the frames rather than in one
+ * curve, the way the mailbox flap's flight does — nothing about a fall and a
+ * bounce is one curve. Percentages are of 1300ms: the lip at 200ms, the landing
+ * at 720ms, the hops through to 1300ms.
+ */
+@keyframes mails-fall {
+  0% {
+    transform: translate3d(0, var(--from-y), 0);
+    animation-timing-function: cubic-bezier(0.33, 0.68, 0.5, 1);
+  }
+  15% {
+    transform: translate3d(0, calc(var(--from-y) - 2.4em), 0);
+    animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+  }
+  55% {
+    transform: translate3d(0, 0, 0);
+    animation-timing-function: cubic-bezier(0.33, 0.9, 0.55, 1);
+  }
+  67% {
+    transform: translate3d(0, -1.8em, 0);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.75, 0.35);
+  }
+  81% {
+    transform: translate3d(0, 0, 0);
+    animation-timing-function: cubic-bezier(0.33, 0.9, 0.55, 1);
+  }
+  89% {
+    transform: translate3d(0, -0.7em, 0);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.75, 0.35);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* The tumble, and the elastic settle after it. --spin flips which shoulder each
+   letter leads with, so no two turn the same way. */
+@keyframes mails-flutter {
+  0% {
+    rotate: 0deg;
+    animation-timing-function: ease-in-out;
+  }
+  14% {
+    rotate: calc(var(--spin) * 17deg);
+    animation-timing-function: ease-in-out;
+  }
+  28% {
+    rotate: calc(var(--spin) * 8deg);
+    animation-timing-function: ease-in-out;
+  }
+  42% {
+    rotate: calc(var(--spin) * 12deg);
+    animation-timing-function: ease-in-out;
+  }
+  55% {
+    rotate: calc(var(--spin) * 6deg);
+    animation-timing-function: cubic-bezier(0.22, 0.9, 0.3, 1);
+  }
+  /* Landed. What follows is the elastic settle, decaying 1 → .16 → .07 → 0 —
+     the shape of GSAP's elastic.out, sampled, because no cubic is that shape. */
+  70% {
+    rotate: calc(var(--spin) * -1.4deg);
+  }
+  82% {
+    rotate: calc(var(--spin) * 0.6deg);
+  }
+  92% {
+    rotate: calc(var(--spin) * -0.2deg);
+  }
+  100% {
+    rotate: 0deg;
+  }
+}
+
+/* Small until the box is gone, then up to size with a little overshoot. The
+   backwards fill is what keeps it small through the whole fall. */
+@keyframes mails-grow {
+  from {
+    transform: scale(0.35);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/**
+ * The seal answers the landing a beat late — it is stuck on, not printed, and
+ * this is the only place in the scene where a layer moves on its own. The height
+ * of the hop is a property, so the keyframes stay free of it.
+ */
+.mails[data-act="intro"][data-poured] .letter__seal {
+  --jog: 0.4em;
+  animation: mails-jog var(--bounce-ms) cubic-bezier(0.33, 0.9, 0.55, 1)
+    calc(var(--pour-delay) + var(--fall-ms) + var(--layer-lag)) both;
+}
+
+@keyframes mails-jog {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  26% {
+    transform: translate3d(0, calc(var(--jog) * -1), 0);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.75, 0.35);
+  }
+  58% {
+    transform: translate3d(0, 0, 0);
+    animation-timing-function: cubic-bezier(0.33, 0.9, 0.55, 1);
+  }
+  77% {
+    transform: translate3d(0, calc(var(--jog) * -0.4), 0);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.75, 0.35);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* --- coming back --------------------------------------------------------- */
+
+/**
+ * A letter the reader left open.
+ *
+ * Following one of the three things out of an envelope is a real navigation, and
+ * what comes back is a new page. The scene's memory survives it — the deck is
+ * still poured and the seal is still broken — but every rule above that opens a
+ * letter is an animation, and an element that carries `data-open` on its very
+ * first frame runs all of them from zero. The reader walked out of an open
+ * envelope and was handed its wax back, whole, to break a second time.
+ *
+ * `data-settled` says the opening already happened. Nothing here is switched
+ * off: the same animations run, over no time at all, so each one lands on exactly
+ * the frame it would have been holding anyway. Timings rather than
+ * `animation: none` for two reasons, and both are load-bearing — the end states
+ * live in the keyframes and there is nothing else to hold them, and the arrow's
+ * nod is a second animation on the same element that must go on breathing.
+ *
+ * Declared on the LETTER, not on the scene. The scene's copies of these arrive as
+ * inline styles, which no stylesheet rule can outrank; a letter is further down
+ * the same tree, so its own declaration is simply the nearer one and the whole
+ * subtree under it inherits these instead.
+ *
+ * It is fixed for the life of the page: a letter opened here and now never
+ * becomes settled, and a settled one never stops being it. An animation whose
+ * delay changes under it is an animation that starts again, which is the one
+ * thing this is here to prevent.
+ */
+.mails__letter[data-settled] {
+  --press-ms: 0ms;
+  --crack-ms: 0ms;
+  --split-ms: 0ms;
+  --seal-ms: 0ms;
+  --flap-at: 0ms;
+  --flap-ms: 0ms;
+  --rise-at: 0ms;
+  --rise-ms: 0ms;
+  --rise-gap: 0ms;
+  --guide-at: 0ms;
+  --guide-ms: 0ms;
+}
+
+/* Nothing on it is going anywhere, so nothing on it needs a compositor layer of
+   its own. Ties the rule that asked for one on weight and is written after it. */
+.mails__letter[data-settled] .letter__item {
+  will-change: auto;
+}
+
+/* --- motion is unwelcome ------------------------------------------------- */
+
+/**
+ * No box, no pour, no fall: the letters are simply already on the cloth. The card
+ * answers reduced motion this way throughout — the home page's whole assembly
+ * becomes a single fade — so this is the house style, not a special case here.
+ *
+ * Every selector below repeats the one it is undoing, attribute for attribute.
+ * Anything lighter loses: `.mails[data-act="intro"][data-poured] .letter__fall` carries an
+ * attribute selector, and a plain `.mails .letter__fall` in here would be
+ * outranked by it and the letters would hop and grow anyway. Weight, not order.
+ */
+@media (prefers-reduced-motion: reduce) {
+.mails[data-act="intro"][data-poured] .letter__drift,
+.mails[data-act="intro"][data-poured] .letter__fall,
+.mails[data-act="intro"][data-poured] .letter__grow,
+.mails[data-act="intro"][data-poured] .letter__seal {
+    animation: none;
+    will-change: auto;
+  }
+
+/* The deck arrives rather than sliding. 1ms, not 0: a transition switched off
+     altogether stops firing transitionend along with it. */
+  .mails .letter__slot,
+  .mails .letter__rank,
+  .mails .letter__cast,
+  .mails .letter__art {
+    transition-duration: 1ms;
+  }
+
+/* No crack drawn and no halves leaning apart: the wax simply goes. Each
+     selector repeats the weight of the rule it undoes — the split is written
+     `.mails__letter[data-open] .letter__shard`, and anything lighter in here
+     would lose to it and the halves would still fly. */
+  .mails .letter__crack {
+    animation: none;
+    opacity: 0;
+  }
+
+.mails .mails__letter[data-open] .letter__shard {
+    animation: none;
+  }
+
+.mails .mails__letter[data-open] .letter__seal {
+    animation: mails-calm-seal 180ms ease-out both;
+  }
+
+/**
+   * The envelope is simply open: the flap back, the three things up, and no
+   * journey in between.
+   *
+   * Each selector repeats the weight of the one it undoes — the hinge is written
+   * `.mails__letter[data-open] .letter__layer--flap`, which carries an attribute
+   * selector, and anything lighter in here would lose to it and the flap would
+   * swing anyway. Weight, not order: a media query adds no specificity of its own.
+   */
+  .mails .mails__letter[data-open] .letter__layer--flap {
+    animation: none;
+    will-change: auto;
+    transform: perspective(55em) rotateX(-152deg);
+  }
+
+.mails .mails__letter[data-open] .letter__item {
+    animation: none;
+    will-change: auto;
+    transform: translate3d(var(--fan), calc(var(--rise) * var(--rise-of)), 0)
+      rotate(var(--tilt));
+  }
+
+/* The arrows are simply there. They are the one thing on the page whose job
+     is to be noticed, so they are not taken away here — only the nodding, which
+     would run for as long as the letter stayed open. */
+  .mails .letter__guide {
+    animation: none;
+    opacity: 1;
+  }
+
+/**
+   * Nothing floats and nothing recedes: the press goes straight to the push,
+   * and the cut itself is flattened in travel.css.
+   *
+   * `data-leaving` is never set under reduce — `follow` asks the same media
+   * query at the moment of the click and takes the other branch. This is
+   * written anyway, and the reason is worth keeping: "should never" is not
+   * "cannot". A reader who turns motion off halfway through a visit changes
+   * what the stylesheet answers without changing what JS already scheduled,
+   * and that reader is exactly the one who gets missed.
+   *
+   * Each selector carries the weight of the one it undoes, which is an
+   * attribute selector three deep. A media query adds no specificity of its
+   * own, so anything lighter here would simply lose.
+   */
+  .mails .mails__letter[data-leaving] .letter__item[data-go] .letter__float {
+    animation: none;
+    will-change: auto;
+  }
+
+.mails .mails__letter[data-leaving] .letter__item:not([data-go]) .letter__float,
+  .mails .mails__letter[data-leaving] .letter__guides {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+@keyframes mails-calm-seal {
+  to {
+    opacity: 0;
+  }
+}

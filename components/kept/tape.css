@@ -1,0 +1,232 @@
+/* The cassette's transport: the bar, the marks that keep time, and the frame. */
+
+/* --- the transport -------------------------------------------------------- */
+
+/* The deck and the name of what is in it, stacked. Two rows rather than one
+   pill with a caption crammed into it: the pill is a control and the name is a
+   label, and a control that grows to fit its label stops looking pressable. */
+.tape {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  width: min(86vw, 30rem);
+}
+
+.tape__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  width: 100%;
+  padding: 0.5rem 1.1rem 0.5rem 0.5rem;
+  /* The same cream pill the way back is. They are the only two controls
+     standing on this cloth, and two different-looking controls would say they
+     were two different kinds of thing. */
+  border: 1px solid rgba(176, 58, 58, 0.4);
+  border-radius: 999px;
+  background: rgba(253, 246, 227, 0.85);
+  color: #b03a3a;
+}
+
+.tape__play {
+  flex: 0 0 auto;
+  width: 2.3rem;
+  height: 2.3rem;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 999px;
+  background: #b03a3a;
+  color: #fdf6e3;
+  cursor: pointer;
+  /* The one thing on the pill that answers a pointer, so it is the one thing
+     that moves under one. */
+  transition: transform 180ms cubic-bezier(0.22, 1.02, 0.36, 1);
+}
+
+.tape__play:hover {
+  transform: scale(1.06);
+}
+
+.tape__play:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+}
+
+/**
+ * The glyph, drawn rather than typed.
+ *
+ * A triangle out of a border and two bars out of a clip: two shapes, and an
+ * icon font would be a whole font request for them. They are also the two most
+ * universally understood shapes there are, so nothing is lost by drawing them.
+ */
+.tape__glyph {
+  width: 0;
+  height: 0.76rem;
+  border-left: 0.6rem solid currentColor;
+  border-top: 0.38rem solid transparent;
+  border-bottom: 0.38rem solid transparent;
+  /* A triangle's bulk sits left of its point, so it is nudged over to look
+     centred rather than measured centred. */
+  margin-left: 0.16rem;
+}
+
+.tape[data-state="playing"] .tape__glyph {
+  width: 0.58rem;
+  margin-left: 0;
+  border: none;
+  background: currentColor;
+  /* Two bars cut out of one box, so the pause is one element like the play it
+     replaces rather than a different number of children. */
+  clip-path: polygon(0 0, 34% 0, 34% 100%, 0 100%, 0 0, 66% 0, 100% 0, 100% 100%, 66% 100%, 66% 0);
+}
+
+/* Pressed, and the script is still on its way. The glyph holds its shape and
+   dims: a spinner would be a third thing to understand for something that is
+   usually over inside a second. */
+.tape[data-state="waking"] .tape__play {
+  opacity: 0.55;
+  cursor: progress;
+}
+
+.tape__wave {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  /* Spread rather than gapped: the marks are a fixed width, so the air between
+     them is whatever the pill has left over — which keeps the row the same
+     shape on a phone as on a monitor instead of dropping marks off the end. */
+  justify-content: space-between;
+  /* The marks' own height, and no padding: `box-sizing` is border-box here, so
+     padding on this box comes out of the marks rather than around them — and
+     the first version of this row lost two thirds of its height that way and
+     came out looking like a dotted line. The pill's own padding is the room
+     around it. */
+  height: 2.1rem;
+  cursor: pointer;
+  touch-action: none;
+}
+
+/**
+ * One mark.
+ *
+ * Standing at its own height whether anything is playing or not — this is the
+ * shape of the row, not a meter, and a row lying flat reads as a dotted line
+ * rather than as a song waiting. What says it is playing is the breathing, and
+ * what says how far through it is, is the ink.
+ */
+.tape__tick {
+  flex: 0 0 auto;
+  /* Thin. See TAPE.bars for what happened when they were not. */
+  width: 0.26rem;
+  height: var(--tall);
+  border-radius: 999px;
+  background: currentColor;
+  /* Ahead of the needle: the part nobody has heard yet. Faint, but not so
+     faint that a song nobody has started yet looks like a disabled control. */
+  opacity: 0.38;
+  transition: opacity 160ms linear;
+  /* Both ends move, so a mark grows the way a level does rather than sprouting
+     from the floor of the row. */
+  transform-origin: 50% 50%;
+}
+
+.tape__tick[data-past] {
+  opacity: 1;
+}
+
+.tape[data-state="playing"] .tape__tick {
+  animation: tape-breathe var(--beat) ease-in-out var(--at) infinite alternate;
+}
+
+/* Only the top of the mark moves. A mark that breathed about its middle would
+   pump, and the row would look like it was inflating rather than sounding. */
+@keyframes tape-breathe {
+  from {
+    transform: scaleY(0.55);
+  }
+}
+
+.tape__name {
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-letter), Georgia, serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.09em;
+  color: #8e2a2a;
+}
+
+.tape__by::before {
+  content: "· ";
+}
+
+.tape__by {
+  font-style: italic;
+  opacity: 0.8;
+}
+
+/* It would not play here. Shaped like the control it replaces, because it is
+   doing the control's job by other means. */
+.tape__away {
+  width: 100%;
+  text-align: center;
+  padding: 0.7rem 1rem;
+  border: 1px solid rgba(176, 58, 58, 0.4);
+  border-radius: 999px;
+  background: rgba(253, 246, 227, 0.85);
+  font-family: var(--font-letter), Georgia, serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #8e2a2a;
+  transition:
+    background 200ms ease,
+    color 200ms ease;
+}
+
+.tape__away:hover {
+  background: #b03a3a;
+  color: #fdf6e3;
+}
+
+/**
+ * The hidden player.
+ *
+ * 200 by 200 and parked off to the side rather than one pixel square:
+ * YouTube's own API is unreliable below that size, and a player that will not
+ * start is indistinguishable from an upload that refused to be embedded.
+ * `display: none` and `visibility: hidden` both stop it playing; this is out
+ * of the way and still rendered.
+ */
+.tape__frame {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 200px;
+  height: 200px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* --- motion is unwelcome -------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  /**
+   * The marks stop breathing. They are standing at their own heights either
+   * way, and the ink still says how far through the song is, so nothing about
+   * the state stops being legible — it just does not dance.
+   */
+  .tape[data-state="playing"] .tape__tick {
+    animation: none;
+  }
+
+  .tape__play {
+    transition: none;
+  }
+
+  .tape__play:hover {
+    transform: none;
+  }
+}
