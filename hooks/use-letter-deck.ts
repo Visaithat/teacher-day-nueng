@@ -1,9 +1,12 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+/* `addTransitionType` comes from the App Router's React, which is a canary and
+   has it — the same copy `ViewTransition` is imported from. It is what a
+   `<Link transitionTypes>` used to call on this hook's behalf. */
 import {
-  type MouseEvent,
+  addTransitionType,
   type PointerEvent,
+  startTransition,
   useCallback,
   useEffect,
   useRef,
@@ -12,7 +15,6 @@ import {
 
 import { DECK } from "@/lib/constants/mail-deck";
 import { CALM_SEAL_MS, LEAVE_MS, SEAL_MS } from "@/lib/constants/mail-timing";
-import { contentHref } from "@/lib/utils/mail-routes";
 import type { Content, Letter } from "@/types/mails";
 import { prefersReducedMotion } from "@/lib/utils/reduced-motion";
 import type { LetterDeck, LetterDeckOptions } from "@/types/letter-deck";
@@ -38,29 +40,29 @@ export function useLetterDeck({
   stageRef,
   live,
   onOpenLetter,
+  onOpenKept,
 }: LetterDeckOptions): LetterDeck {
   /* Which letter is up and which seals are broken belong to the scene's memory
-     in the layout, not to this hook: the reader follows a letter out to its own
-     page and comes back, and coming back to letter one with the wax whole again
-     is coming back to a different cloth than the one they left. Held there, not
-     copied there — there is one of each, and this is where it is used.
+     above this scene, not to this hook: the reader follows a letter out to a
+     page of its own and comes back, and coming back to letter one with the wax
+     whole again is coming back to a different cloth than the one they left. Held
+     there, not copied there — there is one of each, and this is where it is used.
      What a screen reader was last told does not outlive the page. It is about
      what just happened, and on a return visit nothing just happened. */
   const { seen, active, setActive, opened, setOpened } = useSceneMemory();
   const [announcement, setAnnouncement] = useState("");
 
   /* Which of the three is on its way out, if any. This one does NOT belong in
-     the scene's memory: it is about a navigation that is in flight, and by the
-     time the reader comes back it has already happened. A leaving slug that
-     outlived the page would hand the deck a thing still floating away from an
-     envelope nobody pressed. */
+     the scene's memory: it is about a move that is in flight, and by the time
+     the reader comes back it has already happened. A leaving slug that outlived
+     the scene would hand the deck a thing still floating away from an envelope
+     nobody pressed. */
   const [leaving, setLeaving] = useState<string | null>(null);
-  const router = useRouter();
 
-  /* What was already open the moment this page mounted, held for as long as it
-     lives. The scene's memory outlives the page and the page does not, so coming
-     back from a letter hands every broken seal to a brand new element on its very
-     first frame — and everything that breaks a seal and opens an envelope is a
+  /* What was already open the moment this scene mounted, held for as long as it
+     lives. The scene's memory outlives the scene and the scene does not, so
+     coming back from a letter hands every broken seal to a brand new element on
+     its very first frame — and everything that breaks a seal and opens an envelope is a
      CSS animation, so the whole of it runs again from zero. The reader left an
      envelope open and is shown it being opened.
      State with no setter, which is the shape of the thing: a value read once, at
@@ -107,10 +109,6 @@ export function useLetterDeck({
     [active, last, letters, setActive],
   );
 
-  const guardDrag = useCallback((event: { preventDefault: () => void }) => {
-    if (dragged.current) event.preventDefault();
-  }, []);
-
   /** A click that came at the end of a drag was the drag stopping, not a choice. */
   const pickClick = useCallback(
     (index: number) => {
@@ -142,65 +140,59 @@ export function useLetterDeck({
   /**
    * Following one of the three things out of the envelope.
    *
-   * The element stays a real `<Link>` and only its default is prevented, which
-   * is the whole reason this is a handler and not a button: `<Link>` prefetches
-   * the six prerendered pages as they come into view, gives a real href to a
-   * middle click and to "copy link address", and `router.push` afterwards
-   * lands on the prefetch it already made. Without that the destination
-   * suspends, the two halves of the thing never meet in one commit, and the
-   * morph quietly degrades into a fade.
+   * The camera move is the whole of what the router was ever for here. A
+   * `<Link transitionTypes>` did two things — it navigated, and on the way past
+   * it named a view-transition type. There is nowhere left to navigate to, so
+   * only the naming is left, and it is done by hand inside the Transition:
+   * a `<ViewTransition>` answers any Transition and not only a routed one, so
+   * `travel.css` cannot tell the difference.
    *
    * Curried by letter so the component below can hand one item to it and keep
    * its own props simple.
    */
   const follow = useCallback(
-    (letter: Letter, item: Content) => (event: MouseEvent<HTMLAnchorElement>) => {
-      // The swipe guard first and unchanged: a click that came at the end of a
-      // drag was the drag stopping, not a choice.
-      guardDrag(event);
-      if (event.defaultPrevented) return;
+    (letter: Letter, item: Content) => () => {
+      // The swipe guard first, and now the same one its two neighbours use: a
+      // click that came at the end of a drag was the drag stopping, not a
+      // choice. It used to go through `preventDefault` and `defaultPrevented`,
+      // which was only ever a way of talking to a link's own default — a button
+      // has none, so the flag is read where it is written.
+      if (dragged.current) return;
 
-      // Everything that is not a plain left click belongs to the browser. A new
-      // tab is not a camera move, and a reader who asked for one should get one
-      // — which means leaving the href alone and doing nothing here.
-      if (
-        event.button !== 0 ||
-        event.metaKey ||
-        event.ctrlKey ||
-        event.shiftKey ||
-        event.altKey
-      ) {
-        return;
-      }
-
-      event.preventDefault();
       // Already on its way. A second press would arm a second float and a
-      // second push, and the two would arrive as one confused transition.
+      // second move, and the two would arrive as one confused transition.
       if (leaving) return;
 
-      const href = contentHref(letter, item);
       setAnnouncement(`Opening the ${item.label} from ${letter.name}.`);
 
       // Asked now rather than remembered from mount, the same way `open` does
       // it: the reader may have changed their mind about motion since the page
       // loaded, and the stylesheet — which answers a live media query — would
       // already have changed with them. Nothing floats under reduce, so there
-      // is nothing to hold the push back for.
+      // is nothing to hold the move back for.
       const calm = prefersReducedMotion();
       if (calm) {
-        router.push(href, { transitionTypes: ["pan-up"] });
+        startTransition(() => {
+          addTransitionType("pan-up");
+          onOpenKept(letter, item);
+        });
         return;
       }
 
       setLeaving(item.slug);
       // Into the same list the seal's timer goes into, which the unmount below
-      // drains — so a push that races a reader pressing Back cannot fire into a
-      // component that is no longer there.
+      // drains. This timer is the one that takes the scene down, so it always
+      // fires before its own cleanup — and a reader who presses Back mid-float
+      // unmounts the scene first, which drains it rather than letting it fire
+      // into a component that is no longer there.
       after(LEAVE_MS, () =>
-        router.push(href, { transitionTypes: ["pan-up"] }),
+        startTransition(() => {
+          addTransitionType("pan-up");
+          onOpenKept(letter, item);
+        }),
       );
     },
-    [after, guardDrag, leaving, router],
+    [after, leaving, onOpenKept],
   );
 
   /* --- the arrows ---------------------------------------------------------- */
@@ -334,8 +326,8 @@ export function useLetterDeck({
   }, [live, letters, seen]);
 
   // A drag holds three listeners on the window, and they are removed by the
-  // pointer coming up. If the scene goes first — a navigation, or a reload in
-  // dev while the pointer is down — nothing else would ever take them off.
+  // pointer coming up. If the scene goes first — a move out of it, or a reload
+  // in dev while the pointer is down — nothing else would ever take them off.
   useEffect(
     () => () => {
       release.current?.();

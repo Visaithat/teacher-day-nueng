@@ -44,11 +44,15 @@ export type Layer = {
  */
 export type Content = Layer & {
   /**
-   * Its own segment in the URL, and the key everything else keys off.
+   * The key everything else keys off: half of the name this thing wears on both
+   * sides of the cut, and half of the mark left in the history.
+   *
+   * It was a segment in a URL once, and the constraint it picked up there has
+   * outlived the URL — a `view-transition-name` is a custom-ident, so this may
+   * not begin with a digit and may not contain a dot. See `mail-slugs.ts`.
    *
    * Written out rather than derived from the file name: the artwork can be
-   * recut and renamed, and a link that has been shared should not break because
-   * of it.
+   * recut and renamed, and none of that should reach this.
    */
   slug: string;
   /** What it is, for a reader who cannot see it. */
@@ -108,8 +112,10 @@ export type Flower = {
 export type Letter = {
   id: number;
   /**
-   * Its segment in the URL. Not the name: the names here are stand-ins and will
-   * be changed, and a slug that moves with them takes every link out with it.
+   * Its half of the name a thing wears while it crosses out of this envelope,
+   * and of the mark the history keeps. Not the person's name: the names here are
+   * stand-ins and will be changed, and a slug that moved with them would take
+   * the morph and the Back button out with it.
    */
   slug: string;
   /** The three lines on the name card. Real text, never baked into the image. */

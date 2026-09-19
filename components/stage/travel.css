@@ -5,11 +5,11 @@
    travels down and off the bottom, and what was inside the envelope arrives
    over the top.
 
-   THE GROUND IS NOT IN THE CUT. The gingham lives in mails/layout.tsx, which
-   Next keeps across a move between its own children, so it is the same element
-   on both sides — nothing to snapshot, nothing to settle twice, nothing for the
-   two pages to disagree about. That is the whole reason the camera reads as a
-   camera: a floor that moved would be an earthquake.
+   THE GROUND IS NOT IN THE CUT. The gingham lives in stage/card-place.tsx, one
+   branch above both scenes, and neither of them unmounts it — so it is the same
+   element on both sides: nothing to snapshot, nothing to settle twice, nothing
+   for the two scenes to disagree about. That is the whole reason the camera
+   reads as a camera: a floor that moved would be an earthquake.
 
    THE STAGGER IS THE POINT. The thing goes first and the room follows it, which
    is what the delay on the pan buys and nothing else does. Two movements less

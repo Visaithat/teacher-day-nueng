@@ -1,6 +1,6 @@
 /** The deck of letters on the cloth: which is up, and what may be done to it. */
 
-import type { MouseEvent, PointerEvent, RefObject } from "react";
+import type { PointerEvent, RefObject } from "react";
 
 import type { Content, Letter } from "@/types/mails";
 
@@ -31,13 +31,10 @@ export type LetterDeck = {
   leaving: string | null;
   /**
    * Put on each of the three things inside the front envelope. Guards the click
-   * against a swipe, holds the navigation back for as long as the thing takes
-   * to float, and then makes it.
+   * against a swipe, holds the move back for as long as the thing takes to
+   * float, and then makes it.
    */
-  follow: (
-    letter: Letter,
-    item: Content,
-  ) => (event: MouseEvent<HTMLAnchorElement>) => void;
+  follow: (letter: Letter, item: Content) => () => void;
   /** The swipe belongs to the deck: it starts on a letter, not on the furniture. */
   deckHandlers: {
     onPointerDown: (event: PointerEvent<HTMLElement>) => void;
@@ -52,4 +49,6 @@ export type LetterDeckOptions = {
   live: boolean;
   /** A seal has finished breaking. Nothing listens yet. */
   onOpenLetter?: (id: number) => void;
+  /** One of the three things has been followed out of its envelope. */
+  onOpenKept: (letter: Letter, content: Content) => void;
 };

@@ -1,10 +1,17 @@
 /* ---------------------------------------------------------------------------
    The parcel
-   The box the letters are waiting in. The whole thing is the link into /mails,
-   so it has to look pressable without a rectangle drawn around it saying so.
+   The box the letters are waiting in. The whole thing is the way into the mail
+   scene, so it has to look pressable without a rectangle drawn around it saying
+   so.
    --------------------------------------------------------------------------- */
 
 .parcel {
+  /* The one thing a button does not inherit and an anchor did. Everything else
+     a browser puts on a button — the padding, the border, the background, the
+     13px font — Tailwind's preflight has already taken back off it, which is
+     why there is no reset here to read. */
+  cursor: pointer;
+
   display: flex;
   flex-direction: column;
   align-items: center;

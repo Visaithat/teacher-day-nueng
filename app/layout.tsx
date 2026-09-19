@@ -68,11 +68,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       /* The card scrolls smoothly on purpose — the home page's hint is an
-         anchor down to the mailbox. Saying so here tells Next that the
-         `scroll-behavior` in globals.css is wanted, so it stops warning that a
-         route change might be smooth-scrolled as well: it turns the smoothness
-         off for its own navigations and leaves the anchors alone. Which is
-         exactly right now that /mails leads somewhere. */
+         anchor down to the mailbox, and it is the only thing left that scrolls.
+         Saying so here tells Next that the `scroll-behavior` in globals.css is
+         wanted, so it stops warning that a route change might be smooth-scrolled
+         as well. The card has one route now and never changes it, so that half
+         of the bargain costs nothing and the anchor keeps its smoothness. */
       data-scroll-behavior="smooth"
       className={`${geistSans.variable} ${geistMono.variable} ${allura.variable} ${architectsDaughter.variable} ${gloriaHallelujah.variable} ${cormorant.variable} ${caveat.variable} h-full antialiased`}
     >

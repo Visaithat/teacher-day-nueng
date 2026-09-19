@@ -1,10 +1,9 @@
 "use client";
 
-import Link from "next/link";
 /* From the App Router's React, which is a canary and has it. `node_modules/react`
    is 19.2.8 stable and does NOT export ViewTransition — this import resolves
    only because Next aliases `react` to its own copy for app code. */
-import { type MouseEvent, ViewTransition } from "react";
+import { ViewTransition } from "react";
 
 import type { CssVars } from "@/types/css-vars";
 import { jitter } from "@/lib/utils/jitter";
@@ -21,7 +20,7 @@ import {
 } from "@/lib/constants/mail-art";
 import { seamOf } from "@/lib/utils/letter-seam";
 import { sinkOf } from "@/lib/utils/mail-geometry";
-import { contentHref, contentView } from "@/lib/utils/mail-routes";
+import { contentView } from "@/lib/utils/mail-slugs";
 import type {
   Content,
   Guide,
@@ -47,7 +46,7 @@ interface LetterProps {
   onPick: () => void;
   onOpen: () => void;
   /** Press one of the three things: float it, then go after it. */
-  onFollow: (item: Content) => (event: MouseEvent<HTMLAnchorElement>) => void;
+  onFollow: (item: Content) => () => void;
 }
 
 /**
@@ -297,10 +296,10 @@ export default function Letter({
                         </span>
                       );
                       const style = contentVars(item, step);
-                      /* A link only once it is out and in front. Behind or still
-                         sealed it is a picture: nothing to tab to, nothing to
-                         press, and inside an aria-hidden wrapper where a link
-                         would not be legal anyway. */
+                      /* Something to press only once it is out and in front.
+                         Behind or still sealed it is a picture: nothing to tab
+                         to, nothing to press, and inside an aria-hidden wrapper
+                         where a control would not be legal anyway. */
                       if (!live) {
                         return (
                           <span
@@ -334,21 +333,21 @@ export default function Letter({
                          with it, which is what should happen to them. Drop
                          either prop and the pair silently stops morphing. */
                       return (
-                        <Link
+                        <button
                           key={item.src}
-                          href={contentHref(letter, item)}
+                          type="button"
                           className="letter__item"
                           style={style}
                           data-go={item.slug === leaving ? "" : undefined}
                           onClick={onFollow(item)}
                           aria-label={`Open the ${item.label} from ${letter.name}`}
                         >
-                          {/* The name goes on the FLOAT and not on the link.
+                          {/* The name goes on the FLOAT and not on the button.
                               A view transition positions a captured element by
                               the box it is drawn in, transform and all — and
                               the float's whole job is to be the transform the
                               leaving beat spends. Named one box further out,
-                              the snapshot would be taken against the link's
+                              the snapshot would be taken against the button's
                               box, which does not move, and the paper would
                               set off from a hand's breadth below where the
                               reader is looking at it. */}
@@ -359,7 +358,7 @@ export default function Letter({
                           >
                             {art}
                           </ViewTransition>
-                        </Link>
+                        </button>
                       );
                     })}
                   </div>

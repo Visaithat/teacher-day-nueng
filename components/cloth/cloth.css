@@ -1,7 +1,7 @@
 /* ---------------------------------------------------------------------------
    The cloth
    Woven gingham, and nothing else. Not a page: the ground two of them stand on
-   — the selection page it was tuned for, and /mails.
+   — the selection page it was tuned for, and the mail deck.
 
    The cloth is two threads crossed over the card's own paper, and they MULTIPLY
    rather than stack up alpha — which is what two passes of dye actually do, and
@@ -23,9 +23,10 @@
 
   position: relative;
   flex: 1 0 auto;
-  /* A column, because under /mails the cloth is the layout's and the page it
-     carries is a child rather than the element itself. On the selection page
-     there is one child and it fills the same box, so nothing there changes. */
+  /* A column, because under the mail deck the cloth belongs to the branch above
+     and the page it carries is a child rather than the element itself. On the
+     selection page there is one child and it fills the same box, so nothing
+     there changes. */
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -42,10 +43,10 @@
 /**
  * A page standing on a cloth that is not its own.
  *
- * Under /mails the gingham belongs to the layout, so that a move between those
- * routes cannot take the ground down with the page — see the note in
- * mails/layout.tsx. What is left for a page to be is this: the same box the
- * cloth would have given it, minus the cloth.
+ * Under the mail deck the gingham belongs to the branch above, so that a move
+ * between those two scenes cannot take the ground down with the page — see the
+ * note in stage/card-place.tsx. What is left for a page to be is this: the same
+ * box the cloth would have given it, minus the cloth.
  *
  * Nothing is positioned against it that was not already positioned against
  * `.cloth`: it is `position: relative` and it fills the column, so `.mails`'
@@ -64,9 +65,13 @@
 
 /* A page swapped in mid-card has to take focus to move the reading position
    with it, and a container that does never wants the ring the browser would
-   otherwise draw around the whole viewport. A page navigated to — /mails —
-   never lands here, because the browser resets the reading position itself. */
-.cloth:focus {
+   otherwise draw around the whole viewport.
+   Both of them, now that the card is one page: the letters and a thing out of
+   an envelope are swapped in exactly as the selection page is, and each takes
+   focus on the way in. Nothing is navigated to any more, so nothing has a
+   browser to reset the reading position on its behalf. */
+.cloth:focus,
+.cloth__page:focus {
   outline: none;
 }
 
@@ -87,8 +92,9 @@
   will-change: transform;
   /* On the selection page the light is still lifting while this runs: the cloth
      is already there and only relaxes the last few percent, which reads as
-     settling rather than as a second entrance competing with the first. Landed
-     on directly, as /mails is, the same relax is the whole entry. Only
+     settling rather than as a second entrance competing with the first. Built
+     fresh, as it is on the way into the letters, the same relax is the whole
+     entry. Only
      transform moves — background-size would repaint every gradient in the
      viewport every frame. */
   animation: cloth-settle 1100ms cubic-bezier(0.16, 1, 0.3, 1) both;

@@ -613,27 +613,42 @@
 }
 
 /**
- * Once a letter is out and in front, each of the three is a link.
+ * Once a letter is out and in front, each of the three can be pressed.
  *
  * The bundle above is `pointer-events: none` so that nothing in it ever stands
  * between a reader and the envelope; these take it back, and only these.
+ *
+ * Typed on the element, and that is load-bearing: the three are only ever a
+ * `button` while they are live, so this rule and the two below it are what tell
+ * a pressable thing apart from the picture of one — the same job `a` did when
+ * they were links. Dropping it for a bare class would take a tenth off the
+ * weight of all three, and the hover below would start losing to the resting
+ * rule it is written to beat.
+ *
+ * NOTHING RESETS THE BUTTON HERE, AND THAT IS NOT AN OVERSIGHT. Tailwind's
+ * preflight has already given it `font: inherit`, and every distance on this
+ * element is an `em` off the deck's font-size — the fan, the sink, the float.
+ * A button's own 13.333px font-size does not inherit, so without that line the
+ * whole geometry of the leaving beat would quietly resolve against the wrong
+ * unit, with no error anywhere. Preflight also zeroes its padding, which the
+ * float fills to, and its border and background. Do not "tidy" preflight away.
  */
-a.letter__item {
+button.letter__item {
   display: block;
   pointer-events: auto;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 
-a.letter__item:hover .letter__art,
-a.letter__item:focus-visible .letter__art {
+button.letter__item:hover .letter__art,
+button.letter__item:focus-visible .letter__art {
   transform: scale(1.035);
   filter: drop-shadow(0 0.8em 1.5em rgba(70, 44, 16, 0.42));
 }
 
 /* Round the outline, because none of these is a rectangle to the eye — the
    paper is torn, the card is scalloped, the tape has corners of its own. */
-a.letter__item:focus-visible {
+button.letter__item:focus-visible {
   outline: 3px solid var(--ink);
   outline-offset: 4px;
   border-radius: 0.6em;
@@ -984,7 +999,7 @@ a.letter__item:focus-visible {
 /**
  * A letter the reader left open.
  *
- * Following one of the three things out of an envelope is a real navigation, and
+ * Following one of the three things out of an envelope is a real camera move, and
  * what comes back is a new page. The scene's memory survives it — the deck is
  * still poured and the seal is still broken — but every rule above that opens a
  * letter is an animation, and an element that carries `data-open` on its very

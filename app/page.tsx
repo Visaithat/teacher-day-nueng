@@ -1,19 +1,26 @@
 "use client";
 
+import CardPlace from "@/components/stage/card-place";
 import Home from "@/components/home/home";
 import { HOME_ASSEMBLE_MS, HOME_SOURCES } from "@/lib/constants/home";
 import Mailbox from "@/components/mailbox/mailbox";
-import Selection from "@/components/selection/selection";
 import RevealLight from "@/components/stage/reveal-light";
 import { useCardStage } from "@/hooks/use-card-stage";
 import { useReveal } from "@/hooks/use-reveal";
 import Welcome from "@/components/welcome/welcome";
 
 /**
- * The card has four pages. This is the only place that knows about all of them:
- * the welcome page is clicked away, the home page assembles in its place, the
+ * The card, all of it, at one address.
+ *
+ * The welcome page is clicked away, the home page assembles in its place, the
  * mail box waits one scroll below it, and opening the present inside turns the
- * screen to light and leaves the first three behind for good.
+ * screen to light and leaves the first three behind for good. What the light
+ * opens onto is `<CardPlace>`, which holds the three places that used to be a
+ * route each - the present, the letters, and a thing out of an envelope.
+ *
+ * The split is deliberate. This file owns the one-way run through the front of
+ * the card, which nothing ever goes back through; that one owns the three places
+ * a reader moves between freely, and the history entries that let them.
  */
 export default function Page() {
   const { leaving, showSecond, assembled, open } = useCardStage({
@@ -40,7 +47,7 @@ export default function Page() {
         </main>
       ) : null}
 
-      {selectionShown ? <Selection key="selection" /> : null}
+      {selectionShown ? <CardPlace key="place" /> : null}
 
       {lightShown ? (
         <RevealLight key="light" phase={phase} calm={calm} style={burst} />

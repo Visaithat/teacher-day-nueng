@@ -8,17 +8,18 @@
 /**
  * What a page does when the camera moves past it.
  *
- * The same object on both pages and on both props, because a page has no
- * opinion about which direction it is being left in — the LINK says that, by
- * naming a transition type, and this is only the page agreeing to answer.
+ * The same object on both scenes and on both props, because a scene has no
+ * opinion about which direction it is being left in — whoever MOVES says that,
+ * by naming a transition type, and this is only the scene agreeing to answer.
  *
- * `default: "none"` is the load-bearing entry. A navigation with no type is a
- * browser Back button, a refresh, or a Suspense boundary filling in, and none
- * of those asked for a camera move. The thing crossing still morphs, because
- * that is a shared name and nothing to do with this.
+ * `default: "none"` is the load-bearing entry, and it carries MORE now than it
+ * did. A move with no type is the browser's Back button arriving as a
+ * `popstate`, a refresh, or a Suspense boundary filling in, and none of those
+ * asked for a camera move. The thing crossing still morphs, because that is a
+ * shared name and nothing to do with this.
  *
- * It goes on each `page.tsx` and never on the layout: a layout is kept across a
- * move between its children, so its enter and its exit never fire.
+ * It goes on each scene and never on the cloth the two of them share: a wrapper
+ * that is kept across the cut never fires enter or exit.
  */
 export const PAN = {
   "pan-up": "pan-up",

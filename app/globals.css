@@ -9,20 +9,25 @@
 @import "../components/welcome/welcome.css";
 @import "../components/home/home.css";
 @import "../components/mailbox/mailbox.css";
-/* Not pages: the light that carries the card between two of them, and the
-   gingham the last of them — and /mails — is laid out on. */
+/* Not scenes: the light that carries the card between two of them, and the
+   gingham the last of them — and the mail deck — is laid out on. */
 @import "../components/stage/reveal-light.css";
 /* The other hand-over: the one that carries a thing out of an envelope and on
    to a page of its own. Beside the light, because it does the same job. */
 @import "../components/stage/travel.css";
 @import "../components/cloth/cloth.css";
-/* The fourth page, laid on the cloth like /mails is — and before it, because a
-   reader meets this one first. */
+/* The way off a scene standing on the cloth, and an element of it by name.
+   Both scenes that stand here use it. Nothing else declares `.cloth__back`,
+   so its place in this list is free: the only other rule that mentions it is
+   a heavier sibling selector in postcard-note.css, which cannot tie with it. */
+@import "../components/cloth/cloth-back.css";
+/* The fourth page, laid on the cloth like the mail deck is — and before it,
+   because a reader meets this one first. */
 @import "../components/selection/selection.css";
 @import "../components/selection/vinyl.css";
 @import "../components/selection/parcel.css";
-/* Laid on the cloth, so it comes after it. Beside its own route, because that is
-   where the rest of the scene lives. */
+/* Laid on the cloth, so it comes after it. Beside its own component, because
+   that is where the rest of the scene lives. */
 @import "../components/mails/mails.css";
 /* The box, then the letters it pours out. This is the order mails.css was
    written in, and it is load-bearing: the reduced-motion rules at the foot of
@@ -39,7 +44,6 @@
    on the same page as kept.css, so they come after it. */
 @import "../components/kept/postcard-note.css";
 @import "../components/kept/tape.css";
-@import "../components/kept/cloth-back.css";
 
 :root {
   --background: #f5f2e9;

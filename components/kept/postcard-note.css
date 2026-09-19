@@ -193,10 +193,10 @@
   }
 }
 
-/* The way back, pressed. The link holds the navigation open for exactly this
-   long (BackLink's `retract`), so the photograph is behind the card before the
-   room starts to move. A sibling selector rather than a state on some ancestor:
-   the link is the thing that knows, and it is written before the group. */
+/* The way back, pressed. The button holds the camera off for exactly this long
+   (BackButton's `retract`), so the photograph is behind the card before the room
+   starts to move. A sibling selector rather than a state on some ancestor: the
+   button is the thing that knows, and it is written before the group. */
 .cloth__back[data-going] ~ .kept__group .snapshot {
   animation: snapshot-back var(--snap-back-ms) cubic-bezier(0.4, 0, 0.7, 0.4)
     both;
@@ -213,8 +213,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* The photograph is simply already out, and stays out - `BackLink` does not
-     hold the navigation open at this setting either, so there is nothing to
+  /* The photograph is simply already out, and stays out - `BackButton` does not
+     hold the camera off at this setting either, so there is nothing to
      put away. The leans stay: they are a drawing of handwriting and not a
      movement, and they look the same at every setting. */
   .snapshot,

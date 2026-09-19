@@ -2,9 +2,14 @@
 
 A greeting card that opens. The welcome page is written by hand, clicked away, and
 the home page assembles in its place; a mail box waits one screen below it, and the
-present inside turns the screen to light. Behind that is `/mails`, where a cardboard
-box tips over and pours letters onto a gingham cloth — each one waiting with its wax
-seal unbroken, each thing inside opening onto a page of its own.
+present inside turns the screen to light. Behind that is the mail scene, where a
+cardboard box tips over and pours letters onto a gingham cloth — each one waiting
+with its wax seal unbroken, each thing inside opening onto a page of its own.
+
+It is all one address. `http://localhost:3000` is the only URL the card ever has:
+every page behind the light is a scene swapped in place, and the camera moves
+between them are view transitions rather than navigations. The Back button still
+works — each move pushes a history entry at that same URL.
 
 ## Getting Started
 
@@ -32,13 +37,12 @@ npx tsc --noEmit
 ## Project Structure
 
 ```
-├── app/                    # App Router: routing, layouts and metadata only
-│   ├── globals.css        #   the one stylesheet entry - imports every component's
-│   └── mails/             #   /mails and /mails/[person]/[item]
+├── app/                    # App Router: one route, `/`, plus layout and metadata
+│   └── globals.css        #   the one stylesheet entry - imports every component's
 ├── components/             # one folder per feature, CSS beside its component
 │   ├── welcome/ home/ mailbox/ selection/
-│   ├── stage/             #   the light and the camera moves between pages
-│   ├── cloth/             #   the gingham ground, shared by two routes
+│   ├── stage/             #   the light, the camera moves, and which scene is up
+│   ├── cloth/             #   the gingham ground, shared by two scenes
 │   ├── mails/             #   the scene: mails, letter, cardboard-box
 │   └── kept/              #   a thing once it is out of its envelope
 ├── hooks/                  # flat, one use-*.ts per concern

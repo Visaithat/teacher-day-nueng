@@ -11,7 +11,7 @@ No `src/`. Top-level folders are the layers:
 
 | Folder | Holds | Example |
 |---|---|---|
-| `app/` | **routing only** — `page.tsx`, `layout.tsx`, metadata, `globals.css` | `app/mails/page.tsx` |
+| `app/` | **routing only** — `page.tsx`, `layout.tsx`, metadata, `globals.css` | `app/page.tsx` |
 | `components/<feature>/` | components **+ their `.css`** | `components/mailbox/mailbox.tsx` + `.css` |
 | `hooks/` | **flat**, one `use-*.ts` per concern | `hooks/use-key-drag.ts` |
 | `lib/constants/` | every tunable number, by domain | `lib/constants/mail-timing.ts` |
@@ -115,8 +115,11 @@ If you add motion, add its reduce case in the same file.
 npx tsc --noEmit && npm run lint && npm run build
 ```
 
-Build passing proves little for an animation — also load `/`, `/mails`, and a
-`/mails/<person>/<item>` route, and repeat with OS reduced-motion on.
+Build passing proves little for an animation — also walk `/` all the way through:
+welcome, home, the mail box, the present, the letters, and one thing out of an
+envelope. Repeat with OS reduced-motion on. **The card has exactly one URL** — if
+the address bar ever reads anything but `localhost:3000`, something has grown a
+route back.
 
 If you moved, split or reordered CSS and the rendering is meant to be unchanged,
 prove it. The built chunk's filename is content-derived, so it doubles as the
@@ -133,7 +136,16 @@ files rule by rule rather than assuming.
 
 ## Known gaps — leave alone unless asked
 
-`/mails` is reachable only by URL (nothing links to it). `Selection` is a stub.
-`onOpenLetter` is threaded through but never passed. `.letter__layer--flap` is a
-dead selector. `public/{file,globe,next,vercel,window}.svg` are unused
-create-next-app leftovers.
+`Selection` is a stub. `onOpenLetter` is threaded through but never passed.
+`.letter__layer--flap` is a dead selector. `public/{file,globe,next,vercel,window}.svg`
+are unused create-next-app leftovers. A reload always restarts the card at the
+welcome page, whichever scene the reader was on — there is no URL left to deep-link
+with, and that is the accepted cost of having one.
+
+The browser's Back and Forward buttons move between the scenes correctly but do
+not animate: they cut where the on-screen ways back pan and morph. Next answers
+`popstate` as well, traversing its own router for the same url, and nothing
+scheduled around that tick opens a view transition of ours — measured, with and
+without a transition type, inside the listener and a task after it. The note in
+`use-card-place.ts` has the detail. Worth another look when React's view
+transitions and the App Router's history handling settle.

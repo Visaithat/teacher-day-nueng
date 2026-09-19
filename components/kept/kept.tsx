@@ -1,13 +1,16 @@
+"use client";
+
 /* From the App Router's React, which is a canary and has it. `node_modules/react`
    is 19.2.8 stable and does NOT export ViewTransition. */
 import { ViewTransition } from "react";
 
 import type { CssVars } from "@/types/css-vars";
+import { useEnterFocus } from "@/hooks/use-enter-focus";
 import { PAN } from "@/lib/constants/mail-transition";
-import { contentView } from "@/lib/utils/mail-routes";
+import { contentView } from "@/lib/utils/mail-slugs";
 import type { Content, Letter } from "@/types/mails";
 import { POSTCARD, STANDS } from "@/lib/constants/kept";
-import BackLink from "./back-link";
+import BackButton from "@/components/cloth/back-button";
 import PostcardNote from "./postcard-note";
 import Snapshot from "./snapshot";
 import Tape from "./tape";
@@ -33,6 +36,13 @@ function standVars(item: Content): CssVars {
   } as CssVars;
 }
 
+interface KeptProps {
+  letter: Letter;
+  content: Content;
+  /** Back to the letters. The same pan, the other way up. */
+  onBack: () => void;
+}
+
 /**
  * One thing out of one envelope, opened.
  *
@@ -52,17 +62,17 @@ function standVars(item: Content): CssVars {
  * milliseconds the camera still has to run after the cassette has landed is
  * exactly when it should turn up.
  *
- * A server component. Only the transport underneath is a client module, so this
- * page goes on being rendered on the server with its `generateStaticParams` and
- * its `generateMetadata` untouched.
+ * A client component, because the whole card is one now: there is no route left
+ * under this and so no `generateStaticParams` and no `generateMetadata`. What is
+ * drawn has not changed at all - the three leaves below it are still plain
+ * props-in, JSX-out, and only their place in the graph moved.
  */
-export default function Kept({
-  letter,
-  content,
-}: {
-  letter: Letter;
-  content: Content;
-}) {
+export default function Kept({ letter, content, onBack }: KeptProps) {
+  /* The landmark, so a reader swapped onto this page is told where they have
+     arrived rather than being dropped on the body - and not the way back, which
+     is the first thing in it. */
+  const pageRef = useEnterFocus<HTMLElement>();
+
   const hero = (
     <ViewTransition
       name={contentView(letter.slug, content.slug)}
@@ -82,6 +92,8 @@ export default function Kept({
     <ViewTransition enter={PAN} exit={PAN} default="none">
       <main
         className="cloth__page kept"
+        ref={pageRef}
+        tabIndex={-1}
         data-kept={content.slug}
         aria-labelledby="kept-title"
         style={standVars(content)}
@@ -93,9 +105,12 @@ export default function Kept({
         {/* Back the way the reader came, and reversed rather than repeated:
             the same pan, the other way up. The postcard holds it open for a
             beat first, to put its photograph away. */}
-        <BackLink
+        <BackButton
           retract={content.slug === "postcard" ? POSTCARD.reveal.back : 0}
-        />
+          onBack={onBack}
+        >
+          Back to the letters
+        </BackButton>
 
         {/* The postcard has a photograph lying on its corner, so the two are
             wrapped in a box that places them against each other. The other two

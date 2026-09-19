@@ -18,9 +18,10 @@ import type { SceneMemory } from "@/types/scene-memory";
 export const SceneMemoryContext = createContext<SceneMemory | null>(null);
 
 /**
- * Holds the handful of facts the mail scene must keep across a navigation out
- * of `/mails` and back. See {@link SceneMemory} for why this is memory rather
- * than storage.
+ * Holds the handful of facts the mail scene must keep while the reader is away
+ * from it — at one of the things inside an envelope, or back at the present it
+ * came in. See {@link SceneMemory} for why this is memory rather than storage,
+ * and why it sits above all three of those places rather than around the deck.
  */
 export default function SceneMemoryProvider({
   children,
