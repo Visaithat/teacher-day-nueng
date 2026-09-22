@@ -26,6 +26,7 @@
 @import "../components/selection/selection.css";
 @import "../components/selection/vinyl.css";
 @import "../components/selection/parcel.css";
+@import "../components/selection/player.css";
 /* Laid on the cloth, so it comes after it. Beside its own component, because
    that is where the rest of the scene lives. */
 @import "../components/mails/mails.css";

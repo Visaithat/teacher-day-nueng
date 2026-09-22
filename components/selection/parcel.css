@@ -16,7 +16,7 @@
   flex-direction: column;
   align-items: center;
   gap: 1.1rem;
-  width: min(58vw, 20rem);
+  width: min(70vw, 24rem);
   color: inherit;
   text-decoration: none;
   animation: parcel-appear 640ms 140ms ease-out both;
@@ -46,31 +46,40 @@
   }
 }
 
+/* Pushed right of the column's own centring, same technique vinyl.css uses
+   to pull its own hint toward the postcard's edge, mirrored here toward
+   the box's own right side. */
 .parcel__hint {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  align-self: flex-end;
   gap: 0.6rem;
-  margin: 0;
+  margin: 0 0 0 2.4rem;
   color: var(--foreground);
   text-align: left;
 }
 
 /* Same file vinyl.css's own hint points with (`/art/arrow.svg`, drawn
    pointing down-left) — `scale` mirrors it vertically so the tail points up
-   at the box instead of down at the text. */
+   at the box instead of down at the text. Sized to match the vinyl page's
+   own hint arrow now that it sits after the label instead of before it, and
+   pulled up above the label the same way vinyl.css's own arrow sits above
+   its label rather than level with it. */
 .parcel__hint-arrow {
-  width: 1.8rem;
+  width: 3.4rem;
   height: auto;
   flex: 0 0 auto;
   scale: 1 -1;
+  margin-top: -3.4rem;
   animation: parcel-hint-nudge 2.4s ease-in-out infinite;
 }
 
 .parcel__hint-label {
   font-family: var(--font-hand), var(--font-note), cursive;
-  font-size: 1.35rem;
+  font-size: 1.85rem;
   font-weight: 600;
   line-height: 1.15;
+  margin-top: 1.2rem;
 }
 
 @keyframes parcel-hint-nudge {

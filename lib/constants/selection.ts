@@ -61,3 +61,16 @@ export const RECORD_SONG = {
 
 /** How long one full turn of the record takes while it is playing. */
 export const SPIN_MS = 2600;
+
+/** How long the record's slide-out takes, as `vinyl.css`'s own `--slide-duration`. */
+export const SLIDE_MS = 700;
+
+/** What is printed under the Lyrics heading on the full player. */
+export const LYRICS = `TODO: paste the lyrics here`;
+
+/** Who made it, printed on the full player beside the lyrics. */
+export const CREDITS = {
+  artists: "TODO: artist credits",
+  lyrics: "TODO: lyrics credit",
+  mixMaster: "TODO: mix & master credit",
+} as const;

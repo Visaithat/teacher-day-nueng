@@ -35,6 +35,7 @@ export default function Parcel({ onOpen }: ParcelProps) {
       />
 
       <span className="parcel__hint">
+        <span className="parcel__hint-label">Read these mails</span>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           className="parcel__hint-arrow"
@@ -43,7 +44,6 @@ export default function Parcel({ onOpen }: ParcelProps) {
           aria-hidden="true"
           draggable={false}
         />
-        <span className="parcel__hint-label">Read these mails</span>
       </span>
     </button>
   );

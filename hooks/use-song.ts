@@ -221,6 +221,25 @@ export function useSong(song: Song) {
     if (el?.duration) el.currentTime = where * el.duration;
   }, []);
 
+  /** Nudge the needle by a number of seconds rather than a fraction of the whole. */
+  const skip = useCallback(
+    (seconds: number) => {
+      const all = player.current?.getDuration() ?? audio.current?.duration;
+      if (!all) return;
+      seek(played + seconds / all);
+    },
+    [played, seek],
+  );
+
+  /**
+   * Only the file plays at a level anyone can change — a hidden YouTube player
+   * has its own volume control inside an iframe this page does not draw.
+   */
+  const setVolume = useCallback((at: number) => {
+    const el = audio.current;
+    if (el) el.volume = Math.min(1, Math.max(0, at));
+  }, []);
+
   /** What an `<audio>` reports, wired to the same state the hidden player sets. */
   const fileEvents = {
     onPlay: () => setState("playing"),
@@ -228,5 +247,5 @@ export function useSong(song: Song) {
     onEnded: () => setState("paused"),
   };
 
-  return { state, played, toggle, seek, slot, audio, fileEvents };
+  return { state, played, toggle, seek, skip, setVolume, slot, audio, fileEvents };
 }

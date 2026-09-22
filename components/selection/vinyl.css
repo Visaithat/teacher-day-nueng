@@ -16,7 +16,7 @@
   position: relative;
   display: grid;
   place-items: center;
-  width: min(70vw, 23rem);
+  width: min(78vw, 28rem);
   /* The slide-out translates the record past the postcard's own edge, and a
      transform never grows this box to make room for itself — so the room has
      to be reserved by hand, or the hint below reads as cut off rather than
@@ -27,7 +27,7 @@
      that reserved strip instead of running into the parcel beside it. */
   padding-right: clamp(3rem, 22vw, 7.5rem);
   margin-top: -1rem;
-  margin-bottom: 2rem;
+  margin-bottom: -0.5rem;
 }
 
 /* Both layers share one grid cell so they sit exactly concentric at rest —
@@ -69,8 +69,8 @@
   place-items: center;
   translate: 0 0;
   transition:
-    translate 700ms cubic-bezier(0.22, 0.61, 0.36, 1),
-    rotate 700ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    translate var(--slide-duration) cubic-bezier(0.22, 0.61, 0.36, 1),
+    rotate var(--slide-duration) cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 .vinyl__record:not([data-state="idle"]) {
@@ -161,27 +161,38 @@
    nudging toward what it is pointing at.
    --------------------------------------------------------------------------- */
 
+/* Pulled left of the row's own centring so the arrow lands near the
+   postcard's left edge above it, rather than under the group's wider box
+   (which reserves extra room on its right for the record's slide-out). */
 .vinyl__hint {
   display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  margin: 0;
+  align-items: flex-start;
+  align-self: flex-start;
+  gap: 0.4rem;
+  margin: 0 0 0 -0.6rem;
   color: var(--foreground);
   text-align: left;
 }
 
+/* Bigger than the parcel's own hint arrow and mirrored on both axes — the
+   source is drawn pointing down-left, so this flip turns the hook up-right,
+   at the label sitting beside it rather than down-left at nothing. No top
+   margin of its own, so it sits well above the label's dropped baseline. */
 .vinyl__hint-arrow {
-  width: 1.8rem;
+  width: 3.4rem;
   height: auto;
   flex: 0 0 auto;
+  scale: -1 -1;
   animation: vinyl-hint-nudge 2.4s ease-in-out infinite;
 }
 
 .vinyl__hint-label {
   font-family: var(--font-hand), var(--font-note), cursive;
-  font-size: 1.35rem;
+  font-size: 1.85rem;
   font-weight: 600;
-  line-height: 1.15;
+  line-height: 1.2;
+  max-width: 11rem;
+  margin-top: 3.2rem;
 }
 
 @keyframes vinyl-hint-nudge {

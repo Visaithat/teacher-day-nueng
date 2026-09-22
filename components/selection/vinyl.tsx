@@ -1,14 +1,21 @@
 "use client";
 
 import type { CssVars } from "@/types/css-vars";
-import { useSong } from "@/hooks/use-song";
+import type { SongState } from "@/types/song";
 import {
   HINT_ARROW_ART,
   POSTCARD_ART,
-  RECORD_SONG,
+  SLIDE_MS,
   SPIN_MS,
   VINYL_ART,
 } from "@/lib/constants/selection";
+
+interface VinylProps {
+  state: SongState;
+  toggle: () => void;
+  /** Where a press goes once the record is already out. */
+  onOpenPlayer: () => void;
+}
 
 /**
  * The postcard, and the record leaning against it.
@@ -16,15 +23,32 @@ import {
  * A single control: the whole disc is the button, because a record has nothing
  * printed on its own face to press — pressing the thing itself is the only
  * interaction there has ever been to learn.
+ *
+ * The first press only starts it playing here, slid out from behind the
+ * postcard. It is the press after that — on a record already out and
+ * turning — that hands off to the full player, so a reader gets to see the
+ * record start before the page takes them anywhere.
+ *
+ * The song itself belongs to `Selection`, not here — the same `<audio>` has to
+ * keep playing once a later press hands off to the full player, and an
+ * element only keeps playing across that swap if it was never unmounted with
+ * this one.
  */
-export default function Vinyl() {
-  const { state, toggle, audio, fileEvents } = useSong(RECORD_SONG);
-  const playing = state === "playing";
+export default function Vinyl({ state, toggle, onOpenPlayer }: VinylProps) {
+  const press = () => {
+    if (state === "idle") toggle();
+    else onOpenPlayer();
+  };
 
   return (
     <div
       className="vinyl"
-      style={{ "--spin-duration": `${SPIN_MS}ms` } as CssVars}
+      style={
+        {
+          "--spin-duration": `${SPIN_MS}ms`,
+          "--slide-duration": `${SLIDE_MS}ms`,
+        } as CssVars
+      }
     >
       <div className="vinyl__group">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -39,9 +63,8 @@ export default function Vinyl() {
           type="button"
           className="vinyl__record"
           data-state={state}
-          onClick={toggle}
-          aria-pressed={playing}
-          aria-label={playing ? "Pause the song" : "Play the song"}
+          onClick={press}
+          aria-label={state === "idle" ? "Play the song" : "Open the player"}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -67,8 +90,6 @@ export default function Vinyl() {
           Play this song before you scroll
         </span>
       </p>
-
-      <audio ref={audio} src={RECORD_SONG.src} preload="none" {...fileEvents} />
     </div>
   );
 }
