@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import {
   Allura,
   Architects_Daughter,
@@ -7,6 +7,7 @@ import {
   Geist,
   Geist_Mono,
   Gloria_Hallelujah,
+  Noto_Sans_Lao,
 } from "next/font/google";
 import "./globals.css";
 
@@ -51,6 +52,21 @@ const caveat = Caveat({
   display: "swap",
 });
 
+/**
+ * The lyrics on the record's page.
+ *
+ * Every other face here is Latin-only, and a Lao line set in one of them falls
+ * back to whatever the machine happens to have - which is a different font per
+ * reader and, on some, boxes. This is the one thing on the card written in a
+ * script the rest of it does not cover.
+ */
+const notoLao = Noto_Sans_Lao({
+  variable: "--font-lao",
+  subsets: ["lao"],
+  weight: ["400", "600"],
+  display: "swap",
+});
+
 const allura = Allura({
   variable: "--font-allura",
   subsets: ["latin"],
@@ -61,6 +77,22 @@ const allura = Allura({
 export const metadata: Metadata = {
   title: "Greeting, Teacher Nueng",
   description: "It's been such a long time no talk",
+};
+
+/**
+ * The window the card is drawn on.
+ *
+ * `viewportFit: "cover"` is the reason this export exists at all: without it
+ * `env(safe-area-inset-*)` is zero on every device, and the two controls that
+ * live in the corners of the cloth — the way back and the Skip — have nothing
+ * to keep them out from under a notch or a rounded corner. Next's default
+ * covers the other two fields; they are written out because a viewport whose
+ * scale is left to a default is a viewport somebody will change by accident.
+ */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -74,7 +106,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
          as well. The card has one route now and never changes it, so that half
          of the bargain costs nothing and the anchor keeps its smoothness. */
       data-scroll-behavior="smooth"
-      className={`${geistSans.variable} ${geistMono.variable} ${allura.variable} ${architectsDaughter.variable} ${gloriaHallelujah.variable} ${cormorant.variable} ${caveat.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${allura.variable} ${architectsDaughter.variable} ${gloriaHallelujah.variable} ${cormorant.variable} ${caveat.variable} ${notoLao.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

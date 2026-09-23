@@ -3,11 +3,12 @@
 import Kept from "@/components/kept/kept";
 import Mails from "@/components/mails/mails";
 import Selection from "@/components/selection/selection";
+import Song from "@/components/song/song";
 import { useCardPlace } from "@/hooks/use-card-place";
 import SceneMemoryProvider from "@/providers/scene-memory-provider";
 
 /**
- * Everything behind the light, and the camera moves between the three of them.
+ * Everything behind the light, and the camera moves between the four of them.
  *
  * These used to be a page and two routes. They are one branch of one component
  * now, and this file is the whole of what the router was doing for them: which
@@ -41,13 +42,30 @@ import SceneMemoryProvider from "@/providers/scene-memory-provider";
  * cuts hard with no error anywhere.
  */
 export default function CardPlace() {
-  const { place, toMails, toPresent, openKept, toLetters } = useCardPlace();
+  const { place, toMails, toSong, fromSong, toPresent, openKept, toLetters } =
+    useCardPlace();
+
+  /* The two that share a cloth, told apart from the two that bring their own.
+     Written as a branch rather than folded into the JSX because the shared
+     ground is the thing being decided, and it is easy to lose in a ternary. */
+  const onTheDeck = place.at === "mails" || place.at === "kept";
 
   return (
     <SceneMemoryProvider>
       {place.at === "selection" ? (
-        <Selection key="selection" onOpenMails={toMails} />
-      ) : (
+        <Selection
+          key="selection"
+          onOpenMails={toMails}
+          onOpenSong={toSong}
+        />
+      ) : null}
+
+      {/* Its own cloth, like the selection page and unlike the two below: the
+          camera travels between those two, so their ground is held still above
+          them, and it travels TO this one, so this one's ground comes with it. */}
+      {place.at === "song" ? <Song key="song" onBack={fromSong} /> : null}
+
+      {onTheDeck ? (
         <div className="cloth">
           {place.at === "mails" ? (
             <Mails key="mails" onOpenKept={openKept} onBack={toPresent} />
@@ -62,7 +80,7 @@ export default function CardPlace() {
             />
           ) : null}
         </div>
-      )}
+      ) : null}
     </SceneMemoryProvider>
   );
 }

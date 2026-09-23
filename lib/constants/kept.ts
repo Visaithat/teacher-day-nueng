@@ -11,10 +11,10 @@ import type { Stand } from "@/types/kept";
 export const STANDS: Record<string, Stand> = {
   /** Most of the window's height, with cloth showing top and bottom so the
       torn edges are never touching the glass. */
-  letter: { wide: "min(92vw, calc(82dvh * 0.82))", level: 0, gap: "0rem" },
+  letter: { wide: "min(92vw, calc(82svh * 0.82))", level: 0, gap: "0rem" },
   /** Room enough below it for the deck and the song's name. */
   cassette: {
-    wide: "min(88vw, calc(52dvh * 1.455))",
+    wide: "min(88vw, calc(52svh * 1.455))",
     level: -7.66,
     gap: "3.6rem",
   },
@@ -34,15 +34,22 @@ export const STANDS: Record<string, Stand> = {
      * widths across and 1.412 down (POSTCARD.group). Both bounds are that box
      * solved back into a card width - divide the room by the group, not by the
      * card - because `.cloth` clips rather than scrolls and anything that does
-     * not fit is simply gone. The subtractions are the page's own padding plus
-     * a little air.
+     * not fit is simply gone. The height subtracts the page's own frame, which
+     * kept.css works out from the room the way back takes and the padding under
+     * the card — it was written here as a bare `8.5rem`, a hand-kept copy of two
+     * numbers in another file that did not follow when either moved.
+     *
+     * `svh` rather than `dvh` throughout these three: the small viewport is the
+     * window with the URL bar still showing, which is the window this page has
+     * when it opens. `dvh` sizes the card for a bar that has not slid away yet,
+     * and the cloth clips rather than scrolls.
      *
      * It does leave the card smaller than a mock-up without a back link would
      * suggest. That link is real and sits over the top left corner, which is
      * where this card keeps the word POSTCARD.
      */
     wide:
-      "min(calc((100vw - 2.5rem) / 1.314), calc((100dvh - 8.5rem) / 1.412))",
+      "min(calc((100vw - 2.5rem) / 1.314), calc((100svh - var(--kept-frame)) / 1.412))",
     /**
      * The lean the card is DRAWN with, given back to it.
      *

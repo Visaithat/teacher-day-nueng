@@ -2,7 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { HIT_RATIO, MAILBOX_TIMING } from "@/lib/constants/mailbox";
+import {
+  HIT_FLOOR,
+  HIT_RATIO,
+  KEY_NUDGE,
+  MAILBOX_TIMING,
+} from "@/lib/constants/mailbox";
 import type { KeyState } from "@/types/mailbox";
 import { centreOf } from "@/lib/utils/geometry";
 
@@ -87,7 +92,7 @@ export function useKeyDrag() {
         tipY: tip.y,
         holeX: hole.x,
         holeY: hole.y,
-        hit: Math.max(40, box.width * HIT_RATIO),
+        hit: Math.max(HIT_FLOOR, box.width * HIT_RATIO),
       };
       setState("dragging");
     },
@@ -146,7 +151,7 @@ export function useKeyDrag() {
 
       // Arrows nudge. Without preventDefault they would scroll the deck instead,
       // and on a snapping document that throws you onto another page.
-      const step = event.shiftKey ? 32 : 16;
+      const step = event.shiftKey ? KEY_NUDGE.stride : KEY_NUDGE.step;
       const nudge: Record<string, [number, number]> = {
         ArrowLeft: [-step, 0],
         ArrowRight: [step, 0],
@@ -167,19 +172,26 @@ export function useKeyDrag() {
       const hole = centreOf(holeRef.current);
       const box = boxRef.current?.getBoundingClientRect();
       if (!tip || !hole || !box) return;
-      if (Math.hypot(tip.x - hole.x, tip.y - hole.y) <= Math.max(40, box.width * HIT_RATIO)) {
+      const hit = Math.max(HIT_FLOOR, box.width * HIT_RATIO);
+      if (Math.hypot(tip.x - hole.x, tip.y - hole.y) <= hit) {
         unlockFromRest();
       }
     },
     [state, unlockFromRest],
   );
 
-  // The cached rects are viewport-relative, so a scroll invalidates the drag.
+  // The cached rects are viewport-relative, so a scroll invalidates the drag —
+  // and so does a resize, which moves the keyhole without moving the pointer.
+  // A phone turned on its side mid-drag stales exactly what a scroll does.
   useEffect(() => {
     if (state !== "dragging") return;
     const cancel = () => springBack();
     window.addEventListener("scroll", cancel, { passive: true });
-    return () => window.removeEventListener("scroll", cancel);
+    window.addEventListener("resize", cancel);
+    return () => {
+      window.removeEventListener("scroll", cancel);
+      window.removeEventListener("resize", cancel);
+    };
   }, [state, springBack]);
 
   return {

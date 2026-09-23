@@ -1,101 +1,133 @@
 /* ---------------------------------------------------------------------------
    The record
-   A postcard and a vinyl leaning against it, resting still until pressed. The
-   disc doubles as its own button - there is nothing else on its face to press.
+   A postcard and a vinyl leaning out from behind it, resting still until
+   pressed. The disc doubles as its own button - there is nothing else on its
+   face to press.
+
+   Every offset here is a percentage of `.selection__display`, the stage this
+   half is placed on. See selection.css for where those numbers come from.
    --------------------------------------------------------------------------- */
 
 .vinyl {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.1rem;
+  position: absolute;
+  inset: 0;
+  /* The whole stage, so its children can be placed against it — but only the
+     disc is ever pressed, so the gingham this covers has to stay dead. The
+     record takes its own clicks back below. */
+  pointer-events: none;
   animation: vinyl-appear 640ms ease-out both;
 }
 
-.vinyl__group {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: min(78vw, 28rem);
-  /* The slide-out translates the record past the postcard's own edge, and a
-     transform never grows this box to make room for itself — so the room has
-     to be reserved by hand, or the hint below reads as cut off rather than
-     pointed at. Padding rather than a wider `width` so the postcard/record
-     percentages below keep meaning what they already do: it pads the grid's
-     own content box, leaving the resting pair sitting left-of-centre in the
-     wider element this creates, and the slide's rightward travel lands inside
-     that reserved strip instead of running into the parcel beside it. */
-  padding-right: clamp(3rem, 22vw, 7.5rem);
-  margin-top: -1rem;
-  margin-bottom: -0.5rem;
+/* Over the disc: the record leans behind the card, not in front of it. Not the
+   target either — a click here has to fall straight through to the disc rather
+   than land on inert artwork. */
+.vinyl__postcard {
+  position: absolute;
+  left: 8.8%;
+  top: 19.1%;
+  width: 35.7%;
+  /* The trimmed artwork's own shape, not `height: auto`. Taken out of the flow
+     an image holds no box until it has loaded, and a card of zero height would
+     drop every percentage below it into the wrong place for a frame. */
+  aspect-ratio: var(--card-ratio);
+  z-index: 2;
+  rotate: -10deg;
+  border-radius: 2px;
+  /* `em`, not px: the stage sets one type size from its own width, so a shadow
+     written in it stays the same shadow at every size — which is the rule
+     record-deck.css already states for the deck's own. In px this cast was the
+     desktop's 18/34 on a phone's 330px stage, a card floating an inch up. */
+  box-shadow: 0 0.52em 0.98em rgba(0, 0, 0, 0.18);
+  scale: 1;
+  transition: scale 260ms ease-out;
 }
 
-/* Both layers share one grid cell so they sit exactly concentric at rest —
-   the record is sized to disappear fully behind the cover, not just mostly. */
-.vinyl__postcard {
-  grid-area: 1 / 1;
-  z-index: 2;
-  /* Decorative on top, but not the target: the record underneath is still the
-     only thing this control has ever pressed, so a click here has to fall
-     straight through to it rather than land on inert artwork. */
-  pointer-events: none;
-  display: block;
-  width: 82%;
-  height: auto;
-  rotate: -6deg;
-  border-radius: 2px;
-  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.18);
+/* Pointing at the shelf lifts the cover along with the record, because the
+   shelf is mostly cover and a reader aiming at it is aiming at that.
+   The cover is written before the record, and nothing that comes first can be
+   chosen from something that comes after it, so this asks the layer above
+   instead of reaching sideways. */
+.vinyl:has(.vinyl__record:hover) .vinyl__postcard,
+.vinyl:has(.vinyl__record:focus-visible) .vinyl__postcard {
+  scale: 1.03;
 }
 
 /**
- * Tucked exactly behind the cover until the first press, then slid out along
- * the same diagonal to leave half of it standing clear. `translate` moves the
- * button itself — hit area and artwork together — so the generous click
- * target the hidden state needs travels with the disc rather than being left
- * behind at the cover's centre once it has moved.
+ * The shelf: the cover, and the strip of cloth the record slides onto.
+ *
+ * The control does NOT move, and that is the whole reason it is shaped like
+ * this rather than cut to the disc. The disc travels out from under a cursor
+ * that is resting on the cover; a hit area cut to the disc would travel with
+ * it, leave the cursor behind, lose the hover that sent it out and pull it
+ * straight back — once per frame, for as long as the cursor stayed put. So the
+ * box is drawn once around both places the record is ever in, and only the
+ * artwork inside it goes anywhere.
+ *
+ * It reaches past the cover's right edge over bare cloth, which is where the
+ * record lands. Pressing the cover plays the record, which is what pressing a
+ * sleeve with a record in it has always done.
  */
 .vinyl__record {
-  grid-area: 1 / 1;
-  position: relative;
+  position: absolute;
+  left: 5.96%;
+  top: 15.57%;
+  width: 55.3%;
+  height: 41.86%;
   z-index: 1;
-  width: 90%;
-  aspect-ratio: 1;
+  /* The one thing on this half of the stage that is pressed. */
+  pointer-events: auto;
   padding: 0;
   border: none;
   background: none;
-  rotate: 4deg;
   cursor: pointer;
+}
+
+/**
+ * The record itself, tucked out of sight behind the cover until the cursor
+ * arrives.
+ *
+ * Its resting box is concentric with the cover and a little smaller, so the
+ * cover hides it whole — the shadow included, which is why that is carried
+ * here rather than on the disc and starts at no opacity at all. A shadow is
+ * cast by a thing standing clear of what is behind it, and until this has slid
+ * out it is not.
+ */
+.vinyl__slide {
+  position: absolute;
+  left: 6.11%;
+  top: 9.73%;
+  width: 62.6%;
+  aspect-ratio: 1;
   display: grid;
   place-items: center;
   translate: 0 0;
+  scale: 1;
+  filter: drop-shadow(0 0.4em 0.64em rgba(0, 0, 0, 0));
+  /* The swell is quicker than the slide on purpose: the record answers the
+     cursor at once, and then takes its time coming out. */
   transition:
-    translate var(--slide-duration) cubic-bezier(0.22, 0.61, 0.36, 1),
-    rotate var(--slide-duration) cubic-bezier(0.22, 0.61, 0.36, 1);
+    translate 700ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    scale 260ms ease-out,
+    filter 700ms ease;
 }
 
-.vinyl__record:not([data-state="idle"]) {
-  translate: 46% -6%;
-  rotate: 12deg;
+/* Out: to the right of the cover and sitting a little lower than the reference
+   drew it, which is where it was asked to sit. Two ways in, a cursor and the
+   keyboard - there used to be a third, the record staying out while it played,
+   and nothing plays on this page any more. */
+.vinyl__record:hover .vinyl__slide,
+.vinyl__record:focus-visible .vinyl__slide {
+  translate: 50% -8.5%;
+  scale: 1.03;
+  filter: drop-shadow(0 0.4em 0.64em rgba(0, 0, 0, 0.3));
 }
 
 .vinyl__disc {
   grid-area: 1 / 1;
   display: block;
-  width: 86%;
-  height: 86%;
+  width: 100%;
+  height: 100%;
   border-radius: 999px;
-  filter: drop-shadow(0 14px 22px rgba(0, 0, 0, 0.3));
-  animation: vinyl-spin var(--spin-duration) linear infinite paused;
-}
-
-.vinyl__record[data-state="playing"] .vinyl__disc {
-  animation-play-state: running;
-}
-
-@keyframes vinyl-spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 @keyframes vinyl-appear {
@@ -113,11 +145,15 @@
 .vinyl__glyph {
   grid-area: 1 / 1;
   width: 0;
-  height: 1.3rem;
-  border-left: 1rem solid #fdf6e3;
-  border-top: 0.65rem solid transparent;
-  border-bottom: 0.65rem solid transparent;
-  margin-left: 0.3rem;
+  /* `em` off the stage, like everything else drawn on it. In `rem` this was a
+     21px triangle on a 736px record and the same 21px on a 330px one — the
+     only mark on this half that did not shrink with the disc under it. The
+     figures are the reference's own, divided by the stage's type size. */
+  height: 0.6em;
+  border-left: 0.46em solid #fdf6e3;
+  border-top: 0.3em solid transparent;
+  border-bottom: 0.3em solid transparent;
+  margin-left: 0.14em;
   opacity: 0;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
   transition: opacity 200ms ease;
@@ -128,28 +164,14 @@
   opacity: 1;
 }
 
-.vinyl__record[data-state="playing"] .vinyl__glyph {
-  width: 0.85rem;
-  margin-left: 0;
-  border: none;
-  background: #fdf6e3;
-  /* Two bars cut from one box, so pausing swaps a shape rather than a count of
-     children. */
-  clip-path: polygon(
-    0 0,
-    34% 0,
-    34% 100%,
-    0 100%,
-    0 0,
-    66% 0,
-    100% 0,
-    100% 100%,
-    66% 100%,
-    66% 0
-  );
+/* The ring goes round the record, not round the shelf — the shelf is a
+   rectangle of mostly cover and cloth, and a ring drawn on it would name the
+   wrong thing. */
+.vinyl__record:focus-visible {
+  outline: none;
 }
 
-.vinyl__record:focus-visible {
+.vinyl__record:focus-visible .vinyl__slide {
   outline: 3px solid var(--ink);
   outline-offset: 4px;
   border-radius: 999px;
@@ -157,51 +179,86 @@
 
 /* ---------------------------------------------------------------------------
    The hint
-   Same technique as home.css's own scroll hint: a label plus a drawn corner,
-   nudging toward what it is pointing at.
+   A drawn corner and two hand-written lines, set down below the cover and to
+   its left. Both are placed against the stage rather than against each other,
+   which is why the arrow is a sibling of the words and not inside them.
    --------------------------------------------------------------------------- */
 
-/* Pulled left of the row's own centring so the arrow lands near the
-   postcard's left edge above it, rather than under the group's wider box
-   (which reserves extra room on its right for the record's slide-out). */
-.vinyl__hint {
-  display: flex;
-  align-items: flex-start;
-  align-self: flex-start;
-  gap: 0.4rem;
-  margin: 0 0 0 -0.6rem;
-  color: var(--foreground);
-  text-align: left;
-}
-
-/* Bigger than the parcel's own hint arrow and mirrored on both axes — the
-   source is drawn pointing down-left, so this flip turns the hook up-right,
-   at the label sitting beside it rather than down-left at nothing. No top
-   margin of its own, so it sits well above the label's dropped baseline. */
+/* `/art/arrow.svg` is drawn with its head pointing down-left; `scale` mirrors
+   it so the head points down-right instead, at the words rather than away from
+   them. The file carries its own margin inside the viewBox, so `left` and
+   `top` here are already offset for it. */
 .vinyl__hint-arrow {
-  width: 3.4rem;
-  height: auto;
-  flex: 0 0 auto;
-  scale: -1 -1;
-  animation: vinyl-hint-nudge 2.4s ease-in-out infinite;
+  position: absolute;
+  left: 3.8%;
+  top: 55.1%;
+  width: 11.5%;
+  aspect-ratio: var(--arrow-ratio);
+  scale: -1 1;
 }
 
-.vinyl__hint-label {
+/* Placed from its own centre, because the reference centres the second line
+   under the first rather than ranging them left. */
+.vinyl__hint {
+  position: absolute;
+  left: 27.5%;
+  top: 64.2%;
+  translate: -50% 0;
+  rotate: -4deg;
+  /* As wide as its longer line and no wider. The break is written into the
+     text, so without this the box shrinks to whatever room is left beside it
+     and breaks the two lines again somewhere else. */
+  width: max-content;
+  /* Words, so they can be selected like words. The layer above is dead to the
+     pointer and these are the only thing on it a reader might reach for. */
+  pointer-events: auto;
+  margin: 0;
+  color: var(--hint-ink);
+  text-align: center;
   font-family: var(--font-hand), var(--font-note), cursive;
-  font-size: 1.85rem;
   font-weight: 600;
-  line-height: 1.2;
-  max-width: 11rem;
-  margin-top: 3.2rem;
+  line-height: 1.15;
 }
 
-@keyframes vinyl-hint-nudge {
-  0%,
-  100% {
-    translate: 0 0;
+/* ---------------------------------------------------------------------------
+   A finger, not a pointer
+   The record comes out from behind its cover on hover, and a touch screen has
+   no hover to give it: tapping fires the press straight away, so on a phone the
+   disc was never once seen leaving the sleeve. It was not a smaller version of
+   this page, it was a different one.
+
+   So on touch the shelf simply plays the move itself, once, as the page opens,
+   and rests out. Everything below is the hover state written as a resting one -
+   the same three declarations, so the two cannot drift.
+   --------------------------------------------------------------------------- */
+
+@media (hover: none) {
+  .vinyl__postcard {
+    scale: 1.03;
   }
-  50% {
-    translate: -3px 5px;
+
+  .vinyl__slide {
+    translate: 50% -8.5%;
+    scale: 1.03;
+    filter: drop-shadow(0 0.4em 0.64em rgba(0, 0, 0, 0.3));
+    /* After the page has arrived, not with it: the record leaving the sleeve is
+       the thing to be seen, and it cannot be seen while everything else is
+       still moving. */
+    animation: vinyl-out 700ms cubic-bezier(0.22, 0.61, 0.36, 1) 520ms both;
+  }
+
+  .vinyl__glyph {
+    opacity: 1;
+  }
+}
+
+/* Only the resting state is written; the end of the move is where the rule
+   above already leaves it. */
+@keyframes vinyl-out {
+  from {
+    translate: 0 0;
+    scale: 1;
+    filter: drop-shadow(0 0.4em 0.64em rgba(0, 0, 0, 0));
   }
 }
 
@@ -210,15 +267,14 @@
     animation-duration: 200ms;
   }
 
-  .vinyl__disc {
-    animation: none;
-  }
-
-  .vinyl__record {
+  .vinyl__postcard,
+  .vinyl__slide {
     transition: none;
   }
 
-  .vinyl__hint-arrow {
+  /* The record is still out — that is the state the rule above rests in — it
+     just does not travel there. */
+  .vinyl__slide {
     animation: none;
   }
 }

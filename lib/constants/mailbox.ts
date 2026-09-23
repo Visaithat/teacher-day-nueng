@@ -67,6 +67,25 @@ export const KEYHOLE = { x: 49.83, y: 49.57 };
  */
 export const HIT_RATIO = 0.26;
 
+/**
+ * The smallest that radius is ever allowed to be, in pixels.
+ *
+ * `HIT_RATIO` is a share of the artwork, and on a phone the artwork is small
+ * enough that a quarter of its width is a smaller target than a fingertip. This
+ * is the floor a thumb needs whatever the box has shrunk to. It was written
+ * twice inside use-key-drag.ts, once for the pointer and once for the arrow
+ * keys, which is two places for one number to be changed in.
+ */
+export const HIT_FLOOR = 44;
+
+/**
+ * How far an arrow key moves the key, in pixels, plain and with Shift.
+ *
+ * Pixels rather than a share of the box: this is a keyboard, and a keyboard is
+ * on a machine with a pointer and a window that does not shrink to a phone.
+ */
+export const KEY_NUDGE = { step: 16, stride: 32 };
+
 /** Where the key rests before it is picked up. */
 export const KEY_REST_ROTATE = -4;
 

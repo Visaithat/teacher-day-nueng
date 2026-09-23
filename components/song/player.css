@@ -1,0 +1,410 @@
+/* ---------------------------------------------------------------------------
+   The transport
+   The card already has one of these - the cassette in the letters - and this is
+   meant to read as its sibling rather than as a second idea about what a music
+   control looks like. Same cream ground, same reds, same filled disc with a
+   drawn glyph on it, same breathing row of marks. It is larger because this is
+   the song's own page and the cassette is a thing sitting on a table.
+
+   It stands on paper rather than bare on the gingham. The weave is busy, and a
+   row of thin marks laid straight onto it has to fight the check behind it for
+   every pixel; the pill is what gives the machinery somewhere to sit.
+
+   Sizes are in `em` throughout, against the type size `.song__stage` sets from
+   its own width. That is what keeps a button the same size relative to the
+   record at every width, without a second set of percentages to keep in step.
+   --------------------------------------------------------------------------- */
+
+/**
+ * The marks and the buttons, bare on the cloth.
+ *
+ * Still a pill, but the cassette's rather than the one that used to sit in
+ * the corner. That one was a tall card holding the song's name, three
+ * buttons, the marks and the volume; the name has gone to the top of the page
+ * and the volume to the right-hand edge, and what is left - a round button
+ * and a row of marks - is exactly the cassette's control, so it is drawn as
+ * the cassette's control.
+ *
+ * It ends at 72, which is where it has to: the credits card starts at 61.5
+ * but not until 53.5, and this is done by 52.55. Any taller and the two meet.
+ */
+.player {
+  /* Second in. See the running order in song.css. */
+  --step: 2;
+
+  position: absolute;
+  left: 30%;
+  top: 45.5%;
+  width: 42%;
+  display: flex;
+  align-items: center;
+  gap: 0.9em;
+  padding: 0.5em 1.1em 0.5em 0.5em;
+  /* The cassette's pill, to the letter. It is the same control doing the same
+     job on the same cloth, and two controls that looked different would say
+     they were two different kinds of thing. */
+  border: 1px solid var(--song-hair);
+  border-radius: 999px;
+  background: rgba(253, 246, 227, 0.85);
+  color: var(--song-red);
+  animation: player-appear var(--appear) ease-out calc(var(--beat) * var(--step))
+    both;
+}
+
+@keyframes player-appear {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+}
+
+/* Title over byline, as the cassette names what is in it - the same letter
+   spacing, so the two are recognisably the same label at two sizes. */
+/* ---------------------------------------------------------------------------
+   The waveform
+   Position, drawn as sound. The marks behind the needle are inked and the ones
+   ahead are faint - the cassette's trick, and the reason this row sits ON the
+   pill rather than bare on the cloth: they are one colour at two strengths
+   rather than ink against white, which needs something behind them to be two
+   strengths OF.
+   --------------------------------------------------------------------------- */
+
+.player__wave {
+  flex: 1 1 auto;
+  height: 2.1em;
+  display: flex;
+  align-items: center;
+  /* Spread rather than gapped, as the cassette's row is: the marks are a fixed
+     width and the air between them is whatever is left over, so the row is the
+     same shape on a phone as on a monitor instead of dropping marks off the
+     end. */
+  justify-content: space-between;
+  color: var(--song-red);
+  cursor: pointer;
+  /* Never selects while being dragged across. */
+  user-select: none;
+  touch-action: none;
+}
+
+.player__tick {
+  flex: 0 0 auto;
+  /* Thin. A mark as wide as it is tall is a bar chart, not a sound. */
+  width: 0.18em;
+  height: var(--tall);
+  border-radius: 999px;
+  background: currentColor;
+  /* Ahead of the needle: the part nobody has heard yet. Faint, but not so
+     faint that a song nobody has started looks like a disabled control. */
+  opacity: 0.38;
+  transition: opacity 160ms linear;
+  /* Both ends move, so a mark grows the way a level does rather than sprouting
+     from the floor of the row. */
+  transform-origin: 50% 50%;
+}
+
+/* Behind the needle: heard. */
+.player__tick[data-past] {
+  opacity: 1;
+}
+
+.player[data-state="playing"] .player__tick {
+  /* `--breath` and not `--beat`: the stage already spends `--beat` on the
+     entry stagger, and this row sits inside the element that reads it. Two
+     meanings for one name in one subtree is a trap whoever changes it next
+     falls into. */
+  animation: player-breathe var(--breath) ease-in-out var(--at) infinite
+    alternate;
+}
+
+@keyframes player-breathe {
+  from {
+    transform: scaleY(0.6);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   The three buttons
+   --------------------------------------------------------------------------- */
+
+.player__play {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 2.3em;
+  height: 2.3em;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: var(--song-red);
+  color: var(--song-cream);
+  cursor: pointer;
+  transition: transform 180ms cubic-bezier(0.22, 1.02, 0.36, 1);
+}
+
+.player__play:hover {
+  transform: scale(1.06);
+}
+
+.player__play:focus-visible,
+.player__dial:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+}
+
+/**
+ * The glyph, drawn rather than typed.
+ *
+ * The third of these in the card - `.tape__glyph` does it for the cassette and
+ * `.vinyl__glyph` for the record on the selection page. Each control keeps its
+ * own selector rather than sharing one, because they are different sizes on
+ * different grounds and a shared rule would be three exceptions in a coat.
+ */
+.player__glyph {
+  width: 0;
+  height: 0.76em;
+  border-left: 0.6em solid currentColor;
+  border-top: 0.38em solid transparent;
+  border-bottom: 0.38em solid transparent;
+  /* A triangle's bulk sits left of its point, so it is nudged over to look
+     centred rather than measured centred. */
+  margin-left: 0.16em;
+}
+
+.player__play[aria-pressed="true"] .player__glyph {
+  width: 0.54em;
+  margin-left: 0;
+  border: none;
+  background: currentColor;
+  /* Two bars cut from one box, so pausing swaps a shape rather than a count of
+     children. */
+  clip-path: polygon(
+    0 0,
+    34% 0,
+    34% 100%,
+    0 100%,
+    0 0,
+    66% 0,
+    100% 0,
+    100% 100%,
+    66% 100%,
+    66% 0
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   Volume
+   The card's first range input. Nothing here was inherited from anywhere, so
+   the track and the thumb are both drawn from nothing on all three engines.
+   --------------------------------------------------------------------------- */
+
+/**
+ * The volume, standing up the right-hand edge.
+ *
+ * Its own block on the stage rather than a row inside the transport, and a
+ * column with the speaker UNDER the slider - which is why the input comes
+ * first in the markup and no `column-reverse` is needed to put it there.
+ */
+.player__level {
+  /* Third in. See the running order in song.css. */
+  --step: 3;
+
+  position: absolute;
+  left: 79.5%;
+  top: 8%;
+  width: 3.5%;
+  height: 34%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7em;
+  color: var(--song-red);
+  animation: player-appear var(--appear) ease-out calc(var(--beat) * var(--step))
+    both;
+}
+
+.player__speaker {
+  width: 1.35em;
+  height: 1.35em;
+  flex: 0 0 auto;
+  opacity: 0.9;
+}
+
+/**
+ * Turned by `writing-mode`, not by a transform.
+ *
+ * A rotated range looks right and behaves wrongly - the box it reserves is
+ * still the horizontal one, and the pointer maths the browser does is against
+ * the untransformed box, so the thumb runs away from the finger. `writing-mode`
+ * makes it a genuinely vertical control, which keeps the drag honest and keeps
+ * the arrow keys, Home and End that come free with a real input.
+ *
+ * `direction: rtl` is what puts the loud end at the TOP; without it the scale
+ * runs the wrong way up.
+ */
+.player__dial {
+  flex: 1 1 auto;
+  width: 1.2em;
+  writing-mode: vertical-lr;
+  direction: rtl;
+  appearance: none;
+  background: none;
+  cursor: pointer;
+}
+
+/* The filled part is the gradient rather than a second element, so there is one
+   thing to keep in step with the value and not two. */
+.player__dial::-webkit-slider-runnable-track {
+  width: 2px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to top,
+    var(--song-red) calc(var(--level) * 100%),
+    var(--song-hair) calc(var(--level) * 100%)
+  );
+}
+
+.player__dial::-moz-range-track {
+  width: 2px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to top,
+    var(--song-red) calc(var(--level) * 100%),
+    var(--song-hair) calc(var(--level) * 100%)
+  );
+}
+
+/* Cream with a red rim, so the knob reads as sitting on the pill rather than as
+   a hole punched through it. */
+.player__dial::-webkit-slider-thumb {
+  appearance: none;
+  width: 0.8em;
+  height: 0.8em;
+  border: 2px solid var(--song-red);
+  border-radius: 999px;
+  background: var(--song-cream);
+  /* Half the thumb off the track, since a runnable track has no notion of
+     centring what rides on it. ACROSS the track and not along it: in vertical
+     writing mode the track's thickness is its width, so the nudge that used to
+     be `margin-top` is a horizontal one. */
+  margin-left: calc(-0.4em + 1px);
+}
+
+.player__dial::-moz-range-thumb {
+  width: 0.8em;
+  height: 0.8em;
+  border: 2px solid var(--song-red);
+  border-radius: 999px;
+  background: var(--song-cream);
+}
+
+/* ---------------------------------------------------------------------------
+   The page laid out again
+   song.css takes the pieces off the canvas on three window shapes; this is the
+   transport's own half of that. Filed here rather than with the queries in
+   song.css because a rule whose selector list spans two components lands at
+   whichever component's place in the import order it was filed under, and
+   these have to keep overriding what is above them in this file.
+
+   The volume is the one control that changes SHAPE rather than size. Up the
+   right-hand edge it is 3.5% of the stage, which is thirteen pixels of drag
+   target on a phone; across the page under the transport it is a slider a
+   thumb can actually find. Still a real range input either way - the note
+   above about `writing-mode` is the reason this is a change of writing mode
+   and not a rotation.
+   --------------------------------------------------------------------------- */
+
+@media (max-aspect-ratio: 1 / 1), (max-width: 48rem), (max-height: 46rem) {
+  .player {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: auto;
+    grid-area: player;
+  }
+
+  .player__play {
+    /* 2.3em of the stage's type was a 16px button. This is a thumb's worth,
+       and the glyph inside it is still drawn in `em`. */
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+
+  .player__level {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: auto;
+    height: auto;
+    grid-area: level;
+    /* Reversed, because the speaker comes last in the markup so that it sits
+       UNDER the upright slider. Laid across, the quiet end is the left one. */
+    flex-direction: row-reverse;
+    align-items: center;
+    /* The row it is in may be the one given the leftover height. It is a
+       control, not a column to fill. */
+    align-self: start;
+    gap: 0.6em;
+    padding-inline: 0.4em;
+  }
+
+  .player__dial {
+    writing-mode: horizontal-tb;
+    direction: ltr;
+    width: auto;
+    height: 2.75rem;
+  }
+
+  /* The track and the thumb are drawn against the writing mode, so both turn
+     with it: the track's thickness is its height now, and the nudge that
+     centres the thumb across it is a vertical one. */
+  .player__dial::-webkit-slider-runnable-track {
+    width: auto;
+    height: 2px;
+    background: linear-gradient(
+      to right,
+      var(--song-red) calc(var(--level) * 100%),
+      var(--song-hair) calc(var(--level) * 100%)
+    );
+  }
+
+  .player__dial::-moz-range-track {
+    width: auto;
+    height: 2px;
+    background: linear-gradient(
+      to right,
+      var(--song-red) calc(var(--level) * 100%),
+      var(--song-hair) calc(var(--level) * 100%)
+    );
+  }
+
+  .player__dial::-webkit-slider-thumb {
+    margin-left: 0;
+    margin-top: calc(-0.4em + 1px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Both blocks the transport is now made of. The volume used to be a row
+     inside `.player` and came along for free; it is its own piece on the
+     stage since the pill came apart, so it has to be named. */
+  .player,
+  .player__level {
+    animation: none;
+  }
+
+  /* The marks stop breathing. They stand at their own heights either way and
+     the ink still says how far through the song is, so nothing about the state
+     stops being legible - it just does not dance. */
+  .player[data-state="playing"] .player__tick {
+    animation: none;
+  }
+
+  .player__tick,
+  .player__play {
+    transition: none;
+  }
+
+  .player__play:hover {
+    transform: none;
+  }
+}

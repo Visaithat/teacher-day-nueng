@@ -18,7 +18,10 @@
   min-height: 100dvh;
   align-items: center;
   justify-content: center;
-  padding: 4vmin;
+  padding: max(4vmin, env(safe-area-inset-top, 0px))
+    max(4vmin, env(safe-area-inset-right, 0px))
+    max(4vmin, env(safe-area-inset-bottom, 0px))
+    max(4vmin, env(safe-area-inset-left, 0px));
   /* The layers overhang the viewport on their way in. */
   overflow: clip;
 }
@@ -175,10 +178,18 @@
 .home__hint {
   position: absolute;
   left: 50%;
-  bottom: clamp(0.6rem, 2.5dvh, 1.75rem);
+  bottom: calc(
+    clamp(0.6rem, 2.5dvh, 1.75rem) + env(safe-area-inset-bottom, 0px)
+  );
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  /* The drawing is a 12px word over an 11px corner, and on a phone that is the
+     whole of what a thumb has to land on. The room comes from the anchor, not
+     from the marks: growing the chevron would just draw a bigger arrow. */
+  min-height: 2.75rem;
+  padding-inline: 0.75rem;
   gap: 0.4rem;
   color: color-mix(in srgb, var(--foreground) 60%, var(--background));
   text-decoration: none;

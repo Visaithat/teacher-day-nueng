@@ -1,0 +1,470 @@
+/* ---------------------------------------------------------------------------
+   The turntable
+   The record arriving on a deck, in the order it would actually happen: the
+   sleeve comes in and lands, the record slides out of it and up onto the
+   platter, the arm swings over, and then it turns.
+
+   The deck and its arm are two pictures on one 1024x860 canvas, so `inset: 0`
+   is the whole of lining them up. Every other figure here - the platter's centre, the arm's hinge, how far
+   it swings - was measured off that same square and arrives from `SONG_DECK`
+   as a percentage of it.
+
+   Every offset is a percentage of THE DECK'S OWN SQUARE, `.record-deck__body`,
+   and that is load-bearing. The sleeve used to be measured against the stage
+   instead, so the record was a fraction of one box and its cover a fraction of
+   another and no arithmetic could reach between them - which is how the record
+   came to be drawn out of a sleeve it never touched, half of it off the page.
+   One ruler now. See song.css for the stage the square sits on.
+   --------------------------------------------------------------------------- */
+
+/**
+ * The deck does not arrive. It is simply there, complete and empty, from the
+ * first frame - a turntable someone set down before the page opened - and the
+ * cover sliding in is the first thing on this page that moves. It has no
+ * `--step` for that reason; the running order in song.css starts at the
+ * transport.
+ *
+ * `isolation` and nothing else. The five layers below are ordered against one
+ * another and that ladder has no business reaching out of here: without this,
+ * each of them with a `z-index` competes in the stage's own stacking context
+ * and paints OVER `.player`, which goes unnoticed only because the cabinet
+ * stops 2.2% of the stage short of the transport. It opens a stacking context
+ * without becoming a containing block, so unlike a `transform` or a `filter`
+ * it cannot catch the fixed light in reveal-light.css.
+ */
+.record-deck {
+  position: absolute;
+  inset: 0;
+  /* Nothing here is pressed. The transport beside it is the control, and a
+     picture that eats clicks meant for the cloth behind it is just a trap. */
+  pointer-events: none;
+  isolation: isolate;
+}
+
+/**
+ * The drawing's own canvas. Everything inside is placed against this rather
+ * than against the stage, so the deck can be moved or resized in one place.
+ *
+ * NOT SQUARE, and that is the whole of the arithmetic upstairs: `left` and
+ * `width` below resolve against 1024 of this box, `top` against 860 of it, and
+ * SONG_ART hands over each figure already converted to the right one.
+ *
+ * These four are composition, so they stay literal here - but the width is
+ * bounded, and by the volume slider rather than by anything obvious. The cover
+ * stands beside the deck and is as wide as its record, so the two of them and
+ * the air between come to almost twice the deck: 38.5 leaves 30.57 for the
+ * cover and 5.11 of gap, and the group runs from 1.82 to 76, which is where
+ * the slider's column begins. Widen the deck and the cover goes off the page.
+ *
+ * It was 30 while the transport was a pill in the top-right corner. Taking the
+ * pill apart gave the whole upper half back, which is the only reason there is
+ * room for this.
+ */
+.record-deck__body {
+  position: absolute;
+  left: 37.5%;
+  top: 6.5%;
+  width: 38.5%;
+  aspect-ratio: 1024 / 860;
+}
+
+/* --- The ladder, bottom to top: sleeve 1, base 2, rings 3, disc 4, arm 5.
+       The cover stands clear of the cabinet now, so this ordering settles
+       nothing on its own - the record is still uncovered by a clip, because
+       it is six times wider than the gap and so is over the cabinet before it
+       has finished leaving the cover. See SONG_PULL. --- */
+
+.record-deck__base {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  /* `em`, not px: the stage sets one type size from its own width, so this is
+     the only way a shadow keeps its weight when the deck is resized. */
+  filter: drop-shadow(0 0.9em 1.3em rgba(70, 44, 16, 0.28));
+}
+
+/* ---------------------------------------------------------------------------
+   The record
+   The box travels; the picture in it turns. See the note in record-deck.tsx for why
+   those are two elements and not one.
+   --------------------------------------------------------------------------- */
+
+.record-deck__disc {
+  position: absolute;
+  left: var(--disc-left);
+  top: var(--disc-top);
+  width: var(--disc-size);
+  aspect-ratio: 1;
+  z-index: 4;
+  /**
+   * Two tracks: where it is, and how much of it the cover is still over.
+   *
+   * They are one gesture and they must not come apart, so they share a
+   * duration, a delay and a curve. `clip-path` is a straight line along the
+   * cover's edge and its distance across the record is linear in the record's
+   * own travel, so running both on the same easing keeps the line exactly on
+   * that edge at every frame rather than only at the ends.
+   *
+   * The backwards fill is doing real work here. Before the delay the record is
+   * clipped to nothing, which is why there is no third track to hide it: it
+   * cannot be seen lying on bare wood while the cover is still on its way in,
+   * because until the cover is there the record has no uncovered part at all.
+   *
+   * NOTHING BELOW MAY BE DECLARED ON THIS RULE. Every start value lives in a
+   * `from` frame and every resting value is the property's own initial value -
+   * `translate: none` on the spindle and `clip-path: none` for the whole
+   * record - which is what lets the reduced-motion block switch both off and
+   * get the finished picture for free.
+   */
+  animation:
+    record-deck-record var(--record-run) cubic-bezier(0.32, 0.08, 0.24, 1)
+      var(--record-at) both;
+}
+
+/**
+ * Out of the cover and onto the spindle, in one straight line, uncovered as
+ * it goes.
+ *
+ * There is no stop partway, and that is the point. A stop is also a pause -
+ * `animation-timing-function` is per-interval, so a curve that eases at both
+ * ends runs twice and brings the record very nearly to a halt in the middle of
+ * being pulled out.
+ *
+ * `--pull-x` and `--pull-y` are percentages of the RECORD'S own box, which is
+ * what `translate` resolves against. `--mouth-from` and `--mouth-to` are the
+ * cover's right edge seen from the record at each end of the trip, leaning at
+ * the same angle the cover does. All four are computed in SONG_PULL from the
+ * sleeve and the platter rather than written down, and the note there says why
+ * the record is uncovered this way instead of being hidden behind the cover.
+ */
+@keyframes record-deck-record {
+  from {
+    translate: var(--pull-x) var(--pull-y);
+    clip-path: var(--mouth-from);
+  }
+  to {
+    translate: 0 0;
+    clip-path: var(--mouth-to);
+  }
+}
+
+
+/**
+ * Turning, whenever the song is.
+ *
+ * NO DELAY, and that is the fix for a bug rather than a simplification.
+ * `animation-play-state: paused` freezes the delay as well as the animation,
+ * so a delay of `--going` on a track that is paused until the song starts
+ * does not elapse during the opening at all - it starts counting when the
+ * needle lands and the record would sit still for another three seconds.
+ * Being paused until `playing` IS the delay, and it is the honest one: the
+ * record turns exactly while there is sound.
+ */
+.record-deck__record {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  animation: record-deck-spin var(--spin-duration) linear infinite;
+}
+
+.record-deck:not([data-state="playing"]) .record-deck__record {
+  animation-play-state: paused;
+}
+
+@keyframes record-deck-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   The tonearm
+   Its own picture on the deck's canvas, exported already parked, so it sits
+   exactly where it belongs and turns about the bearing it is drawn on.
+   --------------------------------------------------------------------------- */
+
+.record-deck__arm {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  transform-origin: var(--pivot-x) var(--pivot-y);
+  rotate: 0deg;
+  /**
+   * A TRANSITION, not a one-shot animation, because the arm has to be able to
+   * come back up.
+   *
+   * It used to swing once at `--arm-at` and stay down for good. Now the deck
+   * says when the arm belongs on the record - `data-arm` - and this carries it
+   * either way: down when the opening reaches its beat, up again the moment
+   * the song is paused, down again when it is started. A keyframe animation
+   * cannot do that; its fill would pin the arm down and outrank anything the
+   * cascade said afterwards.
+   *
+   * The curve overshoots a shade and comes back, which is what an arm being
+   * lowered onto a record actually does.
+   */
+  transition: rotate var(--arm-run) cubic-bezier(0.34, 1.32, 0.64, 1);
+}
+
+.record-deck[data-arm="down"] .record-deck__arm {
+  rotate: var(--play);
+}
+
+/* ---------------------------------------------------------------------------
+   The rings
+   Sound leaving the record - the same measurements, colours and keyframes the
+   page already used, carried over unchanged. Only what starts them is new:
+   they wait for the stylus now rather than for the song.
+   --------------------------------------------------------------------------- */
+
+/* Sibling of the disc, not its child, so it does NOT inherit the disc's travel
+   or its growth - it reads the same three custom properties and simply sits on
+   the platter from the start. That is only correct because the rings do not
+   appear until `--going`, a full second after the record has landed back at
+   `translate: none` and `scale: none`. Move either one and they come apart. */
+.record-deck__rings {
+  position: absolute;
+  left: var(--disc-left);
+  top: var(--disc-top);
+  width: var(--disc-size);
+  aspect-ratio: 1;
+  z-index: 3;
+  display: block;
+  transition: opacity 260ms ease-out;
+}
+
+.record-deck__ring {
+  position: absolute;
+  inset: 0;
+  border: 2px solid rgba(107, 66, 38, 0.5);
+  border-radius: 999px;
+  opacity: 0;
+  animation: record-deck-ring var(--ring-period) linear var(--at) infinite;
+}
+
+/**
+ * Held where they are, and hidden.
+ *
+ * Two rules doing two different jobs. The marks themselves are PAUSED rather
+ * than switched off, so that a ring halfway out stays halfway out and the
+ * stagger between the three is not lost - switch the animation off and every
+ * one of them starts again from nothing when the song resumes.
+ *
+ * What makes them disappear is the opacity on their container, which carries
+ * no animation of its own and so can simply be told. Fading the rings
+ * themselves is not possible: their own keyframes animate `opacity`, and an
+ * animation's value beats anything the cascade has to say about it.
+ */
+.record-deck:not([data-state="playing"]) .record-deck__ring {
+  animation-play-state: paused;
+}
+
+.record-deck:not([data-state="playing"]) .record-deck__rings {
+  opacity: 0;
+}
+
+/**
+ * Out, and thinner as it goes.
+ *
+ * It leaves at the record's own size rather than from nothing, because what is
+ * being drawn is the edge of the record carrying on outward; starting small
+ * would draw it coming out of the spindle instead.
+ */
+@keyframes record-deck-ring {
+  from {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  to {
+    transform: scale(1.75);
+    opacity: 0;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   The sleeve
+   In from off the page, and then it stays exactly where it lands - which is
+   lying across the cabinet's bottom-left corner, in front of the record.
+   --------------------------------------------------------------------------- */
+
+/**
+ * Its box is on the deck's square, not the stage's.
+ *
+ * Two things follow. Its middle and the platter's are now subtractable, which
+ * is where the record's whole journey comes from; and its resting place is
+ * pinned to the cabinet rather than to the page's aspect ratio, so the corner
+ * it lies across stays the same corner at any window shape. `aspect-ratio`
+ * keeps it square against `--card-ratio` even though the box it sits in is
+ * already square - the card is only square today, and a taller one should
+ * stay a card rather than quietly become a sleeve-shaped crop.
+ */
+.record-deck__sleeve {
+  position: absolute;
+  left: var(--sleeve-left);
+  top: var(--sleeve-top);
+  width: var(--sleeve-size);
+  aspect-ratio: var(--card-ratio);
+  z-index: 1;
+  /**
+   * THESE TWO ARE WHERE IT ENDS UP, not where it starts - leaning, and pushed
+   * far enough right that its edge is behind the cabinet.
+   *
+   * The cover has three places to be and only one of them can be declared
+   * here, so it is the last: `animation: none` then leaves the finished
+   * picture, which is what reduced motion needs. The other two live in the
+   * keyframes below.
+   */
+  translate: var(--tuck-x) var(--tuck-y);
+  rotate: var(--lean-set);
+  border-radius: 3px;
+  box-shadow: 0 0.7em 1.3em rgba(70, 44, 16, 0.24);
+  /**
+   * ONE animation for all three places, and it has to be one.
+   *
+   * Two were the obvious way - arrive, then later be pushed aside - and they
+   * are quietly broken. A keyframe list with no `to` takes its last frame from
+   * the UNDERLYING value, and the underlying value is the cascade plus every
+   * animation below it in the list. The arrival fills forwards, so it goes on
+   * contributing `translate: 0 0` long after it has ended, and a second
+   * animation stacked above it would read THAT as its destination rather than
+   * the `translate` declared on this rule. It would run from nought to nought
+   * and the cover would never move - which is exactly what it did.
+   *
+   * One list, and the implicit last frame resolves against this rule with
+   * nothing in between. The stops below carry the timing instead.
+   */
+  animation: record-deck-sleeve var(--cover-run)
+    cubic-bezier(0.32, 0.08, 0.24, 1) var(--sleeve-at) both;
+}
+
+/**
+ * The cover's whole life, in one timeline: in, hold, aside.
+ *
+ * Percentages are of `at.going`, 3200ms - the moment the needle lands, which
+ * is when everything on this page has finished moving. The arrival ends at
+ * `run.sleeve` 800ms (25%) and the push aside begins at `at.arm` 2200ms
+ * (68.75%), so retune those two and these come with them.
+ *
+ * THE HOLD IN THE MIDDLE IS THE POINT. The cover stands square and clear of
+ * the deck for the whole of the pull, because that is the beat worth watching
+ * and the record's start is measured from where the cover IS. Only once the
+ * record is on the platter does the cover lean over and slide behind the
+ * cabinet. The two frames either side of the hold are identical, which is how
+ * the stillness is written down.
+ *
+ * There is no `to`, so the last frame is this element's own declared place -
+ * leaning and tucked. That is what makes switching the animation off for
+ * reduced motion land on the finished picture with nothing to restate.
+ *
+ * Each stop carries its own curve, because `animation-timing-function` is
+ * per-interval: the arrival eases in and out of nothing, the hold is flat, and
+ * the push aside overshoots a shade and comes back, the way a card set down
+ * with one hand does.
+ */
+@keyframes record-deck-sleeve {
+  from {
+    translate: calc(-50vw - 110%) -6%;
+    rotate: var(--lean-in);
+    animation-timing-function: cubic-bezier(0.32, 0.08, 0.24, 1);
+  }
+  25% {
+    translate: 0 0;
+    rotate: var(--lean);
+    animation-timing-function: linear;
+  }
+  68.75% {
+    translate: 0 0;
+    rotate: var(--lean);
+    animation-timing-function: cubic-bezier(0.34, 1.16, 0.64, 1);
+  }
+}
+
+
+/* --- motion is unwelcome -------------------------------------------------- */
+
+/**
+ * The finished picture, at once.
+ *
+ * This block is three words long because of a rule kept upstairs: every value
+ * a move STARTS from is written in a `from` frame, and every value it comes to
+ * rest at is either the property's own initial value or a declaration on the
+ * element. `animation: none` ignores the animation origin, so it lands on the
+ * resting value by construction - the record at `translate: none` on the
+ * spindle and `clip-path: none`, so all of it shows, and the cover on its
+ * declared `--lean`.
+ *
+ * Invert that anywhere - declare a start value on the rule, or leave a rest
+ * value only in a `to` frame - and reduced motion quietly renders a half-built
+ * deck with nothing to say it has. The `to` frame in `record-deck-record` is
+ * not an exception: it names the same values the element already rests at, and
+ * is there only so the clip and the travel share one curve.
+ *
+ * The arm is the one real exception and says so: its rest is a rotation rather
+ * than the absence of one, so it is put down by hand. The deck itself is not
+ * in the list any more - it no longer arrives.
+ */
+/* ---------------------------------------------------------------------------
+   The page laid out again
+   The deck's half of the arrangement song.css switches to on a narrow, short
+   or upright window. Filed here for the same reason the transport's half is
+   filed in player.css: a selector list spanning components lands in one
+   component's place in the import order and stops overriding the other's.
+
+   Only the two outer boxes move. Everything below `.record-deck__body` is a
+   percentage of that box and carries on meaning what it meant - which is the
+   whole reason the deck was drawn against a canvas of its own rather than
+   against the stage.
+   --------------------------------------------------------------------------- */
+
+@media (max-aspect-ratio: 1 / 1), (max-width: 48rem), (max-height: 46rem) {
+  .record-deck {
+    position: relative;
+    inset: auto;
+    grid-area: deck;
+  }
+
+  .record-deck__body {
+    position: relative;
+    left: auto;
+    top: auto;
+    margin-inline: auto;
+  }
+}
+
+/* Upright: the deck is the widest thing on the page and has the column to
+   itself. The cover tucks about a quarter of its own width past the cabinet's
+   right edge, so this leaves room for it rather than filling the column. */
+@media (max-aspect-ratio: 1 / 1), (max-width: 48rem) {
+  .record-deck__body {
+    width: min(62%, 13rem);
+  }
+}
+
+/* On its side: the deck shares a column with the transport and the volume, and
+   the height it takes is height the words do not get. */
+@media (max-height: 46rem) and (min-aspect-ratio: 1 / 1) and (min-width: 48rem) {
+  .record-deck__body {
+    width: min(70%, 9.5rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .record-deck__disc,
+  .record-deck__record,
+  .record-deck__sleeve,
+  .record-deck__ring {
+    animation: none;
+  }
+
+  /* The arm is placed by `data-arm`, which is set on the first commit when
+     motion is unwelcome, so there is nothing to put down by hand any more -
+     only the travel to switch off. The rings' fade goes with it. */
+  .record-deck__arm,
+  .record-deck__rings {
+    transition: none;
+  }
+}

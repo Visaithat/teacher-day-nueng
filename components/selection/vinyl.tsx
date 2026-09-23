@@ -1,71 +1,63 @@
 "use client";
 
 import type { CssVars } from "@/types/css-vars";
-import type { SongState } from "@/types/song";
 import {
   HINT_ARROW_ART,
   POSTCARD_ART,
-  SLIDE_MS,
-  SPIN_MS,
   VINYL_ART,
 } from "@/lib/constants/selection";
 
 interface VinylProps {
-  state: SongState;
-  toggle: () => void;
-  /** Where a press goes once the record is already out. */
-  onOpenPlayer: () => void;
+  /** Press the record: go to its own page, where it is played. */
+  onOpen: () => void;
 }
 
 /**
- * The postcard, and the record leaning against it.
+ * The postcard, the record tucked behind it, and the note asking for the song.
  *
- * A single control: the whole disc is the button, because a record has nothing
- * printed on its own face to press — pressing the thing itself is the only
- * interaction there has ever been to learn.
+ * A single control, and it is the cover: the record hides behind it until a
+ * cursor arrives and slides out while one is there. Pressing it does not play
+ * anything here - it opens the page the record has of its own, and the song
+ * starts as that page arrives.
  *
- * The first press only starts it playing here, slid out from behind the
- * postcard. It is the press after that — on a record already out and
- * turning — that hands off to the full player, so a reader gets to see the
- * record start before the page takes them anywhere.
+ * Four siblings rather than a column. Each one is a measured place on the
+ * scene's canvas, so none of them is laid out against another; they are handed
+ * over in reading order — card, record, arrow, note — which is also the order
+ * the keyboard meets them in and the order the note is asking for.
  *
- * The song itself belongs to `Selection`, not here — the same `<audio>` has to
- * keep playing once a later press hands off to the full player, and an
- * element only keeps playing across that swap if it was never unmounted with
- * this one.
+ * The two `ratio` figures go down as variables because the art is taken out of
+ * the flow here: an image that has not loaded holds no box of its own, and the
+ * stylesheet needs its shape before then.
  */
-export default function Vinyl({ state, toggle, onOpenPlayer }: VinylProps) {
-  const press = () => {
-    if (state === "idle") toggle();
-    else onOpenPlayer();
-  };
-
+export default function Vinyl({ onOpen }: VinylProps) {
   return (
     <div
       className="vinyl"
       style={
         {
-          "--spin-duration": `${SPIN_MS}ms`,
-          "--slide-duration": `${SLIDE_MS}ms`,
+          "--card-ratio": `${POSTCARD_ART.ratio}`,
+          "--arrow-ratio": `${HINT_ARROW_ART.ratio}`,
         } as CssVars
       }
     >
-      <div className="vinyl__group">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          className="vinyl__postcard"
-          src={POSTCARD_ART.src}
-          alt={POSTCARD_ART.alt}
-          draggable={false}
-        />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        className="vinyl__postcard"
+        src={POSTCARD_ART.src}
+        alt={POSTCARD_ART.alt}
+        draggable={false}
+      />
 
-        <button
-          type="button"
-          className="vinyl__record"
-          data-state={state}
-          onClick={press}
-          aria-label={state === "idle" ? "Play the song" : "Open the player"}
-        >
+      <button
+        type="button"
+        className="vinyl__record"
+        onClick={onOpen}
+        aria-label="Play the song"
+        aria-describedby="vinyl-hint"
+      >
+        {/* The record and the mark on it travel together, and the button they
+            sit in stays where it is. See the note on `.vinyl__record`. */}
+        <span className="vinyl__slide">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             className="vinyl__disc"
@@ -74,21 +66,23 @@ export default function Vinyl({ state, toggle, onOpenPlayer }: VinylProps) {
             draggable={false}
           />
           <span className="vinyl__glyph" aria-hidden="true" />
-        </button>
-      </div>
-
-      <p className="vinyl__hint">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          className="vinyl__hint-arrow"
-          src={HINT_ARROW_ART.src}
-          alt={HINT_ARROW_ART.alt}
-          aria-hidden="true"
-          draggable={false}
-        />
-        <span className="vinyl__hint-label">
-          Play this song before you scroll
         </span>
+      </button>
+
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        className="vinyl__hint-arrow"
+        src={HINT_ARROW_ART.src}
+        alt={HINT_ARROW_ART.alt}
+        aria-hidden="true"
+        draggable={false}
+      />
+
+      {/* Two lines, broken where the card breaks them. */}
+      <p className="vinyl__hint" id="vinyl-hint">
+        Play this song
+        <br />
+        before you scroll
       </p>
     </div>
   );

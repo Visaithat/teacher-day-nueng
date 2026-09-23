@@ -21,6 +21,7 @@ export function placeOf(mark: unknown): Place {
   if (!mark || typeof mark !== "object") return { at: "selection" };
   const { at } = mark as { at?: unknown };
   if (at === "mails") return { at: "mails" };
+  if (at === "song") return { at: "song" };
   if (at === "kept") {
     const { person, item } = mark as { person?: unknown; item?: unknown };
     if (typeof person === "string" && typeof item === "string") {

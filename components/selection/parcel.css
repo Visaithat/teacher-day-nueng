@@ -1,42 +1,109 @@
 /* ---------------------------------------------------------------------------
    The parcel
-   The box the letters are waiting in. The whole thing is the way into the mail
-   scene, so it has to look pressable without a rectangle drawn around it saying
-   so.
+   The box the letters are waiting in, standing lower-right, with the words
+   naming it up and to the right and an arrow leaning back down at it. The whole
+   box is the way into the mail scene, so it has to look pressable without a
+   rectangle drawn around it saying so - and the words have to be readable
+   without being pressable, which is why they are outside the control.
+
+   Every offset here is a percentage of `.selection__display`. See
+   selection.css for where those numbers come from.
    --------------------------------------------------------------------------- */
 
 .parcel {
+  position: absolute;
+  inset: 0;
+  /* The whole stage, painted over the record's layer — so it has to be dead to
+     the pointer or it would swallow every press meant for the disc. The box
+     takes its own clicks back below, and nothing else here ever should. */
+  pointer-events: none;
+  animation: parcel-appear 640ms 140ms ease-out both;
+}
+
+.parcel__press {
+  position: absolute;
+  left: 48.4%;
+  top: 52.5%;
+  width: 48.4%;
+  /* The trimmed artwork's own shape, so the target holds its box before the
+     image has loaded and does not move out from under a finger. */
+  aspect-ratio: var(--box-ratio);
+  /* The one thing on this layer the pointer may reach. */
+  pointer-events: auto;
+
   /* The one thing a button does not inherit and an anchor did. Everything else
      a browser puts on a button — the padding, the border, the background, the
      13px font — Tailwind's preflight has already taken back off it, which is
      why there is no reset here to read. */
   cursor: pointer;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.1rem;
-  width: min(70vw, 24rem);
   color: inherit;
-  text-decoration: none;
-  animation: parcel-appear 640ms 140ms ease-out both;
+  scale: 1;
+  transition: scale 260ms ease-out;
+}
+
+/* A box leaning toward whoever is reaching for it. Growing is the one move a
+   control can make under a cursor without risk: it only ever takes in more of
+   the cloth around it, and can never step out from under the thing pointing at
+   it the way the record would if its own hit area travelled. */
+.parcel__press:hover,
+.parcel__press:focus-visible {
+  scale: 1.03;
 }
 
 .parcel__art {
   display: block;
   width: 100%;
-  height: auto;
-  animation: parcel-nudge 3.2s ease-in-out infinite;
+  height: 100%;
 }
 
-@keyframes parcel-nudge {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
-  }
-  50% {
-    transform: translate3d(0, -3%, 0) rotate(-1deg);
-  }
+/**
+ * The slot the letters stand in: the box's opening, traced.
+ *
+ * `clip-path` lives here and on nothing else, because this element never moves.
+ * A transform takes an element's clipping region along with it, so the same
+ * polygon worn by the letters themselves would travel down as they fell and
+ * hide nothing at all.
+ *
+ * The line is the box's own front edge - both halves of it, meeting at the
+ * corner nearest the reader. It used to be the left half alone, which was
+ * enough while only the white stack moved; the orange envelopes stand over
+ * toward the right and go down behind that side instead. Anything the letters
+ * carry below it is inside the box and not to be seen, which is the whole
+ * trick - they are not faded in or scaled up, they are lowered out of sight
+ * behind a wall already drawn.
+ *
+ * The figures are the opening's own corners, read off the artwork and carried
+ * two pixels lower than measured so the edge never shaves the envelopes while
+ * they are up.
+ */
+.parcel__slot {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(0% 0%, 100% 0%, 100% 34.9%, 54.6% 66%, 0% 28.4%);
+}
+
+/**
+ * 30% of the box's own height, a little further than the deepest envelope has to
+ * fall to be wholly under that edge: the measured clearance is 27.1%. It was
+ * 20% while the white stack was the only thing moving, which needed 17.5% - the
+ * orange envelopes stand deeper in the box and take the rest.
+ */
+.parcel__letters {
+  display: block;
+  width: 100%;
+  height: 100%;
+  translate: 0 30%;
+  /* Down is a drop: they fall back in and that is all. */
+  transition: translate 300ms ease-in;
+}
+
+/* Up is not. The curve overshoots its own end, so they come up past where they
+   settle and drop back the last little way - a handful of envelopes pushed up
+   out of a box rather than a panel sliding open. */
+.parcel__press:hover .parcel__letters,
+.parcel__press:focus-visible .parcel__letters {
+  translate: 0 0;
+  transition: translate 460ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @keyframes parcel-appear {
@@ -46,56 +113,81 @@
   }
 }
 
-/* Pushed right of the column's own centring, same technique vinyl.css uses
-   to pull its own hint toward the postcard's edge, mirrored here toward
-   the box's own right side. */
-.parcel__hint {
-  display: flex;
-  align-items: flex-start;
-  align-self: flex-end;
-  gap: 0.6rem;
-  margin: 0 0 0 2.4rem;
-  color: var(--foreground);
-  text-align: left;
-}
+/* ---------------------------------------------------------------------------
+   The note
+   Above the box rather than below it, and pointed back down at it - so the
+   arrow is a sibling of the words here, not something sitting in a row beside
+   them.
+   --------------------------------------------------------------------------- */
 
-/* Same file vinyl.css's own hint points with (`/art/arrow.svg`, drawn
-   pointing down-left) — `scale` mirrors it vertically so the tail points up
-   at the box instead of down at the text. Sized to match the vinyl page's
-   own hint arrow now that it sits after the label instead of before it, and
-   pulled up above the label the same way vinyl.css's own arrow sits above
-   its label rather than level with it. */
+/* The same file the record's own hint points with (`/art/arrow.svg`), turned
+   right over - both axes, so the head comes up from the bottom and points at
+   the words above it, the way the reference has it. The record's own arrow is
+   the same drawing mirrored across one axis only, which is why it reads as the
+   same hand twice rather than one drawing used twice.
+
+   `left` and `top` carry 1% more and 1% less than the record's arrow of the
+   same size: the ink sits off-centre inside the file's own viewBox, so turning
+   it over moves the drawing within its box even though the box has not moved. */
 .parcel__hint-arrow {
-  width: 3.4rem;
-  height: auto;
-  flex: 0 0 auto;
-  scale: 1 -1;
-  margin-top: -3.4rem;
-  animation: parcel-hint-nudge 2.4s ease-in-out infinite;
+  position: absolute;
+  left: 65.9%;
+  top: 41.1%;
+  width: 11.5%;
+  aspect-ratio: var(--arrow-ratio);
+  scale: -1 -1;
 }
 
-.parcel__hint-label {
+/* Placed from its own centre, because the reference centres the second line
+   under the first rather than ranging them left. */
+.parcel__hint {
+  position: absolute;
+  left: 85%;
+  top: 35%;
+  translate: -50% 0;
+  rotate: -5deg;
+  /* As wide as its longer line and no wider — see the note in vinyl.css. Here
+     it is doing real work: the words sit close enough to the right-hand edge
+     that the room left beside them is narrower than the first line. */
+  width: max-content;
+  /* Words, so they can be selected like words. The layer above is dead to the
+     pointer and these are the only thing on it a reader might reach for. */
+  pointer-events: auto;
+  margin: 0;
+  color: var(--hint-ink);
+  text-align: center;
   font-family: var(--font-hand), var(--font-note), cursive;
-  font-size: 1.85rem;
   font-weight: 600;
   line-height: 1.15;
-  margin-top: 1.2rem;
 }
 
-@keyframes parcel-hint-nudge {
-  0%,
-  100% {
-    translate: 0 0;
-  }
-  50% {
-    translate: 3px -5px;
-  }
-}
-
-.parcel:focus-visible {
+.parcel__press:focus-visible {
   outline: 3px solid var(--ink);
   outline-offset: 6px;
   border-radius: 12px;
+}
+
+/* ---------------------------------------------------------------------------
+   A finger, not a pointer
+   The envelopes are pushed up out of the box on hover, and a touch screen has
+   none: a tap opens the letters before anything has risen, so on a phone the
+   box stayed shut for its whole life. The same answer the record is given in
+   vinyl.css — the move plays once as the page opens, and rests up.
+   --------------------------------------------------------------------------- */
+
+@media (hover: none) {
+  .parcel__letters {
+    translate: 0 0;
+    /* The overshoot the hover state uses, spent on arrival instead. It follows
+       the record out of its sleeve rather than sharing the beat with it. */
+    animation: parcel-up 460ms cubic-bezier(0.34, 1.56, 0.64, 1) 760ms both;
+  }
+}
+
+@keyframes parcel-up {
+  from {
+    translate: 0 30%;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -104,11 +196,15 @@
     animation-delay: 0ms;
   }
 
-  .parcel__art {
-    animation: none;
+  .parcel__press,
+  .parcel__letters,
+  .parcel__press:hover .parcel__letters,
+  .parcel__press:focus-visible .parcel__letters {
+    transition: none;
   }
 
-  .parcel__hint-arrow {
+  /* Up, but not on the way up. */
+  .parcel__letters {
     animation: none;
   }
 }

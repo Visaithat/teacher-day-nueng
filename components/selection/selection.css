@@ -1,16 +1,39 @@
 /* ---------------------------------------------------------------------------
    The selection page
    What was inside the present: a record to play, and a box of letters to
-   open. Two things standing near each other on the cloth, not one
-   composition - each settles in on its own.
+   open. One arrangement rather than two things in a row — the record leans
+   upper-left, the box stands lower-right, and each caption is placed by hand
+   beside the thing it points at.
+
+   So this is a stage, not a layout: a canvas of fixed proportion that scales
+   whole, and every child placed as a percentage of it. Every figure in the two
+   files below was measured off the reference art at 364x366, which is where
+   `aspect-ratio` comes from.
    --------------------------------------------------------------------------- */
 
 .selection__display {
-  flex: 1 0 auto;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(2.5rem, 8vw, 6rem);
-  padding: 4vmin;
+  /* The canvas, scaled to whatever room there is. Three caps: the width of a
+     phone, the height of a short window, and a ceiling past which a greeting
+     card stops being a card and turns into a poster.
+     `svh` rather than `vh` or `dvh`. `vh` is the window with the URL bar gone,
+     which is a window this page does not have while the bar is showing, and
+     the cloth clips rather than scrolls — the foot of the composition was
+     simply cut off. `dvh` fits, but it changes as the bar slides away, and a
+     canvas that resizes under a reader mid-gesture is worse than one an inch
+     short. The smallest the window ever is, is the one to fit inside. */
+  --stage: min(92vw, 84svh, 46rem);
+  /* The captions' ink. Near-black rather than the card's red — the hand that
+     wrote them is the hand that drew the postcard, not the one that stamped
+     it. Declared here because both hints read it and neither one owns it. */
+  --hint-ink: #12100e;
+
+  position: relative;
+  width: var(--stage);
+  aspect-ratio: 364 / 366;
+  /* Centred in the cloth's column, both axes. `flex: 1 0 auto` would stretch
+     this and take the aspect ratio with it. */
+  margin: auto;
+  /* One type size for the whole composition, so the captions scale with the
+     art instead of drifting against it as the window changes. */
+  font-size: calc(var(--stage) * 0.047);
 }

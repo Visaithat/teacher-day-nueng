@@ -88,8 +88,19 @@
   /* Above the gingham, which is the cloth's own ::before at auto z-index. */
   z-index: 1;
   /* Where a letter at the front of the deck comes to rest. The mouth marker is
-     measured against this exact point, so the two must never drift apart. */
-  --deck-y: 53%;
+     measured against this exact point, so the two must never drift apart.
+     Kept as a bare share as well as a percentage: letter.css does arithmetic
+     with it to work out the room above the deck, and a percentage cannot be
+     multiplied by a length in `calc`. */
+  --deck-share: 0.53;
+  --deck-y: calc(var(--deck-share) * 100%);
+  /* The row of dots under the stage, as one number. The stage is the window
+     less this, so letter.css needs it to know how much room is above the deck —
+     it used to carry a bare `23px` for the dot and fold the padding into a
+     decimal, and neither followed when this row changed. */
+  --dot-size: 44px;
+  --dots-pad: calc(4svh + env(safe-area-inset-bottom, 0px));
+  --dots-h: calc(var(--dot-size) + var(--dots-pad));
   /* One tenth of the envelope, and the seed of every distance in this file.
      Bounded at both ends: a letter is a physical size, and a viewport fraction
      alone gives a phone a postage stamp and a monitor a bedsheet.
@@ -267,7 +278,7 @@
      is wider than it is tall, so matching widths would draw the sunflower as the
      smaller flower. The ratio comes from the data, so the box is the right shape
      before the picture has loaded. */
-  height: clamp(52px, 9vh, 92px);
+  height: clamp(52px, 9svh, 92px);
   width: auto;
   aspect-ratio: var(--flower-ratio);
   /* A drop-shadow follows the flower's own alpha; a box-shadow would only
@@ -415,7 +426,7 @@
   justify-content: center;
   gap: 0.25rem;
   margin: 0;
-  padding: 0 0 4vh;
+  padding: 0 0 var(--dots-pad);
   list-style: none;
   opacity: 0;
 }
@@ -426,8 +437,8 @@
 
 .mails__dot {
   /* 11px of dot inside 44px of target: the dot is the drawing, not the button. */
-  width: 44px;
-  height: 44px;
+  width: var(--dot-size);
+  height: var(--dot-size);
   padding: 0;
   border: 0;
   background: none;
@@ -458,20 +469,30 @@
   border-radius: 50%;
 }
 
+/* The same pill as the way back in the opposite corner, and it has to keep
+   being the same pill — so the two carry the same inset, the same floor under
+   the tap target and the same bounded type. Written out here rather than shared
+   with a selector list spanning both: cloth-back.css and this file sit in
+   different places in the import order, and a rule filed under one of them
+   stops overriding what is above it in the other. */
 .mails__skip {
   position: absolute;
-  right: 1.5rem;
-  bottom: 1.5rem;
+  right: max(1rem, calc(env(safe-area-inset-right, 0px) + 0.75rem));
+  bottom: max(1rem, calc(env(safe-area-inset-bottom, 0px) + 0.75rem));
   z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
   padding: 0.55rem 1.1rem;
   border: 1px solid rgba(176, 58, 58, 0.4);
   border-radius: 999px;
   background: rgba(253, 246, 227, 0.85);
   color: #8e2a2a;
   font-family: var(--font-letter), Georgia, serif;
-  font-size: 0.95rem;
+  font-size: clamp(0.78rem, 2.6vmin, 0.95rem);
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  white-space: nowrap;
   cursor: pointer;
   transition:
     background 200ms ease,

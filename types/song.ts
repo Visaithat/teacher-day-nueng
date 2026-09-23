@@ -12,7 +12,7 @@
  *
  * WHAT THE BARS CANNOT BE. A real waveform needs the samples, and for a YouTube
  * song the samples are inside a cross-origin iframe that Web Audio cannot
- * reach. So the row is not a picture of this song's sound — it is a fixed
+ * reach. So the row is not a picture of this song's sound — it is a settled
  * profile, drawn from `jitter` so the server and the browser agree on it, and
  * used as a scrubber. That is also what the mock actually shows. The part of it
  * that is true is where the needle has got to.

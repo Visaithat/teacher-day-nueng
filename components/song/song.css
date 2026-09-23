@@ -1,0 +1,494 @@
+/* ---------------------------------------------------------------------------
+   The song page
+   The record out of its cover, the transport beside it, and three pieces of
+   printed matter under both: the words, who made them, and a line about it.
+
+   One canvas, as the selection page does it. The reference is 572 x 522 and
+   every piece on it is placed as a percentage of that, so the page is the same
+   picture at any size rather than a layout that reflows into something else.
+
+   UP TO A POINT, and this is the one page where that point is reached. The
+   canvas sets one type size from its own width - 0.0195 of it - and the canvas
+   is capped by the window. On a phone held upright that cap is 94vw, the stage
+   comes out at 367px, and the whole page is then set in SEVEN POINT ONE pixels:
+   the words at 7.5px, the credits at 6.8px, the play button 16px square. It was
+   not a smaller picture, it was an unreadable one, and there is nowhere for it
+   to overflow to either - the cloth under it clips rather than scrolls.
+
+   So below there is a second arrangement, and the tail of this file is where it
+   lives. The canvas is kept wherever its own type still reads; on a window too
+   narrow, too short or taller than it is wide, the pieces come off the canvas
+   and are laid out as a grid whose type size is the reader's, not the stage's.
+   Both arrangements are one window tall by construction, because travel.css
+   pans between pages by exactly 100dvh and a page taller than that tears.
+   --------------------------------------------------------------------------- */
+
+.song__stage {
+  /* `svh` rather than `vh`: `vh` is the window with the URL bar already gone,
+     which on a phone is a window this page does not have yet, and the cloth
+     clips what does not fit. See the same note in selection.css. */
+  --stage: min(94vw, 90svh, 64rem);
+  /* Near black, but warmed - the transport is machinery on a paper card, and a
+     true black reads as a hole cut in it. */
+  --song-ink: #171310;
+  /* The brown the two right-hand cards are printed in, and the paper colour of
+     the words on them. */
+  --card-brown: #6b4226;
+  --card-paper: #f5f2e9;
+  /* The card's own reds, which the transport is drawn in - the same three the
+     cassette in the letters uses. Repeated here rather than reached for across
+     a component boundary, which is what `tape.css`, `mails.css` and
+     `cloth-back.css` already each do with them. */
+  --song-red: #b03a3a;
+  --song-deep: #8e2a2a;
+  --song-cream: #fdf6e3;
+  --song-hair: rgba(176, 58, 58, 0.4);
+
+  position: relative;
+  width: var(--stage);
+  aspect-ratio: 572 / 522;
+  /* Centred in the cloth's column, both axes. */
+  margin: auto;
+  /* One type size for the whole page, so the words scale with the record
+     instead of drifting against it. */
+  font-size: calc(var(--stage) * 0.0195);
+}
+
+/* ---------------------------------------------------------------------------
+   Arriving
+   In order, and the record first: it is what the reader pressed to get here, so
+   it is what they are looking for when the page opens. Everything printed
+   follows it a beat apart.
+
+   The delay is spent on each piece's own box rather than on a wrapper around
+   it, because every one of them is already positioned against this canvas - a
+   wrapper would either have no size for them to resolve against or become the
+   containing block and move them. So `--step` is declared beside each piece,
+   and the running order is only written down here:
+
+       1  the song's name  below
+       2  the transport    player.css
+       3  the volume       player.css
+       4  the words        below
+       5  the credits      below
+       6  the line         below
+
+   It starts at 1 and there is no 0. The deck used to hold that place; it is
+   there from the first frame now, so the first thing that moves on this page
+   is its cover sliding in - which is on a timeline of its own, in
+   record-deck.css, and owes nothing to this stagger.
+
+   Six and not four because the transport came apart: its name, its marks and
+   its volume used to arrive together inside one pill and now arrive as three.
+   --------------------------------------------------------------------------- */
+
+@keyframes song-appear {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   The three cards
+   --------------------------------------------------------------------------- */
+
+/**
+ * The song's name, across the top of the page.
+ *
+ * It used to be the first line inside the transport's pill. Out here it is the
+ * page's title in the plain sense - the first thing read, above everything it
+ * names - so it is set in the letters' own face at a size nothing else on the
+ * page competes with.
+ *
+ * No artist line under it. The reference has none, and the credits card three
+ * inches below already opens with `Artists: Daniii Hrz.` - saying it twice on
+ * one screen reads as a mistake rather than as emphasis. The `<h1>` in
+ * song.tsx still carries both for anyone listening to the page.
+ */
+.song__name {
+  --step: 1;
+
+  position: absolute;
+  left: 0;
+  top: 0.8%;
+  width: 100%;
+  margin: 0;
+  color: var(--song-ink);
+  /* Lao first, for the same reason the words below are: the title is written
+     in it now, and every other face on this card is Latin-only, so without
+     this the name falls back to whatever the machine happens to have and is
+     a different font per reader. */
+  font-family: var(--font-lao), var(--font-letter), Georgia, serif;
+  /* A caption over the deck, not a banner across the page. It is the only
+     text above the fold and there is nothing up there to compete with, so it
+     does not need the size to be found.
+     `em`, like everything else here. In `rem` it was the one mark on the page
+     that did not scale with the record: smaller than the body text on a
+     monitor and twice its size on a phone, wrong in both directions at once.
+     0.8 of the stage's own type is the 16px it used to be at full size. */
+  font-size: 0.8em;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  text-align: center;
+  animation: song-appear var(--appear) ease-out calc(var(--beat) * var(--step))
+    both;
+}
+
+.song__card {
+  position: absolute;
+  border-radius: 14px;
+  animation: song-appear var(--appear) ease-out calc(var(--beat) * var(--step))
+    both;
+}
+
+/**
+ * The words.
+ *
+ * Paper rather than brown: the reference prints the lyrics on the cloth's own
+ * pale tones with only a hairline around them, which is what keeps the two
+ * brown cards beside it reading as the darker, quieter pair.
+ *
+ * The whole song is here from the first note. A reader can look ahead or look
+ * back by hand, and the card carries itself to the line being sung on its own -
+ * what is dim is simply everything that is not that line.
+ */
+.song__lyrics {
+  --step: 4;
+  left: 1.7%;
+  /* Level with the credits beside it, and a clear three points below the
+     transport - the pill is absolutely positioned, so the air under it cannot
+     be a margin on the pill; it has to be where the next thing starts. The
+     words inside begin at the very top of the card - see .song__words. */
+  top: 55.5%;
+  width: 58.6%;
+  height: 40.3%;
+  padding: 0 1.9em;
+  border: 1px solid rgba(107, 66, 38, 0.35);
+  background: linear-gradient(160deg, #f6efdd 0%, #f4e5c2 100%);
+  color: #5a3a22;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* No bar down the side. The card is a page, and the line lighting up is what
+     says there is more of it. */
+  scrollbar-width: none;
+}
+
+.song__lyrics::-webkit-scrollbar {
+  display: none;
+}
+
+/**
+ * The heading stays while the song moves under it.
+ *
+ * Sticky rather than scrolled away with the words: it names the card, and a
+ * card whose name has scrolled off is just a column of text. It carries the
+ * paper's own colour so the lines passing behind it are covered rather than
+ * showing through.
+ */
+.song__heading {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  margin: 0;
+  padding: 0.7em 0 0.35em;
+  background: #f6efdd;
+  color: var(--card-brown);
+  font-family: var(--font-letter), Georgia, serif;
+  font-size: 2.3em;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/**
+ * Half a card of air at each end.
+ *
+ * Carried by the words themselves rather than by the card's own padding: the
+ * heading is sticky and sits above this, so padding on the card would push the
+ * heading down instead of making room under it. This is what lets the very
+ * first line and the very last one both be brought to the middle.
+ */
+/**
+ * Air under the words, and none above them.
+ *
+ * There used to be 40% of the card's width above the first line, so that the
+ * FIRST line could be carried to the middle of the card like every other one.
+ * The cost was that a song nobody has started shows a heading, a screenful of
+ * nothing, and the first line hiding at the bottom edge - which is what the
+ * card looked like for the three seconds before the needle lands, and the
+ * first thing anybody sees of it.
+ *
+ * So the words start at the top and the card simply does not scroll until the
+ * line being sung has passed its middle. The air below stays: it is what lets
+ * the LAST line be carried up, and it is a shade over half the card's height,
+ * measured as a percentage of its width the way padding is.
+ */
+.song__words {
+  padding-block: 0 34%;
+}
+
+.song__stanza {
+  margin: 0 0 1.4em;
+  font-family: var(--font-lao), var(--font-letter), Georgia, serif;
+  font-size: 1.05em;
+  line-height: 1.75;
+}
+
+/**
+ * One line, and whether it is the one being sung.
+ *
+ * Everything that is not it steps back to about a third - far enough that the
+ * sung line is found without reading, close enough that a reader looking ahead
+ * or back can still read the rest. The line itself comes forward on all three
+ * of weight, colour and strength at once, because any one of them alone is a
+ * difference you have to look for.
+ */
+.song__line {
+  display: block;
+  opacity: 0.34;
+  transition:
+    color 320ms ease,
+    opacity 320ms ease;
+}
+
+.song__lyrics .song__line[data-now] {
+  opacity: 1;
+  color: var(--card-brown);
+  font-weight: 700;
+}
+
+/* The song trailing off. Breathing rather than blinking: it is the card
+   waiting, and a waiting card should not look like it is loading. */
+.song__waiting {
+  margin: 0;
+  color: var(--card-brown);
+  font-size: 1.4em;
+  letter-spacing: 0.3em;
+  line-height: 1;
+  opacity: 0.4;
+  animation: song-waiting 2600ms ease-in-out infinite;
+}
+
+@keyframes song-waiting {
+  50% {
+    opacity: 0.75;
+  }
+}
+
+.song__credits {
+  --step: 5;
+  left: 61.5%;
+  top: 55.5%;
+  width: 31.6%;
+  height: 19.2%;
+  padding: 1.1em 1.3em;
+  background: var(--card-brown);
+  color: var(--card-paper);
+}
+
+.song__credit {
+  margin: 0 0 0.15em;
+  font-family: var(--font-letter), Georgia, serif;
+  font-size: 0.95em;
+  line-height: 1.35;
+}
+
+.song__role {
+  font-weight: 600;
+}
+
+.song__quote {
+  --step: 6;
+  left: 61.5%;
+  top: 76.6%;
+  width: 31.6%;
+  height: 19.2%;
+  padding: 1.2em 1.4em;
+  display: grid;
+  place-items: center;
+  background: var(--card-brown);
+  color: var(--card-paper);
+}
+
+.song__saying {
+  margin: 0;
+  font-family: var(--font-hand), var(--font-note), cursive;
+  font-size: 1.15em;
+  line-height: 1.4;
+  text-align: center;
+}
+
+/* ---------------------------------------------------------------------------
+   The page laid out again
+   Three window shapes the canvas cannot be read on, and the arrangement that
+   replaces it. Everything below is in this file and not in player.css or
+   record-deck.css where a rule crosses a component - see the note at the foot
+   of each of those; what is here is only what belongs to the stage itself and
+   to the cards printed on it.
+
+   The trigger is not a device. It is the three shapes in which 0.0195 of the
+   stage stops being type anybody can read:
+
+     taller than wide   the cap is 94vw and a phone is 390 of them
+     narrower than 48rem  the same, on a window rather than a phone
+     shorter than 46rem   the cap is 90svh instead, and just as small
+
+   Everything outside those keeps the picture. A 1366x768 laptop lands on a
+   691px stage and 13.5px of type, which is the size this was drawn at.
+   --------------------------------------------------------------------------- */
+
+/* Off the canvas. Shared by both arrangements, so the two cannot disagree
+   about what is still absolutely placed and what is not. */
+@media (max-aspect-ratio: 1 / 1), (max-width: 48rem), (max-height: 46rem) {
+  .song__stage {
+    /* No longer a picture of fixed proportion. Exactly one window tall
+       instead, which is what travel.css pans by. */
+    aspect-ratio: auto;
+    height: 100svh;
+    display: grid;
+    /* The reader's type size, not the stage's. This one line is the whole
+       point of the arrangement. */
+    font-size: clamp(0.95rem, 3.6vw, 1.15rem);
+    padding: var(--back-clear)
+      max(0.75rem, env(safe-area-inset-right, 0px))
+      max(0.75rem, env(safe-area-inset-bottom, 0px))
+      max(0.75rem, env(safe-area-inset-left, 0px));
+  }
+
+  /* Each piece was placed against the canvas by a left, a top, a width and
+     sometimes a height. The grid places them now, so all four have to go —
+     and go here rather than in the areas below, which would otherwise repeat
+     them once per shape. */
+  .song__name {
+    position: relative;
+    top: auto;
+    width: auto;
+    font-size: 1.35em;
+  }
+
+  .song__card {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: auto;
+    height: auto;
+  }
+
+  .song__heading {
+    /* 2.3em of a type size that is now the reader's own is a banner. It only
+       has to name a card it is sitting on top of. */
+    font-size: 1.45em;
+  }
+
+  .song__lyrics {
+    /* The card that absorbs whatever height is left, and the only thing on
+       either arrangement that scrolls. It already has `overflow-y: auto`. */
+    min-height: 0;
+  }
+
+  .song__words {
+    /* 34% of the card's width was half its height on the canvas. The card is
+       much wider than it is tall here, so the same figure is several screens
+       of blank paper under the last line. */
+    padding-block: 0 45%;
+  }
+}
+
+/* --- tall, or narrow: one column ----------------------------------------- */
+
+@media (max-aspect-ratio: 1 / 1), (max-width: 48rem) {
+  .song__stage {
+    --stage: min(94vw, 34rem);
+    width: var(--stage);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "name    name"
+      "deck    deck"
+      "player  player"
+      "level   level"
+      "lyrics  lyrics"
+      "credits quote";
+    gap: 0.5rem;
+  }
+
+  .song__name {
+    grid-area: name;
+  }
+
+  .song__lyrics {
+    grid-area: lyrics;
+  }
+
+  .song__credits {
+    grid-area: credits;
+  }
+
+  .song__quote {
+    grid-area: quote;
+  }
+}
+
+/* --- short and wide: two columns ----------------------------------------- */
+
+/**
+ * A phone on its side, and the small landscape tablets.
+ *
+ * `min-width` as well, so a window that is both short and narrow is not
+ * claimed by two arrangements at once — that one is tall enough in shape to
+ * want the single column above.
+ *
+ * The deck, the transport and the volume stand down the left; the words take
+ * the whole height beside them, because the words are what there is least room
+ * for and the most of to read.
+ */
+@media (max-height: 46rem) and (min-aspect-ratio: 1 / 1) and (min-width: 48rem) {
+  .song__stage {
+    --stage: min(94vw, 60rem);
+    width: var(--stage);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "name    lyrics"
+      "deck    lyrics"
+      "player  lyrics"
+      "level   lyrics"
+      "credits quote";
+    gap: 0.4rem 0.9rem;
+  }
+
+  .song__name {
+    grid-area: name;
+    text-align: start;
+  }
+
+  .song__lyrics {
+    grid-area: lyrics;
+  }
+
+  .song__credits {
+    grid-area: credits;
+  }
+
+  .song__quote {
+    grid-area: quote;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The stagger is the whole of this page's entry, and a row of things sliding
+     up one after another is exactly what the request is about. The pieces are
+     simply there. */
+  .song__name,
+  .song__card {
+    animation: none;
+  }
+
+  .song__line {
+    transition: none;
+  }
+
+  .song__waiting {
+    animation: none;
+  }
+}

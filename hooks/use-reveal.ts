@@ -41,7 +41,29 @@ export function useReveal(): Reveal {
   const [calm, setCalm] = useState(false);
 
   const started = useRef(false);
+  /* Where the light came from and how far it has been told to go. Kept so the
+     reach can be worked out again if the window changes shape under it — see
+     the effect below. */
+  const flight = useRef({ x: 0, y: 0, seed: 0, reach: 0 });
   const { after } = useTimers();
+
+  /**
+   * How far the furthest corner of the window is from wherever the present was
+   * sitting, plus a margin.
+   *
+   * Pixels rather than `vmax`: the disc animates from a fraction of this to
+   * exactly 1, so every frame of the growth has to be on screen.
+   */
+  const reachFrom = useCallback(
+    (x: number, y: number) =>
+      Math.hypot(
+        Math.max(x, window.innerWidth - x),
+        Math.max(y, window.innerHeight - y),
+      ) *
+        1.07 +
+      24,
+    [],
+  );
 
   const begin = useCallback((from: DOMRect) => {
     // A ref, not a check on `phase`: a second click landing in the same tick as
@@ -51,18 +73,9 @@ export function useReveal(): Reveal {
 
     const x = from.left + from.width / 2;
     const y = from.top + from.height / 2;
-    // How far the furthest corner of the viewport is from wherever the present
-    // happens to be sitting, plus a margin — a phone's URL bar can slide away
-    // and grow the viewport while the light is still on its way out. Measured
-    // in pixels here rather than guessed at in vmax: the disc animates from a
-    // fraction of this to exactly 1, so every frame of the growth is on screen.
-    const reach =
-      Math.hypot(
-        Math.max(x, window.innerWidth - x),
-        Math.max(y, window.innerHeight - y),
-      ) *
-        1.07 +
-      24;
+    const reach = reachFrom(x, y);
+    const seed = Math.max(from.width, from.height) / 2;
+    flight.current = { x, y, seed, reach };
 
     const quiet = prefersReducedMotion();
     const t = quiet
@@ -82,7 +95,7 @@ export function useReveal(): Reveal {
       // The light starts at the present's own size, so the box becomes the
       // light rather than a spark appearing on top of it. Never zero: a layer
       // with no area is one the compositor has not rasterised yet.
-      "--burst-from": `${Math.max(from.width, from.height) / 2 / reach}`,
+      "--burst-from": `${seed / reach}`,
       "--flood-ms": `${t.flood}ms`,
       "--clear-ms": `${t.clear}ms`,
       "--clear-delay": `${t.delay}ms`,
@@ -91,7 +104,45 @@ export function useReveal(): Reveal {
     setPhase("flooding");
     after(t.flood + t.hold, () => setPhase("clearing"));
     after(t.flood + t.hold + t.delay + t.clear, () => setPhase("after"));
-  }, [after]);
+  }, [after, reachFrom]);
+
+  /**
+   * The window changing shape while the light is still on its way out.
+   *
+   * The margin above is a hedge against a URL bar sliding away, and a hedge is
+   * all it is: turn the phone on its side mid-flight and the far corner is
+   * somewhere else entirely, so the disc stops short and the page it was meant
+   * to be covering shows around it — during the one moment of the card where
+   * nothing underneath is supposed to be seen.
+   *
+   * The centre stays frozen, which is what reveal-light.css asks for. Only the
+   * reach is worked out again, and only ever upward: the light may need to grow
+   * to cover a window that got bigger, and must never shrink away from one.
+   * `--burst-from` is recomputed with it, so `reach * from` — the size the light
+   * STARTS at, which is the present's own — comes out the same either way.
+   */
+  useEffect(() => {
+    if (phase !== "flooding" && phase !== "clearing") return;
+
+    const grow = () => {
+      const { x, y, seed, reach } = flight.current;
+      const wanted = reachFrom(x, y);
+      if (wanted <= reach) return;
+      flight.current = { x, y, seed, reach: wanted };
+      setBurst((was) =>
+        was
+          ? ({
+              ...was,
+              "--burst-r": `${wanted}px`,
+              "--burst-from": `${seed / wanted}`,
+            } as CssVars)
+          : was,
+      );
+    };
+
+    window.addEventListener("resize", grow);
+    return () => window.removeEventListener("resize", grow);
+  }, [phase, reachFrom]);
 
   // Nothing may move under the white, and the deck is still two screens tall.
   useEffect(() => {

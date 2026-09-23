@@ -20,6 +20,15 @@
      laptop height and stops growing before it turns into a picnic blanket. */
   --check: clamp(12px, 1.9vmin, 20px);
   --thread: #fff3d8;
+  /* The room the way back takes out of the top of whatever stands here. One
+     number, declared by the ground rather than by the button, because two
+     different things read it: cloth-back.css to place the control, and the
+     kept page to know how much of the window is already spoken for. It used to
+     be `5.5rem` in kept.css and `8.5rem` in kept.ts, two hand-kept copies of
+     the same measurement with nothing to keep them in step. */
+  --back-clear: calc(
+    env(safe-area-inset-top, 0px) + clamp(4.25rem, 10vmin, 5.5rem)
+  );
 
   position: relative;
   flex: 1 0 auto;
@@ -53,6 +62,12 @@
  * `inset: 0` resolves to exactly the rectangle it did before.
  */
 .cloth__page {
+  /* The same reservation the cloth makes. A page standing on a cloth that is
+     not its own still wears the same way back, in the same corner. */
+  --back-clear: calc(
+    env(safe-area-inset-top, 0px) + clamp(4.25rem, 10vmin, 5.5rem)
+  );
+
   position: relative;
   flex: 1 0 auto;
   display: flex;

@@ -126,5 +126,27 @@ export function useMailScene({
     return clear;
   }, [measureMouth, after, clear, seen, markSeen]);
 
+  /**
+   * The lip, found again when the window moves under it.
+   *
+   * `--mouth-x/-y` are absolute pixels, which is what makes them right: the
+   * offset is the product of the box's place, a mirror and a rotation about a
+   * corner, and no percentage of anything says it. What absolute pixels are
+   * not is durable. Measured once at the pour and left, they were the answer
+   * for the window that was there at 2000ms — turn the phone over while the
+   * letters are still coming out and every one after the turn falls from a lip
+   * that has moved, or from off the screen entirely.
+   *
+   * Only while they are actually falling. Before the pour there is nothing on
+   * screen the number could be wrong for, and MAIL_TIMING.pour's own note says
+   * a reading taken then is tens of pixels out by the time it is used; after
+   * the deck has settled nothing reads it again.
+   */
+  useEffect(() => {
+    if (act !== "intro" || !poured) return;
+    window.addEventListener("resize", measureMouth);
+    return () => window.removeEventListener("resize", measureMouth);
+  }, [act, poured, measureMouth]);
+
   return { act, poured, skip };
 }

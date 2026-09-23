@@ -5,6 +5,23 @@
    class name. */
 @source not "../**/*.md";
 
+/* ---------------------------------------------------------------------------
+   The three window shapes, written down once
+   Not a breakpoint file - a rule belongs to the component it styles, and the
+   import order below is what decides several ties, so a shared file would land
+   every one of these in the wrong place. This is the spelling to copy, so that
+   a reader grepping for one of them finds every scene that answers it.
+
+     @media (max-aspect-ratio: 1 / 1)                         a tall window
+     @media (max-width: 40rem)                                a narrow one
+     @media (max-height: 34rem) and (min-aspect-ratio: 1 / 1) a short one
+     @media (hover: none)                                     a finger, not a pointer
+
+   Shapes rather than devices, which is what mailbox.css already asked for
+   before any of the others did. The card scales whole wherever it can; these
+   are the windows where scaling alone runs out and a scene is laid out again.
+   --------------------------------------------------------------------------- */
+
 /* Each page keeps its own styles beside its component. */
 @import "../components/welcome/welcome.css";
 @import "../components/home/home.css";
@@ -26,7 +43,13 @@
 @import "../components/selection/selection.css";
 @import "../components/selection/vinyl.css";
 @import "../components/selection/parcel.css";
-@import "../components/selection/player.css";
+/* Where the record goes when it is pressed. After the selection page's own
+   three, because that is the only way in to it, and before the letters for the
+   same reason the selection page comes before them: reading order. Nothing
+   here is declared anywhere else, so its place in this list is free. */
+@import "../components/song/song.css";
+@import "../components/song/record-deck.css";
+@import "../components/song/player.css";
 /* Laid on the cloth, so it comes after it. Beside its own component, because
    that is where the rest of the scene lives. */
 @import "../components/mails/mails.css";
@@ -79,7 +102,16 @@ html {
 }
 
 /* The two scrolling pages, stacked. Plain block: body's flex column must not
-   reach in and resize them. */
+   reach in and resize them.
+
+   THIS NAME IS TAKEN. It is the only bare block declared outside a component
+   file, and it matches the one element the whole front of the card lives in,
+   so a scene that also called its own block `deck` handed this one everything
+   it did not declare here - being taken out of flow and, fatally, the
+   `pointer-events: none` a picture wants. The home page and the mail box went
+   dead to the pointer with nothing to see in the console. The turntable is
+   `.record-deck` for that reason; anything else that is a deck needs its own
+   word too. */
 .deck {
   display: block;
 }

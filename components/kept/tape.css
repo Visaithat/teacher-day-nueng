@@ -30,8 +30,12 @@
 
 .tape__play {
   flex: 0 0 auto;
-  width: 2.3rem;
-  height: 2.3rem;
+  /* 44px, which is the smallest a round button on a phone can be and still be
+     hit. It was 2.3rem — 37px, near enough to look right and just small enough
+     to be missed. The glyph inside is unchanged; this is the target, not the
+     drawing. */
+  width: 2.75rem;
+  height: 2.75rem;
   display: grid;
   place-items: center;
   border: none;
@@ -169,6 +173,11 @@
    doing the control's job by other means. */
 .tape__away {
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* The same floor the play button above has. */
+  min-height: 2.75rem;
   text-align: center;
   padding: 0.7rem 1rem;
   border: 1px solid rgba(176, 58, 58, 0.4);

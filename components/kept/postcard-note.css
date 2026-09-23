@@ -207,9 +207,14 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
-  /* Nearer the cloth than the card is, so a shorter shadow. The card's own is
-     1.2rem/2.2rem; a photograph lying on top of it has less air underneath. */
-  filter: drop-shadow(0 0.7rem 1.3rem rgba(70, 44, 16, 0.28));
+  /* Nearer the cloth than the card is, so a shorter shadow. A share of the
+     photograph's own width, as the card's own is a share of the card's — in
+     `rem` both were the distance they were drawn at whatever size the pair had
+     shrunk to, and the one that did not shrink was the light. */
+  filter: drop-shadow(
+    0 calc(var(--snap-wide) * 0.019) calc(var(--snap-wide) * 0.036)
+      rgba(70, 44, 16, 0.28)
+  );
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -18,7 +18,10 @@
   gap: clamp(0.75rem, 2.5dvh, 2rem);
   min-height: 100vh;
   min-height: 100dvh;
-  padding: 4vmin;
+  padding: max(4vmin, env(safe-area-inset-top, 0px))
+    max(4vmin, env(safe-area-inset-right, 0px))
+    max(4vmin, env(safe-area-inset-bottom, 0px))
+    max(4vmin, env(safe-area-inset-left, 0px));
   overflow: clip;
 }
 
@@ -468,8 +471,26 @@
 /* --- portrait ------------------------------------------------------------ */
 
 @media (max-aspect-ratio: 1 / 1) {
+  /**
+   * The title and the stage as ONE block, centred together.
+   *
+   * The second row was `1fr`, which is right in landscape where the stage is a
+   * row of things side by side and the leftover height is air around them. Down
+   * the page it is not: the stage becomes two stacked rows of its own, they are
+   * both `auto`, and a grid with spare height and nothing but `auto` tracks
+   * shares that height out between them — which put the box at the top of the
+   * window and the key at the bottom with a hand's width of empty cloth in
+   * between, and no way to read the two as one instruction. `auto` here and the
+   * `align-content: center` already on this element put the air around the pair
+   * instead of through it.
+   */
+  .mailbox {
+    grid-template-rows: auto auto;
+  }
+
   .mailbox__stage {
     grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
     justify-items: center;
     gap: clamp(0.5rem, 2dvh, 1.5rem);
   }
@@ -482,34 +503,118 @@
   }
 
   .mailbox__box {
-    /* The flowers widen the footprint by ~1.56x, so the width cap has to
-       leave room for them. */
-    --box-h: min(58dvh, calc(56vw / var(--art-ratio)));
+    /**
+     * The flowers widen the footprint by ~1.56x, so the width cap has to
+     * leave room for them.
+     *
+     * 52 and not 58: the aside is under the box here rather than beside it, so
+     * the height it needs comes out of the box's share. At 58 the pair came to
+     * more than the window on a 320x568 phone, and this page clips.
+     * `svh` — the window with the URL bar still showing. The box must not
+     * resize while the reader is scrolling down onto it.
+     */
+    --box-h: min(52svh, calc(56vw / var(--art-ratio)));
   }
 
+  /**
+   * The words over the pair that answers them.
+   *
+   * Two columns for the arrow and the key, and the sentence across the top of
+   * both. The key used to span both rows in a column of its own, which left the
+   * arrow pointing into the margin beside it rather than at anything.
+   */
   .mailbox__aside {
     width: min(88vw, 22rem);
-    grid-template-columns: 1fr auto;
+    grid-template-columns: auto auto;
+    /* The two columns as a pair in the middle, not two halves of the width. */
+    justify-content: center;
     align-self: center;
     justify-self: center;
-    align-items: center;
     justify-items: center;
+    gap: 0.4rem 0.9rem;
     padding-block-end: 0;
     margin-inline-start: 0;
   }
 
+  .mailbox__instruction {
+    grid-column: 1 / -1;
+    text-align: center;
+  }
+
   .mailbox__arrow {
     grid-row: 2;
+    grid-column: 1;
     width: clamp(3rem, 12vw, 5rem);
     margin-inline-start: 0;
-    rotate: -18deg;
+    justify-self: end;
+    align-self: end;
+    /**
+     * Mirrored, not turned.
+     *
+     * The file is drawn with its head pointing down and to the LEFT, which is
+     * where the key sits in landscape. Here the key is to the RIGHT, and the
+     * `-18deg` this used to carry turned the head further the wrong way: an
+     * arrow drawn at the reader pointing away from the only thing on the page
+     * to touch. `scale` is what vinyl.css does with the same drawing for the
+     * same reason. It is its own property rather than a `transform` because
+     * `arrow-nudge` already spends this element's transform.
+     */
+    scale: -1 1;
   }
 
   .mailbox__key {
+    grid-row: 2;
     grid-column: 2;
-    grid-row: 1 / span 2;
+    align-self: end;
+    justify-self: start;
     margin-block-start: 0;
     margin-inline-start: 0;
+    /* Dropped below the line the arrow ends on, the way a key put down beside
+       a note is lower than the note. A NEGATIVE END margin and not a positive
+       start one: the row is `align-self: end`, so a margin above only makes the
+       row taller and takes the key down with it. This lets the key hang past
+       the row's foot into the air the page already has under it, which leaves
+       the arrow where it was pointing. */
+    margin-block-end: calc(clamp(0.75rem, 4vw, 1.5rem) * -1);
+  }
+}
+
+/* --- a short window ------------------------------------------------------ */
+
+/**
+ * A phone held sideways.
+ *
+ * Not the portrait case above and not the laptop this was drawn for: the two
+ * columns still fit across, and it is the height that runs out. 74dvh of box
+ * under a 3rem title is more window than there is once the padding is paid, so
+ * the box comes down and the text comes with it — the same answer the portrait
+ * block gives, applied to the other axis.
+ *
+ * `svh`, so the box is sized for the window with the URL bar showing rather
+ * than resized under the reader when it slides away.
+ */
+@media (max-height: 34rem) and (min-aspect-ratio: 1 / 1) {
+  .mailbox__title {
+    font-size: clamp(1.1rem, 3vw, 1.6rem);
+  }
+
+  .mailbox__box {
+    --box-h: min(66svh, calc(34vw / var(--art-ratio)));
+  }
+
+  .mailbox__aside {
+    width: clamp(9rem, 26vw, 14rem);
+    /* 16dvh is a quarter of this window. The aside only has to sit high on the
+       box, and on a window this short it already does. */
+    padding-block-end: 4svh;
+  }
+
+  .mailbox__instruction {
+    font-size: clamp(0.85rem, 1.9vw, 1.1rem);
+  }
+
+  .mailbox__arrow {
+    width: clamp(2.5rem, 6vw, 4rem);
   }
 }
 

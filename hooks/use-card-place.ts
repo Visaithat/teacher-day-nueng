@@ -98,6 +98,16 @@ export function useCardPlace(): CardPlace {
 
   const toMails = useCallback(() => go({ at: "mails" }), [go]);
 
+  /* The record has a page of its own, and the camera treats it the way it
+     treats a thing out of an envelope: the reader picked something up, so the
+     card follows it up rather than cutting to it. */
+  const toSong = useCallback(() => go({ at: "song" }, "pan-up"), [go]);
+
+  /* A push and not a `history.back()`, for the reason `toLetters` gives below:
+     a `back()` arrives as a `popstate`, which carries no type on purpose, and
+     the pan down would be lost with it. */
+  const fromSong = useCallback(() => go({ at: "selection" }, "pan-down"), [go]);
+
   const toPresent = useCallback(() => go({ at: "selection" }), [go]);
 
   const openKept = useCallback(
@@ -112,5 +122,5 @@ export function useCardPlace(): CardPlace {
      which carries no type on purpose - and the pan down would be lost with it. */
   const toLetters = useCallback(() => go({ at: "mails" }, "pan-down"), [go]);
 
-  return { place, toMails, toPresent, openKept, toLetters };
+  return { place, toMails, toSong, fromSong, toPresent, openKept, toLetters };
 }

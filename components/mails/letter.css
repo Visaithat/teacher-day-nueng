@@ -571,16 +571,29 @@
    *
    * The second term is arithmetic on this file's own numbers rather than a
    * guess. The stage is the window less the row of dots; the front letter's
-   * middle is --deck-y down it; half an envelope is 15.6em; and 2em is left over
-   * the top so no paper sits on the window's edge. The tallest piece travels 1.1
-   * rises, so the room is shared out over that before it is spent.
+   * middle is --deck-share down it; half an envelope is 15.6em; and 2em is left
+   * over the top so no paper sits on the window's edge. The tallest piece
+   * travels 1.1 rises, so the room is shared out over that before it is spent.
+   *
+   * Said in mails.css' own properties rather than in folded constants. It read
+   * `50.9dvh - 23px` — 53% of the window with the dots' own 4vh already
+   * multiplied into the decimal, and `23px` standing for 53% of a 44px dot.
+   * Both went stale silently the moment that row changed size, which is exactly
+   * what a responsive pass does to it.
+   *
+   * `svh` rather than `dvh`: the small viewport is the one that is there when
+   * the URL bar is showing, so the rise is sized for the window at its
+   * shortest and does not have to be re-measured when the bar slides away
+   * mid-pour. On anything without a retracting toolbar the two are the same.
    *
    * The cloth clips at the window, and a letter with its head cut off by the top
    * of the screen is not a letter anybody is reading. Measured, the mock's full
    * rise only fits above about 890px of window — which is taller than the laptop
    * most of this will be read on.
    */
-  --room: calc(50.9dvh - 23px - 26 * var(--unit));
+  --room: calc(
+    (100svh - var(--dots-h)) * var(--deck-share) - 26 * var(--unit)
+  );
   --rise: clamp(11em, calc((var(--room) + 0.8em) / 1.1), 18em);
 }
 

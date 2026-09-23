@@ -30,11 +30,25 @@
    * on the window the numbers were written against. The one distance left is
    * the gap, which the artwork's own turn decides.
    */
+  /**
+   * The window this page has, less the room it does not.
+   *
+   * kept.ts bounds the postcard by the height left over, and it used to say so
+   * with a bare `8.5rem` — the `5.5rem` below plus the `2rem` plus some air,
+   * added up by hand in another file. Three copies of one measurement, and
+   * nothing to make the other two follow when the first moved. The top of it
+   * belongs to the cloth, which is what the way back stands on.
+   */
+  --kept-frame: calc(var(--back-clear) + 2.5rem);
+
   align-items: center;
   justify-content: center;
   gap: var(--gap);
-  /* Clear of the way back, which sits over the top left corner. */
-  padding: 5.5rem 1rem 2rem;
+  /* Clear of the way back, which sits over the top left corner — and of a
+     rounded corner or a home indicator, which take their own. */
+  padding: var(--back-clear) max(1rem, env(safe-area-inset-right, 0px))
+    max(1.5rem, env(safe-area-inset-bottom, 0px))
+    max(1rem, env(safe-area-inset-left, 0px));
 }
 
 /* --- the thing ------------------------------------------------------------ */
@@ -58,5 +72,11 @@
      weight across the cut would read as the light moving rather than as the
      paper — and the cut is a crossfade between two pictures of the same
      object, so anything that differs between them is what the eye finds. */
-  filter: drop-shadow(0 1.2rem 2.2rem rgba(70, 44, 16, 0.3));
+  /* A share of the thing casting it, not a fixed distance. In `rem` this was
+     the same 19px lift under a 605px sheet on a monitor and under a 300px one
+     on a phone — the paper shrank and the light did not move with it. The two
+     figures are that 19 and 35 over the width they were drawn against. */
+  filter: drop-shadow(
+    0 calc(var(--wide) * 0.032) calc(var(--wide) * 0.058) rgba(70, 44, 16, 0.3)
+  );
 }

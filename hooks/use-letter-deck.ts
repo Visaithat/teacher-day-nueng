@@ -249,6 +249,15 @@ export function useLetterDeck({
       const startX = event.clientX;
       dragged.current = false;
 
+      // The deck's font-size IS `--unit`, the tenth of an envelope every
+      // distance in this scene is counted in — see mails.css. Read here rather
+      // than kept anywhere, because the unit is clamped against the window and
+      // a reading taken once would be the wrong length the first time the phone
+      // was turned over. The fallback is the unit's own ceiling.
+      const unit =
+        Number.parseFloat(getComputedStyle(event.currentTarget).fontSize) || 10;
+      const flick = DECK.flickEm * unit;
+
       const move = (moveEvent: globalThis.PointerEvent) => {
         const dx = moveEvent.clientX - startX;
         if (!dragged.current && Math.abs(dx) > DECK.slop) {
@@ -273,7 +282,7 @@ export function useLetterDeck({
         const wasDragged = dragged.current;
         detach();
         const dx = upEvent.clientX - startX;
-        if (wasDragged && Math.abs(dx) > DECK.flick) {
+        if (wasDragged && Math.abs(dx) > flick) {
           pick(active + (dx < 0 ? 1 : -1));
         }
         // Cleared a task later, so the click this pointer-up is about to raise

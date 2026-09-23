@@ -3,9 +3,26 @@
 /* --- the box ------------------------------------------------------------- */
 
 .mails__box {
-  /* Its own height, named, because the centring below has to do arithmetic on it
-     and `aspect-ratio` cannot be asked what it worked out. */
-  --box-h: clamp(180px, 46vh, 420px);
+  /**
+   * Its own height, named, because the centring below has to do arithmetic on
+   * it and `aspect-ratio` cannot be asked what it worked out.
+   *
+   * TIED TO `--unit`, which is the envelope's own tenth. It used to be
+   * `clamp(180px, 46vh, 420px)` — a height of its own, measured against the
+   * window and against nothing else in the scene. That held while the window
+   * was a laptop's, because 46vh and the unit's 1.15dvh shrink together. On a
+   * phone they come apart: the unit hits its 5.4px floor and the envelopes stop
+   * shrinking at about half size, while 46vh goes on down to its own 180px
+   * floor — and a box that no longer matches the letters it is pouring is the
+   * one thing in this scene the eye is guaranteed to be looking at.
+   *
+   * 41 units is what 46vh already came to wherever the unit was not clamped:
+   * 414px against 410 on a 1440x900 window, 350 against 358 at 1280x760, so a
+   * laptop is within a percent or two of the box it had. The window term stays
+   * as the second cap, in `svh` rather than `vh` so the box is not resized
+   * halfway through the pour by a URL bar sliding away.
+   */
+  --box-h: clamp(150px, min(46svh, calc(41 * var(--unit))), 420px);
 
   position: absolute;
   left: 13%;

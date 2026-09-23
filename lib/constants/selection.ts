@@ -19,9 +19,24 @@ export const VINYL_ART = {
   ratio: 1,
 };
 
+/**
+ * The box, and what is inside it, drawn as two files rather than one.
+ *
+ * They were one: the envelopes were part of the box's own artwork. They were
+ * cut apart so the box can stand empty until a reader points at it — the
+ * interior behind them was grown back over the hole they left, and laying the
+ * letters over the box in their old place reproduces the drawing exactly.
+ * Same canvas, same size, so the two stack without either being positioned.
+ */
 export const PARCEL_ART = {
   src: "/art/selection/parcel.webp",
-  alt: "An open cardboard box with a striped airmail envelope standing inside it",
+  alt: "An open cardboard box, empty, with its flaps turned back",
+  ratio: 1000 / 851,
+};
+
+export const PARCEL_LETTERS_ART = {
+  src: "/art/selection/parcel-letters.webp",
+  alt: "",
   ratio: 1000 / 851,
 };
 
@@ -37,40 +52,15 @@ export const HINT_ARROW_ART = {
   ratio: 142.5 / 175.499993,
 };
 
+/* The record's own song and how fast it turns used to live here. Both are the
+   song page's business now: pressing the record opens that page rather than
+   playing anything on this one. See `lib/constants/song.ts`. */
+
 /** Every image this page needs, for preloading before it is shown. */
 export const SELECTION_SOURCES: readonly string[] = [
   POSTCARD_ART.src,
   VINYL_ART.src,
   PARCEL_ART.src,
+  PARCEL_LETTERS_ART.src,
   HINT_ARROW_ART.src,
 ];
-
-/**
- * Hers to play here, off the record.
- *
- * A placeholder until a real file is dropped into `public/audio/` — swap `src`,
- * `title` and `by` together, the same way a letter's own `song` does in
- * `mail-letters.ts`.
- */
-export const RECORD_SONG = {
-  kind: "file",
-  src: "/audio/selection-song.mp3",
-  title: "TODO: song title",
-  by: "TODO: artist",
-} as const;
-
-/** How long one full turn of the record takes while it is playing. */
-export const SPIN_MS = 2600;
-
-/** How long the record's slide-out takes, as `vinyl.css`'s own `--slide-duration`. */
-export const SLIDE_MS = 700;
-
-/** What is printed under the Lyrics heading on the full player. */
-export const LYRICS = `TODO: paste the lyrics here`;
-
-/** Who made it, printed on the full player beside the lyrics. */
-export const CREDITS = {
-  artists: "TODO: artist credits",
-  lyrics: "TODO: lyrics credit",
-  mixMaster: "TODO: mix & master credit",
-} as const;

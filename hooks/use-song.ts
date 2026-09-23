@@ -97,14 +97,36 @@ const NOCOOKIE = "https://www.youtube-nocookie.com";
 /** Past this and the upload is not going to play here. */
 const PATIENCE = 8000;
 
-export function useSong(song: Song) {
+export function useSong(song: Song, level = 1) {
   const [state, setState] = useState<SongState>("idle");
   const [played, setPlayed] = useState(0);
+  const [at, setAt] = useState(0);
+  const [span, setSpan] = useState(0);
+  /* Seeded rather than set afterwards, so a page that opens playing does not
+     spend its first moment at a volume nobody asked for. */
+  const [volume, setLevel] = useState(level);
 
   const slot = useRef<HTMLDivElement | null>(null);
   const audio = useRef<HTMLAudioElement | null>(null);
   const player = useRef<Player | null>(null);
   const alive = useRef(true);
+
+  /**
+   * Read the needle once, from whichever of the two is playing.
+   *
+   * Everything that moves the needle calls this rather than setting `played`
+   * on its own, so the fraction, the seconds and the length can never disagree
+   * about where the song is.
+   */
+  const mark = useCallback(() => {
+    const now = player.current?.getCurrentTime() ?? audio.current?.currentTime;
+    const all = player.current?.getDuration() ?? audio.current?.duration;
+    if (all && Number.isFinite(all)) setSpan(all);
+    if (now !== undefined) {
+      setAt(now);
+      if (all) setPlayed(Math.min(1, now / all));
+    }
+  }, []);
 
   /* --- the needle --------------------------------------------------------- */
 
@@ -120,14 +142,17 @@ export function useSong(song: Song) {
     if (state !== "playing") return;
     let frame = 0;
     const read = () => {
-      const now = player.current?.getCurrentTime() ?? audio.current?.currentTime;
-      const all = player.current?.getDuration() ?? audio.current?.duration;
-      if (now !== undefined && all) setPlayed(Math.min(1, now / all));
+      mark();
       frame = requestAnimationFrame(read);
     };
     frame = requestAnimationFrame(read);
     return () => cancelAnimationFrame(frame);
-  }, [state]);
+  }, [state, mark]);
+
+  /** The level the reader set, kept on the element through every reload of it. */
+  useEffect(() => {
+    if (audio.current) audio.current.volume = volume;
+  }, [volume]);
 
   /* --- going, and stopping ------------------------------------------------ */
 
@@ -209,43 +234,107 @@ export function useSong(song: Song) {
       });
   }, [song, state]);
 
-  const seek = useCallback((at: number) => {
-    const where = Math.min(1, Math.max(0, at));
-    setPlayed(where);
-    if (player.current) {
-      const all = player.current.getDuration();
-      if (all) player.current.seekTo(where * all, true);
-      return;
-    }
+  /**
+   * Start it without being asked, and say whether that was allowed.
+   *
+   * For the one page that opens already playing. {@link toggle} is no use
+   * there: its file branch throws the rejected `play()` away, and a refusal is
+   * the whole reason this returns anything - a page that believes it is playing
+   * when it is not shows a pause button over silence.
+   *
+   * It lives in the hook rather than in the page because the element belongs to
+   * the hook; a caller reaching into the ref to start it is reaching past the
+   * thing that owns it.
+   */
+  const start = useCallback(async () => {
     const el = audio.current;
-    if (el?.duration) el.currentTime = where * el.duration;
+    if (!el) return false;
+    try {
+      await el.play();
+      return true;
+    } catch {
+      return false;
+    }
   }, []);
 
-  /** Nudge the needle by a number of seconds rather than a fraction of the whole. */
-  const skip = useCallback(
-    (seconds: number) => {
-      const all = player.current?.getDuration() ?? audio.current?.duration;
-      if (!all) return;
-      seek(played + seconds / all);
+  const seek = useCallback(
+    (to: number) => {
+      const where = Math.min(1, Math.max(0, to));
+      setPlayed(where);
+      if (player.current) {
+        const all = player.current.getDuration();
+        if (all) {
+          player.current.seekTo(where * all, true);
+          setAt(where * all);
+        }
+        return;
+      }
+      const el = audio.current;
+      if (el?.duration) {
+        el.currentTime = where * el.duration;
+        mark();
+      }
     },
-    [played, seek],
+    [mark],
   );
 
   /**
-   * Only the file plays at a level anyone can change — a hidden YouTube player
-   * has its own volume control inside an iframe this page does not draw.
+   * Forward or back by a handful of seconds.
+   *
+   * {@link seek} speaks only in fractions, which is all a scrubber ever needs
+   * and no use at all to a button that means "ten seconds". This is the same
+   * move in the units the button is labelled in.
+   *
+   * It marks afterwards rather than waiting for the needle: the rAF above runs
+   * only while something is playing, so a skip on a paused song would otherwise
+   * move the audio and leave the bar standing where it was.
    */
-  const setVolume = useCallback((at: number) => {
-    const el = audio.current;
-    if (el) el.volume = Math.min(1, Math.max(0, at));
-  }, []);
+  const nudge = useCallback(
+    (seconds: number) => {
+      if (player.current) {
+        const all = player.current.getDuration();
+        const to = Math.min(all, Math.max(0, player.current.getCurrentTime() + seconds));
+        player.current.seekTo(to, true);
+        setAt(to);
+        if (all) setPlayed(Math.min(1, to / all));
+        return;
+      }
+      const el = audio.current;
+      if (!el || !Number.isFinite(el.duration)) return;
+      el.currentTime = Math.min(el.duration, Math.max(0, el.currentTime + seconds));
+      mark();
+    },
+    [mark],
+  );
 
   /** What an `<audio>` reports, wired to the same state the hidden player sets. */
   const fileEvents = {
     onPlay: () => setState("playing"),
     onPause: () => setState("paused"),
     onEnded: () => setState("paused"),
+    /* Both of these are for the times the rAF is not running: the length as
+       soon as it is known, and a coarse tick while paused so a skip lands
+       somewhere the page can see. */
+    onLoadedMetadata: mark,
+    onTimeUpdate: mark,
   };
 
-  return { state, played, toggle, seek, skip, setVolume, slot, audio, fileEvents };
+  return {
+    state,
+    played,
+    /** Where the needle is, in seconds. */
+    at,
+    /** How long the whole thing is, in seconds. Zero until it is known. */
+    span,
+    toggle,
+    start,
+    seek,
+    nudge,
+    volume,
+    /** Only an `<audio>` answers this; the hidden player has no volume to set. */
+    setVolume: setLevel,
+    slot,
+    audio,
+    fileEvents,
+  };
 }
