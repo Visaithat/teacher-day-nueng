@@ -40,6 +40,7 @@ export default function Wish({ letter }: WishProps) {
           "--wish-left": `${WISH.left}%`,
           "--wish-right": `${WISH.right}%`,
           "--wish-top": `${WISH.top}%`,
+          "--wish-bottom": `${WISH.bottom}%`,
           /* Off the sheet's own width, which `--wide` already is. */
           "--wish-size": `calc(var(--wide) * ${WISH.size / 100})`,
         } as CssVars

@@ -90,6 +90,10 @@ export const WISH = {
   right: 12,
   /** Under the greeting the artwork is printed with: its ink ends at 14% down. */
   top: 20,
+  /** Clear of the torn foot, which starts breaking up by 95% down. Past this the
+      wish scrolls rather than running on: a short one never reaches it and a
+      long one stops short of the tear instead of running past the paper. */
+  bottom: 5,
   /**
    * The pen, as a share of the sheet's WIDTH and not its height.
    *

@@ -6,10 +6,14 @@
   position: absolute;
   /* All four come in from WISH in kept-data.ts, because they are measurements
      of one piece of artwork and there should be exactly one place to retune
-     them against it. */
+     them against it. Top AND bottom together, so the box's height is the gap
+     between them rather than whatever the words happen to need — a short wish
+     sits inside it untouched, and a long one meets the scroll below before it
+     ever meets the tear. */
   left: var(--wish-left);
   right: var(--wish-right);
   top: var(--wish-top);
+  bottom: var(--wish-bottom);
   margin: 0;
   display: flex;
   flex-direction: column;
@@ -26,6 +30,31 @@
      of this sheet IS printing — it is in the artwork. This is a pen, and the
      difference between the two is the whole of what says somebody sat down. */
   color: #33302a;
+  /* Longer than the box: the reader scrolls the words rather than watching
+     them run off the paper. The swipe belongs to this box alone, never the
+     page behind it. */
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+  /* A hair of room so the last line and the signature clear the scrollbar
+     rather than sitting under it. */
+  padding-right: 0.3em;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(51, 48, 42, 0.35) transparent;
+}
+
+.wish::-webkit-scrollbar {
+  width: 0.35em;
+}
+
+.wish::-webkit-scrollbar-thumb {
+  background: rgba(51, 48, 42, 0.35);
+  border-radius: 1em;
+}
+
+.wish::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 /* One line, leaning by a fraction of a degree of its own. */
