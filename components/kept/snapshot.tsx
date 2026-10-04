@@ -1,8 +1,6 @@
 import { POSTCARD } from "@/lib/constants/kept";
 import type { CssVars } from "@/types/css-vars";
-
-/** The picture, and the shape of its box, so CSS can hold it before it loads. */
-const SNAPSHOT = { src: "/art/letter/snapshot.webp", ratio: 1.4472 };
+import type { Photo } from "@/types/mails";
 
 interface SnapshotProps {
   /**
@@ -13,6 +11,8 @@ interface SnapshotProps {
    * there should be one place that says so.
    */
   cardRatio: number;
+  /** Hers. One per person, so this never reads off a shared placeholder. */
+  photo: Photo;
 }
 
 /**
@@ -30,7 +30,7 @@ interface SnapshotProps {
  * absolutely placed inside `.kept__group`, in shares of the card's own width,
  * so the two can only move and scale together. See `POSTCARD.photo`.
  */
-export default function Snapshot({ cardRatio }: SnapshotProps) {
+export default function Snapshot({ cardRatio, photo }: SnapshotProps) {
   const { wide, x, y, level } = POSTCARD.photo;
   const { at, ms, scale, back } = POSTCARD.reveal;
 
@@ -42,7 +42,7 @@ export default function Snapshot({ cardRatio }: SnapshotProps) {
      wherever `photo` put it. The difference is then restated in the
      PHOTOGRAPH's own box, because that is what a percentage in `translate` is
      a share of. */
-  const tall = wide / SNAPSHOT.ratio;
+  const tall = wide / photo.ratio;
   const cardTall = 100 / cardRatio;
   const fromX = ((50 - (x + wide / 2)) / wide) * 100;
   const fromY = ((cardTall / 2 - (y + tall / 2)) / tall) * 100;
@@ -53,7 +53,7 @@ export default function Snapshot({ cardRatio }: SnapshotProps) {
       style={
         {
           "--snap-wide": `calc(var(--wide) * ${(wide / 100).toFixed(4)})`,
-          "--snap-ratio": SNAPSHOT.ratio,
+          "--snap-ratio": photo.ratio,
           "--snap-x": `calc(var(--wide) * ${(x / 100).toFixed(4)})`,
           "--snap-y": `calc(var(--wide) * ${(y / 100).toFixed(4)})`,
           "--snap-level": `${level}deg`,
@@ -69,7 +69,7 @@ export default function Snapshot({ cardRatio }: SnapshotProps) {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         className="snapshot__art"
-        src={SNAPSHOT.src}
+        src={photo.src}
         alt="A photograph taped beneath the postcard"
         draggable={false}
         decoding="async"

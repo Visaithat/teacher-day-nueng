@@ -174,11 +174,20 @@ export const POSTCARD = {
    * siblings the photograph could only be centred and nudged, which is not
    * where it goes. It goes on the card's bottom right corner.
    *
-   * `level: 0` because the snapshot is drawn square - the tilt in it is the
+   * `y` is a hair under the card's own height in these units (100 / 1.4066 =
+   * 71.09) on purpose: the photograph is sized to clear every written and
+   * printed thing on the card - the note, the address rules, the gold frame,
+   * all of it ends by ~90% down - and rests just below that, grazing only the
+   * blank margin at the very bottom edge. Seven people share this one box, so
+   * it is tuned against the squarest of the seven photographs (Nampheung,
+   * ratio 1.0731): the tallest one that `wide` can produce, and so the one
+   * that decides how far the box has to clear the card by.
+   *
+   * `level: 0` because a photograph is drawn square - the tilt in it is the
    * tape and the white edge, not the picture, and turning the box would turn
    * those too.
    */
-  photo: { wide: 105.9, x: 25.5, y: 68, level: 0 },
+  photo: { wide: 45, x: 58, y: 71, level: 0 },
   /**
    * The photograph coming out from behind the card.
    *
@@ -193,10 +202,11 @@ export const POSTCARD = {
    * out from under another thing. Sixty milliseconds of stillness first, and
    * then it moves.
    *
-   * `scale` is what it takes to fit behind the card at all: the photograph is
-   * 1.059 card-widths across and so cannot hide behind it at full size. At 0.8,
-   * centred on the card, every corner is inside the card's turned quad - I
-   * checked the far one, which clears by 0.003 of a card width.
+   * `scale` shrinks the hiding place further than `photo.wide` alone needs to -
+   * at 45 card-widths across it already fits behind the 100-wide card on its
+   * own - because the hiding place is centred on the card and a photograph
+   * exactly the width of the card would still show its corners past the card's
+   * turned quad. At 0.8 every corner clears.
    */
   reveal: {
     at: 820,
@@ -218,9 +228,11 @@ export const POSTCARD = {
   /**
    * The box the two of them occupy, again in card widths.
    *
-   * Wider and taller than the card because the photograph hangs off it on two
-   * sides. The card is laid at the group's top left and the turn above spills a
-   * little past that, which nothing clips.
+   * Wider and taller than the card because the photograph hangs off its bottom
+   * right corner - `photo.x + photo.wide` and `photo.y + photo.wide / ratio`
+   * for the tallest of the seven (Nampheung again), rounded up. The card is
+   * laid at the group's top left and the turn above spills a little past that,
+   * which nothing clips.
    */
-  group: { wide: 131.4, tall: 141.2 },
+  group: { wide: 103, tall: 112.9 },
 };

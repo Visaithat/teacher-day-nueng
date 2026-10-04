@@ -118,7 +118,7 @@ export default function Kept({ letter, content, onBack }: KeptProps) {
         {content.slug === "postcard" ? (
           <div className="kept__group" style={groupVars()}>
             {hero}
-            <Snapshot cardRatio={content.ratio} />
+            <Snapshot cardRatio={content.ratio} photo={letter.postcard.photo} />
           </div>
         ) : (
           hero

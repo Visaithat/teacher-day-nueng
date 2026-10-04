@@ -109,6 +109,21 @@ export type Flower = {
   ratio: number;
 };
 
+/**
+ * The photograph taped under one person's postcard.
+ *
+ * Same shape as {@link Flower}, and for the same reason: a picture and the box
+ * CSS can hold for it before it loads. Kept as its own type rather than reused —
+ * a flower and a photograph mean different things even where they are built the
+ * same way, and nothing here should be free to hand one in where the other
+ * belongs.
+ */
+export type Photo = {
+  src: string;
+  /** Width / height, so CSS can hold the box before the image arrives. */
+  ratio: number;
+};
+
 export type Letter = {
   id: number;
   /**
@@ -174,6 +189,8 @@ export type Postcard = {
   address: readonly string[];
   /** The left half of the card. An empty string is a blank line. */
   note: readonly string[];
+  /** Taped under the card, on its bottom right corner. See `Snapshot`. */
+  photo: Photo;
 };
 
 /**

@@ -17,7 +17,7 @@
  * Retune these, not the CSS.
  */
 
-import type { Content, Flower, Layer } from "@/types/mails";
+import type { Content, Flower, Layer, Photo } from "@/types/mails";
 
 /* --- the paper ----------------------------------------------------------- */
 
@@ -75,18 +75,27 @@ export const SEAL: Layer = {
  *
  * Multiply can only darken, so a tint lighter than the paper is unreachable: pink
  * clips at 255 in red, which costs it 13/255 at the seal's brightest highlight
- * and nothing anywhere else. Blue and silver have no reference render, so they
- * are the design's colours lifted by the same ratio red needed. Retune against a
- * render, never by eye.
+ * and nothing anywhere else. Blue, gold and silver have no reference render, so
+ * they are the design's colours lifted by the same ratio red needed — gold also
+ * clips at 255 in red, the same way pink does. Retune against a render, never by
+ * eye.
  */
 export const PALETTE = {
   red: "#D64137",
   blue: "#3684CF",
+  gold: "#FFC63C",
+  pink: "#FFA4AB",
+  purple: "#A15DAD",
+  green: "#4C9A2A",
 };
 
 export const SEALS = {
   pink: "#FFA4AB",
   silver: "#E1E5EA",
+  bronze: "#B5651D",
+  champagne: " #D9B36C",
+  ivory: "#F0E6C8",
+  wine: "#9C3853",
 };
 
 /* --- what is inside ------------------------------------------------------ */
@@ -209,4 +218,62 @@ export const ROSE: Flower = { src: "/art/letter/flower-rose.webp", ratio: 0.968 
 export const SUNFLOWER: Flower = {
   src: "/art/letter/flower-sunflower.webp",
   ratio: 1.117,
+};
+
+export const LILY: Flower = { src: "/art/letter/flower-lily.webp", ratio: 1.0 };
+
+export const DAISY: Flower = {
+  src: "/art/letter/flower-daisy.webp",
+  ratio: 1.334,
+};
+
+export const TULIP: Flower = {
+  src: "/art/letter/flower-tulip.webp",
+  ratio: 0.716,
+};
+
+/* --- the photographs ------------------------------------------------------ */
+
+/**
+ * One per person, taped under their own postcard.
+ *
+ * Every one is the same pre-taped artwork now: a photo already laid on a white
+ * polaroid frame with its own tilt and washi tape, exported at a fixed
+ * 730.5 / 492.749991 canvas. That is why all seven ratios agree - 1.4825 is
+ * the canvas's, not any one photo's, and it would stay the same even if the
+ * picture inside were swapped for another.
+ */
+export const PHOTO_NAMPHEUNG: Photo = {
+  src: "/art/letter/snapshot-nampheung.webp",
+  ratio: 1.4825,
+};
+
+export const PHOTO_ANNY: Photo = {
+  src: "/art/letter/snapshot-anny.webp",
+  ratio: 1.4825,
+};
+
+export const PHOTO_BANK: Photo = {
+  src: "/art/letter/snapshot-bank.webp",
+  ratio: 1.4825,
+};
+
+export const PHOTO_BOY: Photo = {
+  src: "/art/letter/snapshot-boy.webp",
+  ratio: 1.4825,
+};
+
+export const PHOTO_SUMO: Photo = {
+  src: "/art/letter/snapshot-sumo.webp",
+  ratio: 1.4825,
+};
+
+export const PHOTO_NINA: Photo = {
+  src: "/art/letter/snapshot-nina.webp",
+  ratio: 1.4825,
+};
+
+export const PHOTO_ANNE: Photo = {
+  src: "/art/letter/snapshot-anne.webp",
+  ratio: 1.4825,
 };
