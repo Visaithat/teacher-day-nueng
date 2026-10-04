@@ -1,0 +1,118 @@
+/* ---------------------------------------------------------------------------
+   The message
+   Written in gold once the lights are out. Each line's progress arrives from
+   use-museum.ts as `--line-1` / `--line-2` (how far the pen has gone) and
+   `--fill-1` / `--fill-2` (the gold settling in behind it); the nib is placed
+   by `--pen-x` / `--pen-y`, in the SVG's own units.
+   --------------------------------------------------------------------------- */
+
+.credits-message {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.credits-message__box {
+  position: relative;
+  width: min(94vw, 1100px);
+}
+
+.credits-message__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.credits-message__text {
+  font-family: var(--font-vibes), "Segoe Script", "Brush Script MT", cursive;
+}
+
+/* The masks open from the left edge of each line, in step with the pen. */
+.credits-message__reveal {
+  transform-box: fill-box;
+  transform-origin: left center;
+}
+
+.credits-message__reveal--1 {
+  transform: scaleX(var(--line-1, 0));
+}
+
+.credits-message__reveal--2 {
+  transform: scaleX(var(--line-2, 0));
+}
+
+.credits-message__ink {
+  fill: none;
+  stroke: var(--museum-gold-light);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1000;
+}
+
+.credits-message__ink--1 {
+  stroke-dashoffset: calc(1000 * (1 - var(--line-1, 0)));
+}
+
+.credits-message__ink--2 {
+  stroke-dashoffset: calc(1000 * (1 - var(--line-2, 0)));
+}
+
+.credits-message__fill--1 {
+  opacity: var(--fill-1, 0);
+}
+
+.credits-message__fill--2 {
+  opacity: var(--fill-2, 0);
+}
+
+.credits-message__pen {
+  opacity: var(--pen, 0);
+  transform: translate(calc(var(--pen-x, 0) * 1px), calc(var(--pen-y, 0) * 1px));
+}
+
+.credits-message__sparkles {
+  position: absolute;
+  inset: 0;
+}
+
+/* `--spark` overshoots past 1 on the way in; opacity clamps it for free. */
+.credits-message__sparkle {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: 24px;
+  height: 24px;
+  margin: -12px 0 0 -12px;
+  opacity: var(--spark, 0);
+  transform: rotate(calc((1 - var(--spark, 0)) * -60deg)) scale(var(--spark, 0));
+}
+
+.credits-message__sparkle svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  animation: credits-twinkle var(--twinkle) ease-in-out infinite;
+}
+
+@keyframes credits-twinkle {
+  0%,
+  100% {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.45) rotate(25deg);
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .credits-message__sparkle svg {
+    animation: none;
+  }
+}

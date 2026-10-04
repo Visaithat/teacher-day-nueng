@@ -1,0 +1,242 @@
+/* ---------------------------------------------------------------------------
+   The end credits
+   A museum walked by scrolling. The page is one window tall and scrolls INSIDE
+   itself: a tall track, and a stage that sticks to the top of it while the
+   track goes by underneath. The room is drawn on a canvas; the dark, the glow
+   and the message lie over it as plain elements.
+
+   Everything that moves arrives as a custom property from use-museum.ts -
+   `--night`, `--glow`, `--hint`, and the message's own in credits-message.css.
+   --------------------------------------------------------------------------- */
+
+.credits {
+  --museum-night: #0e1a2f;
+  --museum-gold-light: #f4de8e;
+
+  position: relative;
+  flex: 1 0 auto;
+  /* One window, exactly: the camera pans between pages by 100dvh and a page
+     any taller tears on the way. */
+  height: 100vh;
+  height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  /* The walk ends at the end of the track, not in the browser. */
+  overscroll-behavior: contain;
+  background: var(--museum-night);
+  font-family: var(--font-letter), Georgia, serif;
+}
+
+.credits:focus {
+  outline: none;
+}
+
+/* Held still while the finale plays: it runs on a clock, not the scroll. */
+.credits[data-playing] {
+  overflow-y: hidden;
+}
+
+/* The distance the walk takes. `--length` is CREDITS_SCROLL.length. */
+.credits__track {
+  position: relative;
+  height: var(--length);
+}
+
+.credits__stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: #1b2238;
+}
+
+.credits__scene {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.credits__night {
+  position: absolute;
+  inset: 0;
+  background: var(--museum-night);
+  opacity: var(--night, 0);
+  pointer-events: none;
+}
+
+.credits__glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(120vw, 120vh);
+  height: max(120vw, 120vh);
+  transform: translate(-50%, -50%);
+  opacity: var(--glow, 0);
+  pointer-events: none;
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 196, 90, 0.26),
+    rgba(212, 150, 40, 0.1) 40%,
+    rgba(14, 26, 47, 0) 75%
+  );
+}
+
+/* The clip shown in the dark. Letterboxed on the night rather than cropped,
+   since it is someone's recording and every edge of it was meant. `--clip` is
+   its fade, and its volume follows the same number. */
+.credits__clip {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: var(--clip, 0);
+  pointer-events: none;
+}
+
+/* The hidden player for the song under the walk. Parked off the page at 200
+   by 200, like the cassette's: YouTube's own API is unreliable below that. */
+.credits__song {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 200px;
+  height: 200px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Held in the black while the clip finishes downloading - rare, since the
+   download starts as the museum opens. */
+.credits__waiting {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--museum-gold-light);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+/* Skip and Tap for sound, in the bottom right while the clip has the screen.
+   The same quiet pill as the way back in the opposite corner. */
+.credits__controls {
+  position: absolute;
+  right: max(1rem, calc(env(safe-area-inset-right, 0px) + 0.75rem));
+  bottom: max(1rem, calc(env(safe-area-inset-bottom, 0px) + 0.75rem));
+  z-index: 5;
+  display: flex;
+  gap: 0.6rem;
+}
+
+.credits__pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0.55rem 1.1rem;
+  border: 1px solid rgba(244, 222, 142, 0.45);
+  border-radius: 999px;
+  background: rgba(14, 26, 47, 0.7);
+  color: var(--museum-gold-light);
+  font-family: var(--font-letter), Georgia, serif;
+  font-size: clamp(0.78rem, 2.6vmin, 0.95rem);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 200ms ease,
+    color 200ms ease;
+}
+
+.credits__pill:hover {
+  background: var(--museum-gold-light);
+  color: var(--museum-night);
+}
+
+.credits__pill:focus-visible {
+  outline: 3px solid var(--museum-gold-light);
+  outline-offset: 3px;
+}
+
+/* "Scroll to enter", and a line drifting down under it. */
+.credits__hint {
+  position: absolute;
+  left: 50%;
+  bottom: 3.5vh;
+  margin: 0;
+  transform: translateX(-50%);
+  color: #fff8e6;
+  text-align: center;
+  font-size: 15px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+  opacity: var(--hint, 1);
+  pointer-events: none;
+}
+
+.credits__hint-line {
+  display: block;
+  width: 1px;
+  height: 34px;
+  margin: 8px auto 0;
+  background: linear-gradient(#fff8e6, rgba(255, 248, 230, 0));
+  animation: credits-hint 1.8s ease-in-out infinite;
+}
+
+@keyframes credits-hint {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(10px);
+  }
+}
+
+/* Over everything until the room is built, then lifting off it. */
+.credits__loading {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1b2238;
+  color: var(--museum-gold-light);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  font-size: 14px;
+  transition:
+    opacity 0.6s,
+    visibility 0s 0.6s;
+}
+
+.credits__stage[data-ready] .credits__loading {
+  opacity: 0;
+  visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .credits__hint-line {
+    animation: none;
+  }
+
+  .credits__loading {
+    transition: none;
+  }
+
+  .credits__pill {
+    transition: none;
+  }
+}

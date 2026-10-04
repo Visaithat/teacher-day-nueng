@@ -50,6 +50,11 @@
 @import "../components/song/song.css";
 @import "../components/song/record-deck.css";
 @import "../components/song/player.css";
+/* The end credits, the other page the selection page leads to. Nothing here is
+   declared anywhere else, so its place in this list is free. */
+@import "../components/credits/credits.css";
+@import "../components/credits/credits-message.css";
+@import "../components/credits/credits-plain.css";
 /* Laid on the cloth, so it comes after it. Beside its own component, because
    that is where the rest of the scene lives. */
 @import "../components/mails/mails.css";

@@ -178,16 +178,19 @@ export const POSTCARD = {
    * 71.09) on purpose: the photograph is sized to clear every written and
    * printed thing on the card - the note, the address rules, the gold frame,
    * all of it ends by ~90% down - and rests just below that, grazing only the
-   * blank margin at the very bottom edge. Seven people share this one box, so
-   * it is tuned against the squarest of the seven photographs (Nampheung,
-   * ratio 1.0731): the tallest one that `wide` can produce, and so the one
-   * that decides how far the box has to clear the card by.
+   * blank margin at the very bottom edge. Every photograph is cut to the same
+   * 1.4825 frame (see `mail-art.ts`), so one box fits them all.
+   *
+   * 78 across, up from 45, so the faces read. `x` came left to keep its right
+   * edge near the card's corner, and the extra height is spent below the
+   * card: 71 + 78 / 1.4825 = 123.6, which `group` was raised to hold. The
+   * page's fit (STANDS.postcard) still has room above that.
    *
    * `level: 0` because a photograph is drawn square - the tilt in it is the
    * tape and the white edge, not the picture, and turning the box would turn
    * those too.
    */
-  photo: { wide: 45, x: 58, y: 71, level: 0 },
+  photo: { wide: 78, x: 30, y: 71, level: 0 },
   /**
    * The photograph coming out from behind the card.
    *
@@ -203,7 +206,7 @@ export const POSTCARD = {
    * then it moves.
    *
    * `scale` shrinks the hiding place further than `photo.wide` alone needs to -
-   * at 45 card-widths across it already fits behind the 100-wide card on its
+   * at 78 card-widths across it already fits behind the 100-wide card on its
    * own - because the hiding place is centred on the card and a photograph
    * exactly the width of the card would still show its corners past the card's
    * turned quad. At 0.8 every corner clears.
@@ -229,10 +232,10 @@ export const POSTCARD = {
    * The box the two of them occupy, again in card widths.
    *
    * Wider and taller than the card because the photograph hangs off its bottom
-   * right corner - `photo.x + photo.wide` and `photo.y + photo.wide / ratio`
-   * for the tallest of the seven (Nampheung again), rounded up. The card is
+   * right corner - `photo.x + photo.wide` and `photo.y + photo.wide / ratio`,
+   * rounded up. The card is
    * laid at the group's top left and the turn above spills a little past that,
    * which nothing clips.
    */
-  group: { wide: 103, tall: 112.9 },
+  group: { wide: 108, tall: 124 },
 };

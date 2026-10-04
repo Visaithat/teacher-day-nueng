@@ -124,7 +124,7 @@ export default function Kept({ letter, content, onBack }: KeptProps) {
           hero
         )}
 
-        {content.slug === "cassette" ? (
+        {content.slug === "cassette" && letter.song ? (
           <Tape song={letter.song} from={letter.name} />
         ) : null}
       </main>

@@ -1,0 +1,107 @@
+/* ---------------------------------------------------------------------------
+   The plain gallery
+   The museum with nothing moving, for reduced motion and for browsers the 3D
+   room cannot be built in. It scrolls inside `.credits` like the walk does.
+   --------------------------------------------------------------------------- */
+
+.credits-plain {
+  background: #f4efe6;
+  color: #3a2a0c;
+}
+
+.credits-plain__header {
+  padding: 4.5rem 1rem 0.5rem;
+  text-align: center;
+  color: #7d6c58;
+}
+
+.credits-plain__museum {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: #8e6e17;
+}
+
+.credits-plain__title {
+  margin: 12px 0 0;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 40px;
+}
+
+.credits-plain__wall {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 48px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 16px 64px;
+  list-style: none;
+}
+
+.credits-plain__card {
+  width: 220px;
+  text-align: center;
+}
+
+.credits-plain__photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border: 14px solid #d4af37;
+  box-shadow: 0 10px 24px rgba(40, 25, 10, 0.25);
+  background: #d9cdb8;
+}
+
+.credits-plain__plate {
+  margin-top: 16px;
+  padding: 8px;
+  background: linear-gradient(160deg, #f6e3a1, #d4af37 45%, #b8932a 65%, #e9cc72);
+}
+
+.credits-plain__name {
+  display: block;
+  font-size: 18px;
+}
+
+.credits-plain__role {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.credits-plain__clip {
+  padding: 64px 16px;
+  background: var(--museum-night);
+}
+
+.credits-plain__video {
+  display: block;
+  width: min(100%, 960px);
+  margin: 0 auto;
+}
+
+.credits-plain__end {
+  padding: 96px 16px;
+  background: var(--museum-night);
+  color: var(--museum-gold-light);
+  text-align: center;
+}
+
+.credits-plain__line {
+  margin: 0;
+  font-family: var(--font-vibes), cursive;
+  font-size: clamp(40px, 8vw, 84px);
+  line-height: 1.25;
+}
+
+/* Nothing here moves; the block is kept so every stylesheet answers the same
+   question in the same place. */
+@media (prefers-reduced-motion: reduce) {
+  .credits-plain {
+    animation: none;
+  }
+}

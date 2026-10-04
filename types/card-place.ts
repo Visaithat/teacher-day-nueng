@@ -3,7 +3,7 @@
 import type { Content, Letter } from "@/types/mails";
 
 /**
- * The four places that used to be three URLs.
+ * The places behind the light - four of them used to be three URLs.
  *
  * `selection` is what the light opens onto and the entry to the others. The
  * kept place carries the whole letter and the whole thing out of it rather than
@@ -14,6 +14,7 @@ import type { Content, Letter } from "@/types/mails";
 export type Place =
   | { at: "selection" }
   | { at: "song" }
+  | { at: "credits" }
   | { at: "mails" }
   | { at: "kept"; letter: Letter; content: Content };
 
@@ -25,6 +26,11 @@ export type CardPlace = {
   toSong: () => void;
   /** Back from the record. The same pan, the other way up. */
   fromSong: () => void;
+  /** To the end credits, from the ticket in the last letter. The camera pans
+      up, as it does into an envelope. */
+  toCredits: () => void;
+  /** Back from the credits. The same pan, the other way up. */
+  fromCredits: () => void;
   /** Back out of the letters, to the present. No camera move either - the way
       out of a place is the way in, reversed, and this one was never a move. */
   toPresent: () => void;
@@ -45,5 +51,6 @@ export type CardPlace = {
 export type Mark =
   | { at: "selection" }
   | { at: "song" }
+  | { at: "credits" }
   | { at: "mails" }
   | { at: "kept"; person: string; item: string };

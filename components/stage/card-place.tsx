@@ -1,5 +1,6 @@
 "use client";
 
+import Credits from "@/components/credits/credits";
 import Kept from "@/components/kept/kept";
 import Mails from "@/components/mails/mails";
 import Selection from "@/components/selection/selection";
@@ -42,8 +43,17 @@ import SceneMemoryProvider from "@/providers/scene-memory-provider";
  * cuts hard with no error anywhere.
  */
 export default function CardPlace() {
-  const { place, toMails, toSong, fromSong, toPresent, openKept, toLetters } =
-    useCardPlace();
+  const {
+    place,
+    toMails,
+    toSong,
+    fromSong,
+    toCredits,
+    fromCredits,
+    toPresent,
+    openKept,
+    toLetters,
+  } = useCardPlace();
 
   /* The two that share a cloth, told apart from the two that bring their own.
      Written as a branch rather than folded into the JSX because the shared
@@ -65,10 +75,21 @@ export default function CardPlace() {
           them, and it travels TO this one, so this one's ground comes with it. */}
       {place.at === "song" ? <Song key="song" onBack={fromSong} /> : null}
 
+      {/* The end credits bring their own ground as well - a museum, not a
+          cloth - and scroll inside themselves rather than the document. */}
+      {place.at === "credits" ? (
+        <Credits key="credits" onBack={fromCredits} />
+      ) : null}
+
       {onTheDeck ? (
         <div className="cloth">
           {place.at === "mails" ? (
-            <Mails key="mails" onOpenKept={openKept} onBack={toPresent} />
+            <Mails
+              key="mails"
+              onOpenKept={openKept}
+              onOpenCredits={toCredits}
+              onBack={toPresent}
+            />
           ) : null}
 
           {place.at === "kept" ? (

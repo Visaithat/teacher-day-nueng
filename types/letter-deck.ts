@@ -51,4 +51,6 @@ export type LetterDeckOptions = {
   onOpenLetter?: (id: number) => void;
   /** One of the three things has been followed out of its envelope. */
   onOpenKept: (letter: Letter, content: Content) => void;
+  /** The ticket has been followed: on to the end credits. */
+  onOpenCredits: () => void;
 };

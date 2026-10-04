@@ -29,7 +29,16 @@ export function contentView(person: string, item: string) {
  */
 export function keptOf(person: string, item: string) {
   const letter = LETTERS.find((one) => one.slug === person);
-  const content = CONTENTS.find((one) => one.slug === item);
-  if (!letter || !content) return null;
+  const content = letter && contentsOf(letter).find((one) => one.slug === item);
+  /* Something that goes elsewhere has no page of its own to come back to. */
+  if (!letter || !content || content.goes) return null;
   return { letter, content } satisfies { letter: Letter; content: Content };
+}
+
+/**
+ * What comes out of one letter's envelope: its own list if it has one, and
+ * the shared three otherwise.
+ */
+export function contentsOf(letter: Letter): readonly Content[] {
+  return letter.holds ?? CONTENTS;
 }

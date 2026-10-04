@@ -66,9 +66,13 @@
 }
 
 /* A paragraph break is a blank line in the wish, so it is half a line of air
-   rather than an empty box with a stray lean on it. */
+   rather than an empty box with a stray lean on it.
+   It must not shrink: the wish is a fixed-height flex column that scrolls, and
+   a long one squeezes its items to their minimum - which for a line of text is
+   the text, but for this is nothing. Every paragraph break vanished that way. */
 .wish__gap {
   display: block;
+  flex-shrink: 0;
   height: 0.55em;
 }
 

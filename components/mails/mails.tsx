@@ -29,6 +29,8 @@ interface MailsProps {
   onOpenLetter?: (id: number) => void;
   /** One of the three things has been followed out of its envelope. */
   onOpenKept: (letter: LetterData, content: Content) => void;
+  /** The ticket in the last letter has been followed: to the end credits. */
+  onOpenCredits: () => void;
   /** Out of the letters altogether, back to the present they came in. */
   onBack: () => void;
 }
@@ -51,6 +53,7 @@ interface MailsProps {
 export default function Mails({
   onOpenLetter,
   onOpenKept,
+  onOpenCredits,
   onBack,
 }: MailsProps) {
   /* The landmark, not the deck inside it: what a reader arriving should be told
@@ -85,6 +88,7 @@ export default function Mails({
     live,
     onOpenLetter,
     onOpenKept,
+    onOpenCredits,
   });
 
   // Whose letter is up. The flower over the greeting is the only thing on the

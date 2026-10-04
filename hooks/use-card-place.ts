@@ -108,6 +108,14 @@ export function useCardPlace(): CardPlace {
      the pan down would be lost with it. */
   const fromSong = useCallback(() => go({ at: "selection" }, "pan-down"), [go]);
 
+  /* The credits are a page of their own too. They are reached from the ticket
+     in the last letter, and left for the present, the way the record's is. */
+  const toCredits = useCallback(() => go({ at: "credits" }, "pan-up"), [go]);
+  const fromCredits = useCallback(
+    () => go({ at: "selection" }, "pan-down"),
+    [go],
+  );
+
   const toPresent = useCallback(() => go({ at: "selection" }), [go]);
 
   const openKept = useCallback(
@@ -122,5 +130,15 @@ export function useCardPlace(): CardPlace {
      which carries no type on purpose - and the pan down would be lost with it. */
   const toLetters = useCallback(() => go({ at: "mails" }, "pan-down"), [go]);
 
-  return { place, toMails, toSong, fromSong, toPresent, openKept, toLetters };
+  return {
+    place,
+    toMails,
+    toSong,
+    fromSong,
+    toCredits,
+    fromCredits,
+    toPresent,
+    openKept,
+    toLetters,
+  };
 }

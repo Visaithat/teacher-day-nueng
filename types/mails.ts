@@ -67,6 +67,12 @@ export type Content = Layer & {
       `rotate`, because the rise spends this element's transform and Lightning
       CSS folds the two together and drops one. */
   tilt: number;
+  /**
+   * Somewhere else to go instead of a page of its own. Set only on the ticket,
+   * which carries the reader to the end credits; everything without it opens
+   * as a kept thing.
+   */
+  goes?: "credits";
 };
 
 /**
@@ -158,9 +164,15 @@ export type Letter = {
   signed: string;
   /**
    * Hers to play on the cassette's own page. See `_kept/tape.tsx` for what the
-   * two kinds mean and how a real file replaces a link.
+   * two kinds mean and how a real file replaces a link. Absent from a letter
+   * that holds no cassette.
    */
-  song: Song;
+  song?: Song;
+  /**
+   * What comes out of this envelope, when it is not the usual three. Most
+   * letters leave it unset and get the shared `CONTENTS`; see `contentsOf`.
+   */
+  holds?: readonly Content[];
   /** Hers to send on the postcard's own page. */
   postcard: Postcard;
 };

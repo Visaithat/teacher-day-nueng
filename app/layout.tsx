@@ -7,6 +7,7 @@ import {
   Geist,
   Geist_Mono,
   Gloria_Hallelujah,
+  Great_Vibes,
   Noto_Sans_Lao,
 } from "next/font/google";
 import "./globals.css";
@@ -39,7 +40,8 @@ const gloriaHallelujah = Gloria_Hallelujah({
 const cormorant = Cormorant_Garamond({
   variable: "--font-letter",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  /* 700 for the museum's plates and sign in the end credits. */
+  weight: ["400", "500", "600", "700"],
   style: ["normal", "italic"],
   display: "swap",
 });
@@ -64,6 +66,14 @@ const notoLao = Noto_Sans_Lao({
   variable: "--font-lao",
   subsets: ["lao"],
   weight: ["400", "600"],
+  display: "swap",
+});
+
+/** The thank-you written in gold at the end of the credits. */
+const greatVibes = Great_Vibes({
+  variable: "--font-vibes",
+  subsets: ["latin"],
+  weight: "400",
   display: "swap",
 });
 
@@ -106,7 +116,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
          as well. The card has one route now and never changes it, so that half
          of the bargain costs nothing and the anchor keeps its smoothness. */
       data-scroll-behavior="smooth"
-      className={`${geistSans.variable} ${geistMono.variable} ${allura.variable} ${architectsDaughter.variable} ${gloriaHallelujah.variable} ${cormorant.variable} ${caveat.variable} ${notoLao.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${allura.variable} ${architectsDaughter.variable} ${gloriaHallelujah.variable} ${cormorant.variable} ${caveat.variable} ${notoLao.variable} ${greatVibes.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

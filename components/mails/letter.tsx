@@ -9,7 +9,6 @@ import type { CssVars } from "@/types/css-vars";
 import { jitter } from "@/lib/utils/jitter";
 import {
   ARROW,
-  CONTENTS,
   ENVELOPE,
   NAME_CARD,
   OPEN_BACK,
@@ -20,7 +19,7 @@ import {
 } from "@/lib/constants/mail-art";
 import { seamOf } from "@/lib/utils/letter-seam";
 import { sinkOf } from "@/lib/utils/mail-geometry";
-import { contentView } from "@/lib/utils/mail-slugs";
+import { contentsOf, contentView } from "@/lib/utils/mail-slugs";
 import type {
   Content,
   Guide,
@@ -197,6 +196,9 @@ export default function Letter({
          this one attribute: the pressed thing reads it through `data-go`, and
          everything else on the letter reads it to get out of the way. */
       data-leaving={leaving ?? undefined}
+      /* Read by one rule only: the white letter's paper lightens rather than
+         dyes. Every other colour is a plain multiply and ignores this. */
+      data-colour={letter.colour}
       style={
         {
           // Its own place in the line. The deck holds --active; every letter
@@ -274,7 +276,7 @@ export default function Letter({
                        focusable and invisible. */
                     inert={leaving !== null || undefined}
                   >
-                    {CONTENTS.map((item, step) => {
+                    {contentsOf(letter).map((item, step) => {
                       /* The box the leaving beat moves. It has to be its own:
                          the item's `transform` is spent on the rise, whose
                          `both` fill holds its last frame for ever, and the
@@ -434,7 +436,7 @@ export default function Letter({
                       read aloud says nothing. */}
                   {live ? (
                     <div className="letter__guides" aria-hidden="true">
-                      {CONTENTS.map((item) => (
+                      {contentsOf(letter).map((item) => (
                         <span
                           key={item.src}
                           className="letter__guide"

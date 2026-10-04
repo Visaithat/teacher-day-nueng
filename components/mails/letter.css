@@ -202,6 +202,13 @@
   pointer-events: none;
 }
 
+/* A white envelope. Multiply can only darken the grey the paper is drawn in,
+   so this one letter screens its tint instead, lifting the paper to near-white.
+   The paper layers only - the seal is not a layer and keeps its multiply. */
+.mails__letter[data-colour="white"] .letter__layer .letter__tint {
+  mix-blend-mode: screen;
+}
+
 /* The name. Written over the card, never into it. */
 .letter__written {
   position: absolute;

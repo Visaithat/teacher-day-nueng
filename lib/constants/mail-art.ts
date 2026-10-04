@@ -87,6 +87,11 @@ export const PALETTE = {
   pink: "#FFA4AB",
   purple: "#A15DAD",
   green: "#4C9A2A",
+  /* The one colour that lightens instead of dyeing. The paper is drawn a mid
+     grey, which multiplying can only darken, so a white letter SCREENS this
+     over it instead (see `[data-colour="white"]` in letter.css): grey paper
+     lifts to near-white and keeps a little of its grain. */
+  white: "#CCCCCC",
 };
 
 export const SEALS = {
@@ -96,6 +101,7 @@ export const SEALS = {
   champagne: " #D9B36C",
   ivory: "#F0E6C8",
   wine: "#9C3853",
+  yellow: "#F2C230",
 };
 
 /* --- what is inside ------------------------------------------------------ */
@@ -184,6 +190,34 @@ export const CONTENTS: Content[] = [
  * The back's numbers are percentages of the FRONT's box, read straight out of
  * the artwork's own transforms rather than measured off a render.
  */
+/**
+ * A ticket to the museum, in one letter instead of its cassette.
+ *
+ * It opens no page of its own: pressing it floats it away like the other two
+ * and then carries the reader to the end credits. It takes the cassette's
+ * place in the bundle and its arrow's spot, a little wider because the ticket
+ * is.
+ * Vector, so the lettering on it stays sharp at any size.
+ */
+export const TICKET: Content = {
+  src: "/art/letter/ticket.svg",
+  slug: "ticket",
+  goes: "credits",
+  /* In the page's red, not the cassette's cream: it is only ever drawn on a
+     white envelope, where cream would vanish. */
+  guide: { left: 63, top: 44, width: 6.5, turn: 178, ink: "ink" },
+  label: "ticket to the museum",
+  ratio: 2.139,
+  /* Clear of both edges, tilt and all, so none of it shows past the closed
+     envelope. */
+  left: 37,
+  top: 54,
+  width: 60,
+  riseOf: 0.95,
+  fan: -2.2,
+  tilt: 2,
+};
+
 export const OPEN_BACK: Layer = {
   src: "/art/letter/open-back.webp",
   ratio: 0.815,
@@ -232,6 +266,13 @@ export const TULIP: Flower = {
   ratio: 0.716,
 };
 
+/* Baby's breath on a torn botanical page. Cut out of the SVG it was sent as,
+   which painted a white box behind it and wrapped a raster in a mask. */
+export const BABYS_BREATH: Flower = {
+  src: "/art/letter/flower-timmy.webp",
+  ratio: 0.902,
+};
+
 /* --- the photographs ------------------------------------------------------ */
 
 /**
@@ -239,7 +280,7 @@ export const TULIP: Flower = {
  *
  * Every one is the same pre-taped artwork now: a photo already laid on a white
  * polaroid frame with its own tilt and washi tape, exported at a fixed
- * 730.5 / 492.749991 canvas. That is why all seven ratios agree - 1.4825 is
+ * 730.5 / 492.749991 canvas. That is why all eight ratios agree - 1.4825 is
  * the canvas's, not any one photo's, and it would stay the same even if the
  * picture inside were swapped for another.
  */
@@ -275,5 +316,10 @@ export const PHOTO_NINA: Photo = {
 
 export const PHOTO_ANNE: Photo = {
   src: "/art/letter/snapshot-anne.webp",
+  ratio: 1.4825,
+};
+
+export const PHOTO_TIMMY: Photo = {
+  src: "/art/letter/snapshot-timmy.webp",
   ratio: 1.4825,
 };

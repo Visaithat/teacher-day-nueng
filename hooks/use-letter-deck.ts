@@ -41,6 +41,7 @@ export function useLetterDeck({
   live,
   onOpenLetter,
   onOpenKept,
+  onOpenCredits,
 }: LetterDeckOptions): LetterDeck {
   /* Which letter is up and which seals are broken belong to the scene's memory
      above this scene, not to this hook: the reader follows a letter out to a
@@ -170,11 +171,16 @@ export function useLetterDeck({
       // loaded, and the stylesheet — which answers a live media query — would
       // already have changed with them. Nothing floats under reduce, so there
       // is nothing to hold the move back for.
+      /* Where it leads: a page of its own, or - for the ticket - the end
+         credits. Either way the camera follows it up. */
+      const arrive = () =>
+        item.goes === "credits" ? onOpenCredits() : onOpenKept(letter, item);
+
       const calm = prefersReducedMotion();
       if (calm) {
         startTransition(() => {
           addTransitionType("pan-up");
-          onOpenKept(letter, item);
+          arrive();
         });
         return;
       }
@@ -188,11 +194,11 @@ export function useLetterDeck({
       after(LEAVE_MS, () =>
         startTransition(() => {
           addTransitionType("pan-up");
-          onOpenKept(letter, item);
+          arrive();
         }),
       );
     },
-    [after, leaving, onOpenKept],
+    [after, leaving, onOpenKept, onOpenCredits],
   );
 
   /* --- the arrows ---------------------------------------------------------- */
