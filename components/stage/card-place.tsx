@@ -1,11 +1,15 @@
 "use client";
 
+/* From the App Router's React, which is a canary and has it. */
+import { ViewTransition } from "react";
+
 import Credits from "@/components/credits/credits";
 import Kept from "@/components/kept/kept";
 import Mails from "@/components/mails/mails";
 import Selection from "@/components/selection/selection";
 import Song from "@/components/song/song";
 import { useCardPlace } from "@/hooks/use-card-place";
+import { PAN } from "@/lib/constants/mail-transition";
 import SceneMemoryProvider from "@/providers/scene-memory-provider";
 
 /**
@@ -41,6 +45,14 @@ import SceneMemoryProvider from "@/providers/scene-memory-provider";
  * the same position and no key, React would reconcile the two wrappers as one
  * element and call it an update, which falls through to `default: "none"` and
  * cuts hard with no error anywhere.
+ *
+ * THE CLOTH ANSWERS ONE MOVE ITSELF: the one that takes it away. The ticket
+ * carries the reader from the letters to the museum, and that removes the
+ * cloth whole - and a scene's own `<ViewTransition>` does not fire its exit
+ * from inside an element that is itself being removed. The letters vanished
+ * at once and the museum panned in over bare page. So the cloth carries an
+ * exit of its own, and only an exit: kept across the swap between the two
+ * scenes it never fires, and arriving on it still has the settle for an entry.
  */
 export default function CardPlace() {
   const {
@@ -82,25 +94,27 @@ export default function CardPlace() {
       ) : null}
 
       {onTheDeck ? (
-        <div className="cloth">
-          {place.at === "mails" ? (
-            <Mails
-              key="mails"
-              onOpenKept={openKept}
-              onOpenCredits={toCredits}
-              onBack={toPresent}
-            />
-          ) : null}
+        <ViewTransition exit={PAN} default="none">
+          <div className="cloth">
+            {place.at === "mails" ? (
+              <Mails
+                key="mails"
+                onOpenKept={openKept}
+                onOpenCredits={toCredits}
+                onBack={toPresent}
+              />
+            ) : null}
 
-          {place.at === "kept" ? (
-            <Kept
-              key="kept"
-              letter={place.letter}
-              content={place.content}
-              onBack={toLetters}
-            />
-          ) : null}
-        </div>
+            {place.at === "kept" ? (
+              <Kept
+                key="kept"
+                letter={place.letter}
+                content={place.content}
+                onBack={toLetters}
+              />
+            ) : null}
+          </div>
+        </ViewTransition>
       ) : null}
     </SceneMemoryProvider>
   );
