@@ -285,7 +285,11 @@ export default function Mails({
             <p className="mails__hint">(Click on the wax seal to open)</p>
           </div>
 
-          <ul className="mails__dots" aria-label="Choose a letter">
+          <ul
+            className="mails__dots"
+            aria-label="Choose a letter"
+            style={{ "--dot-count": LETTERS.length } as CssVars}
+          >
             {LETTERS.map((letter, index) => (
               <li key={letter.id}>
                 <button

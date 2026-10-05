@@ -16,6 +16,29 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [{ source: "/mails/:path*", destination: "/", permanent: false }];
   },
+
+  /**
+   * The pictures, tapes and clip in `public/`, kept by the browser for a day.
+   *
+   * Left alone they are revalidated on every visit - some eighty requests to
+   * be told nothing changed. A day and not a year, and not `immutable`: these
+   * names carry no hash, and a photograph replaced under its own name has to
+   * be able to reach a reader who has seen the old one. Past the day a stale
+   * copy is still shown at once while the fresh one is fetched behind it.
+   */
+  async headers() {
+    return [
+      {
+        source: "/:folder(art|audio|video|photos)/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=86400, stale-while-revalidate=604800",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

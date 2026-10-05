@@ -7,6 +7,13 @@
  * twins, read from the bottom of the same stylesheets.
  */
 
+import { LETTERS } from "@/lib/constants/mail-letters";
+
+/* The first letter out and the box leaving, named because the gap between two
+   letters is worked out from both. */
+const POUR_AT = 2000;
+const BOX_OUT_AT = 3700;
+
 /**
  * Milliseconds from the moment the scene starts moving. The whole opening is one
  * timeline: every part of it is a CSS animation with its own delay counted off
@@ -32,9 +39,17 @@ export const MAIL_TIMING = {
    * of pixels out by the time the second letter leaves, and that one appears to
    * start beside the lip rather than out of it.
    */
-  pour: 2000,
-  /** Between one letter leaving and the next. */
-  pourGap: 280,
+  pour: POUR_AT,
+  /**
+   * Between one letter leaving and the next.
+   *
+   * 280 at most, and less when there are more letters than that leaves time
+   * for. A letter still waiting at the lip is covered only by the box in front
+   * of it, so the last one has to be out before the box stands up at `boxOut`:
+   * twelve letters at 280 left five of them hanging in the air where the mouth
+   * had been.
+   */
+  pourGap: Math.min(280, Math.floor((BOX_OUT_AT - POUR_AT - 20) / Math.max(1, LETTERS.length - 1))),
   /** One letter, from the lip to lying still. */
   fallFor: 720,
   /** The two hops that follow the landing. */
@@ -42,7 +57,7 @@ export const MAIL_TIMING = {
   /** The seal is stuck on, so it answers the landing late. */
   layerLag: 30,
   /** The box stands up and goes, once the last letter is done bouncing. */
-  boxOut: 3700,
+  boxOut: BOX_OUT_AT,
   boxOutFor: 1350,
   /** Only once the box is gone do the letters take their full size. */
   grow: 5050,

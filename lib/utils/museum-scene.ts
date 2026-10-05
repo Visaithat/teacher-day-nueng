@@ -469,6 +469,9 @@ export function buildMuseum(canvas: HTMLCanvasElement, fonts: MuseumFonts, width
       t.anisotropy = aniso;
       t.needsUpdate = true;
       coverFit(t, img.naturalWidth, img.naturalHeight, pw, ph);
+      /* Handed to the GPU now, while it has just arrived, rather than on the
+         frame the camera first turns to it - which is where the walk hitched. */
+      renderer.initTexture(t);
       photoTextures.push(t);
       photoMat.map = t;
       photoMat.needsUpdate = true;
@@ -506,7 +509,7 @@ export function buildMuseum(canvas: HTMLCanvasElement, fonts: MuseumFonts, width
     scene.add(spot, spot.target);
     const bulb = addLampHead(x, -6.2, spot.target.position);
 
-    /* The beam made visible: a soft open cone, fading toward the wall. */
+    /* The beam, drawn so it shows: a soft open cone, fading toward the wall. */
     const from = spot.position.clone();
     const to = new THREE.Vector3(x, y - fh / 2 - 0.3, WALL_Z + 0.05);
     const len = from.distanceTo(to);

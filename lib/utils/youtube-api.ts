@@ -5,8 +5,9 @@ import type { YouTubeApi } from "@/types/youtube";
  *
  * Module-level rather than per-component, because the script is global and two
  * players asking for it at the same moment must not append two copies of it.
- * Asked for on the first press and not before: nothing third-party has any
- * business on this page until a reader has said they want music.
+ * Asked for when a cassette is first pressed, or when the museum opens with
+ * its song, and not before: nothing third-party has any business on this page
+ * until there is music to play.
  */
 let arriving: Promise<YouTubeApi> | null = null;
 

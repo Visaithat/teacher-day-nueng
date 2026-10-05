@@ -40,6 +40,7 @@ export default function Credits({ onBack }: CreditsProps) {
     clipWaiting,
     skip,
     unmute,
+    songControl,
     scroller,
     track,
     stage,
@@ -119,8 +120,15 @@ export default function Credits({ onBack }: CreditsProps) {
                 </p>
               ) : null}
 
-              {playing || needsSound ? (
+              {playing || needsSound || songControl ? (
                 <div className="credits__controls">
+                  {/* The song starts on its own, so it can be stopped. Gone
+                      for the finale, when the song has already left. */}
+                  {songControl ? (
+                    <button type="button" className="credits__pill" onClick={songControl.toggle}>
+                      {songControl.muted ? CREDITS_WORDS.songOn : CREDITS_WORDS.songOff}
+                    </button>
+                  ) : null}
                   {needsSound ? (
                     <button type="button" className="credits__pill" onClick={unmute}>
                       {CREDITS_WORDS.sound}

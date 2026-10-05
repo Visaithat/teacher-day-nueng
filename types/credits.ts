@@ -46,7 +46,7 @@ export type MuseumState = {
   hint: number;
   /** The song under the walk, 0 silent → 1 at its full volume. */
   song: number;
-  /** The clip in the dark, 0 hidden → 1 fully up. Its volume follows it. */
+  /** The clip in the dark, 0 out of sight → 1 fully up. Its volume follows it. */
   clip: number;
   /**
    * The finale's own dark, laid over the scroll's: 1 is full black with the

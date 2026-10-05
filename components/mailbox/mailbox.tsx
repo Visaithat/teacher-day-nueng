@@ -16,6 +16,7 @@ import {
 } from "@/lib/constants/mailbox";
 import type { CssVars } from "@/types/css-vars";
 import { useKeyDrag } from "@/hooks/use-key-drag";
+import { SELECTION_SOURCES } from "@/lib/constants/selection";
 import { prefersReducedMotion } from "@/lib/utils/reduced-motion";
 
 /** The present's entry: from the flap clearing the box to the box at rest. */
@@ -41,6 +42,13 @@ export default function Mailbox({ onOpenPresent }: MailboxProps) {
   const [giftReady, setGiftReady] = useState(false);
   useEffect(() => {
     if (!opened) return;
+    // A head start on the next page's pictures: the box is open, so the reader
+    // is one press from it, and they were otherwise not asked for until the
+    // light had already begun to lift.
+    for (const src of SELECTION_SOURCES) {
+      const image = new window.Image();
+      image.src = src;
+    }
     const calm = prefersReducedMotion();
     const timer = window.setTimeout(
       () => setGiftReady(true),

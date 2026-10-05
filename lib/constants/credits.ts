@@ -40,6 +40,9 @@ export const CREDITS_WORDS = {
   loading: "Opening the museum…",
   skip: "Skip",
   sound: "Tap for sound",
+  /** The song under the walk: what the one button does next. */
+  songOff: "Mute music",
+  songOn: "Play music",
   /** Shown in the dark only if the reader outruns the clip's download. */
   clipLoading: "Loading the clip…",
 } as const;
@@ -54,8 +57,8 @@ export const CREDITS_WORDS = {
 export const CREDITS_SCROLL = {
   /* The walk ends in the dark now - the clip and the message after it play on
      a clock - so the track is cut to keep each frame the same scroll apart.
-     Each portrait added is another ~99vh: pan plus hold, at this track's
-     rate. Twelve frames. */
+     Each portrait added is another 130vh: pan plus hold, at this track's
+     rate of about 100vh a share. Twelve frames. */
   length: 1940,
   scrub: 0.6,
 } as const;

@@ -158,7 +158,7 @@ export const CONTENTS: Content[] = [
     guide: { left: -12, top: -13, width: 7, turn: -72, ink: "ink" },
     label: "postcard",
     /* The artwork is deskewed - the card is drawn upright and the lean it
-       carries on either side of the cut is a transform, not the picture. That
+       carries on either side of the cut is a turn applied to it, not the picture. That
        is why STANDS.postcard turns it and this does not. */
     ratio: 1.4066,
     left: 2,
@@ -309,7 +309,7 @@ export const CHRYSANTHEMUM: Flower = {
  * One per person, taped under their own postcard.
  *
  * Every one is the same pre-taped artwork now: a photo already laid on a white
- * polaroid frame with its own tilt and washi tape, exported at a fixed
+ * polaroid frame with its own tilt and washi tape, exported at one unchanging
  * 730.5 / 492.749991 canvas. That is why all the ratios agree - 1.4825 is
  * the canvas's, not any one photo's, and it would stay the same even if the
  * picture inside were swapped for another.

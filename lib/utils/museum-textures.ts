@@ -195,7 +195,7 @@ export function paintSign(name: string, fonts: MuseumFonts): Paint {
     g.textAlign = "center";
     g.textBaseline = "middle";
     /* The reference size, shrunk with its tracking until the name fits inside
-       the gold border - a longer name than the reference's would run off both
+       the gold edging - a longer name than the reference's would run off both
        ends of the board. */
     const text = name.toUpperCase();
     let size = 96;
@@ -252,7 +252,7 @@ export const paintHalo: Paint = (g, w, h) => {
   g.fillRect(0, 0, w, h);
 };
 
-/** Top to bottom, white to black: how a visible beam fades toward the wall. */
+/** Top to bottom, white to black: how a beam you can see fades toward the wall. */
 export const paintBeamFade: Paint = (g, w, h) => {
   const gr = g.createLinearGradient(0, 0, 0, h);
   gr.addColorStop(0, "#fff");

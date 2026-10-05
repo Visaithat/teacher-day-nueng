@@ -5,7 +5,6 @@ import {
   Caveat,
   Cormorant_Garamond,
   Geist,
-  Geist_Mono,
   Gloria_Hallelujah,
   Great_Vibes,
   Noto_Sans_Lao,
@@ -14,11 +13,6 @@ import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
   subsets: ["latin"],
 });
 
@@ -67,6 +61,9 @@ const notoLao = Noto_Sans_Lao({
   subsets: ["lao"],
   weight: ["400", "600"],
   display: "swap",
+  /* Three pages in at the earliest. Preloaded, it was fetched ahead of the
+     welcome page's own pictures for a reader who may never reach a Lao line. */
+  preload: false,
 });
 
 /** The thank-you written in gold at the end of the credits. */
@@ -75,6 +72,9 @@ const greatVibes = Great_Vibes({
   subsets: ["latin"],
   weight: "400",
   display: "swap",
+  /* The last thing on the card, and the museum asks for it by name and waits
+     before it letters anything - so the welcome page need not fetch it. */
+  preload: false,
 });
 
 const allura = Allura({
@@ -116,7 +116,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
          as well. The card has one route now and never changes it, so that half
          of the bargain costs nothing and the anchor keeps its smoothness. */
       data-scroll-behavior="smooth"
-      className={`${geistSans.variable} ${geistMono.variable} ${allura.variable} ${architectsDaughter.variable} ${gloriaHallelujah.variable} ${cormorant.variable} ${caveat.variable} ${notoLao.variable} ${greatVibes.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${allura.variable} ${architectsDaughter.variable} ${gloriaHallelujah.variable} ${cormorant.variable} ${caveat.variable} ${notoLao.variable} ${greatVibes.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

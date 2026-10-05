@@ -36,6 +36,8 @@ export type Museum = {
   skip: () => void;
   /** Turn the clip's sound on, from a press - which is what allows it. */
   unmute: () => void;
+  /** The song's one control, or null while there is no song to control. */
+  songControl: { muted: boolean; toggle: () => void } | null;
   /** The page's landmark: it scrolls the walk, and takes focus on arrival. */
   scroller: RefObject<HTMLElement | null>;
   track: RefObject<HTMLDivElement | null>;
@@ -135,6 +137,9 @@ export function useMuseum(): Museum {
   const [playing, setPlaying] = useState(false);
   const [needsSound, setNeedsSound] = useState(false);
   const [clipWaiting, setClipWaiting] = useState(false);
+  /* Whether the walk is somewhere the song plays: from the room being ready
+     to the foot of the track, and again once the reader has scrolled back. */
+  const [songDue, setSongDue] = useState(false);
   const song = useMuseumSong(view === "room");
   const songLevel = song.level;
 
@@ -164,7 +169,10 @@ export function useMuseum(): Museum {
            stuttered or stalled whenever the connection fell behind; played
            from memory it cannot. The walk gives the download a minute or so
            of head start, and the finale waits in the dark if it needs more. */
-        const clipReady = fetch(CREDITS_CLIP.src, { signal: clipAbort.signal })
+        /* Asked for quietly, though: the portraits and the room's code are
+           wanted in seconds and this in a minute, and at the same urgency it
+           took the line from both. */
+        const clipReady = fetch(CREDITS_CLIP.src, { signal: clipAbort.signal, priority: "low" })
           .then((response) => {
             if (!response.ok) throw new Error(`clip ${response.status}`);
             return response.blob();
@@ -313,6 +321,7 @@ export function useMuseum(): Museum {
           const C = CREDITS_CLIP;
           /* The song leaves with the light: silent before the clip starts. */
           fadeSong(0, C.darken);
+          setSongDue(false);
           const d = gsap.timeline();
           d.to(S, { blackout: 1, duration: C.darken, ease: "power1.inOut" }, 0);
           d.call(
@@ -342,6 +351,7 @@ export function useMuseum(): Museum {
           setNeedsSound(false);
           setClipWaiting(false);
           fadeSong(1, CREDITS_SONG.fadeIn);
+          setSongDue(true);
         };
 
         /* The clip ending is the clip's business, not the clock's: a file this
@@ -434,9 +444,14 @@ export function useMuseum(): Museum {
           raf = requestAnimationFrame(frame);
         };
         raf = requestAnimationFrame(frame);
+        /* Before the refresh, not after it. A reader already at the foot of
+           the track when the room is ready has the finale started from inside
+           `refresh()`, and a fade-in asked for afterwards would cancel the
+           fade-out that began there and play the song over the clip. */
+        fadeSong(1, CREDITS_SONG.fadeIn);
+        setSongDue(true);
         ScrollTrigger.refresh();
         setReady(true);
-        fadeSong(1, CREDITS_SONG.fadeIn);
 
         stop = () => {
           cancelAnimationFrame(raf);
@@ -464,6 +479,9 @@ export function useMuseum(): Museum {
   }, [view, scroller, songLevel]);
 
   const skip = useCallback(() => controls.current?.skip(), []);
+  /* Only while there is a song to speak of: the player answered, and the walk
+     is somewhere it plays. */
+  const songControl = song.ready && songDue ? { muted: song.muted, toggle: song.toggle } : null;
   const unmute = useCallback(() => controls.current?.unmute(), []);
 
   return {
@@ -475,6 +493,7 @@ export function useMuseum(): Museum {
     clipWaiting,
     skip,
     unmute,
+    songControl,
     scroller,
     track,
     stage,

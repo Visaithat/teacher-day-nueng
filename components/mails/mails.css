@@ -436,8 +436,11 @@
 }
 
 .mails__dot {
-  /* 11px of dot inside 44px of target: the dot is the drawing, not the button. */
-  width: var(--dot-size);
+  /* 11px of dot inside 44px of target: the dot is the drawing, not the button.
+     Narrower than that only where the whole row would not fit the window -
+     twelve of them are 572px, and a phone clipped the ones at either end. The
+     height stays, because `--dots-h` is counted from it. */
+  width: min(var(--dot-size), calc((100vw - 1rem) / var(--dot-count, 8) - 0.25rem));
   height: var(--dot-size);
   padding: 0;
   border: 0;
