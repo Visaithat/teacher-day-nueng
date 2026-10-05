@@ -17,7 +17,10 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  font-family: var(--font-hand), var(--font-note), cursive;
+  /* Lao last: the hands above are Latin-only, so a Lao line falls through to
+     the one face on the card that has it rather than to whatever the reader's
+     machine happens to carry. Latin never reaches it. */
+  font-family: var(--font-hand), var(--font-note), var(--font-lao), cursive;
   font-weight: 500;
   /* A share of the SHEET, not of the window: a hand does not write taller on a
      taller page, it writes the same letters, and the page is what changes

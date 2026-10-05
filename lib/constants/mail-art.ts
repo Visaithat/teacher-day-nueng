@@ -87,6 +87,9 @@ export const PALETTE = {
   pink: "#FFA4AB",
   purple: "#A15DAD",
   green: "#4C9A2A",
+  mint: "#8FD9C0",
+  orange: "#F2894B",
+  teal: "#2F9E9A",
   /* The one colour that lightens instead of dyeing. The paper is drawn a mid
      grey, which multiplying can only darken, so a white letter SCREENS this
      over it instead (see `[data-colour="white"]` in letter.css): grey paper
@@ -102,6 +105,7 @@ export const SEALS = {
   ivory: "#F0E6C8",
   wine: "#9C3853",
   yellow: "#F2C230",
+  brown: "#7A4A2B",
 };
 
 /* --- what is inside ------------------------------------------------------ */
@@ -273,6 +277,32 @@ export const BABYS_BREATH: Flower = {
   ratio: 0.902,
 };
 
+/* The same torn botanical page, rendered out of its SVG the same way. */
+export const SNOWDROP_LILY: Flower = {
+  src: "/art/letter/flower-mint.webp",
+  ratio: 0.902,
+};
+
+export const ORCHID_DAFFODIL: Flower = {
+  src: "/art/letter/flower-southiphon.webp",
+  ratio: 0.905,
+};
+
+export const RED_TULIP: Flower = {
+  src: "/art/letter/flower-annie.webp",
+  ratio: 0.905,
+};
+
+export const LILY_OF_THE_VALLEY: Flower = {
+  src: "/art/letter/flower-anne.webp",
+  ratio: 0.902,
+};
+
+export const CHRYSANTHEMUM: Flower = {
+  src: "/art/letter/flower-baifern.webp",
+  ratio: 0.905,
+};
+
 /* --- the photographs ------------------------------------------------------ */
 
 /**
@@ -280,7 +310,7 @@ export const BABYS_BREATH: Flower = {
  *
  * Every one is the same pre-taped artwork now: a photo already laid on a white
  * polaroid frame with its own tilt and washi tape, exported at a fixed
- * 730.5 / 492.749991 canvas. That is why all eight ratios agree - 1.4825 is
+ * 730.5 / 492.749991 canvas. That is why all the ratios agree - 1.4825 is
  * the canvas's, not any one photo's, and it would stay the same even if the
  * picture inside were swapped for another.
  */
@@ -291,6 +321,11 @@ export const PHOTO_NAMPHEUNG: Photo = {
 
 export const PHOTO_ANNY: Photo = {
   src: "/art/letter/snapshot-anny.webp",
+  ratio: 1.4825,
+};
+
+export const PHOTO_BAIFERN: Photo = {
+  src: "/art/letter/snapshot-baifern.webp",
   ratio: 1.4825,
 };
 
@@ -316,6 +351,21 @@ export const PHOTO_NINA: Photo = {
 
 export const PHOTO_ANNE: Photo = {
   src: "/art/letter/snapshot-anne.webp",
+  ratio: 1.4825,
+};
+
+export const PHOTO_ANNIE: Photo = {
+  src: "/art/letter/snapshot-annie.webp",
+  ratio: 1.4825,
+};
+
+export const PHOTO_MINT: Photo = {
+  src: "/art/letter/snapshot-mint.webp",
+  ratio: 1.4825,
+};
+
+export const PHOTO_SOUTHIPHON: Photo = {
+  src: "/art/letter/snapshot-southiphon.webp",
   ratio: 1.4825,
 };
 

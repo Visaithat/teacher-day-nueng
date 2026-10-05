@@ -23,6 +23,10 @@ export const CREDITS_PEOPLE: readonly CreditPerson[] = [
   { name: "Seankeo XAICHALEUN", role: "Writer", photo: "/photos/credits/photo6.jpg", frame: "walnut", size: [28, 34] },
   { name: "Lalita THONGVANH", role: "Writer", photo: "/photos/credits/photo7.jpg", frame: "wood", size: [30, 35] },
   { name: "Vilaphon MADMANIVONG", role: "Writer", photo: "/photos/credits/photo8.jpg", frame: "goldthin", size: [40, 46] },
+  { name: "Sunida VONGVANDALAT", role: "Writer", photo: "/photos/credits/photo10.jpg", frame: "walnut", size: [32, 43] },
+  { name: "Southiphon VONGVANDALAT", role: "Writer", photo: "/photos/credits/photo9.jpg", frame: "gold", size: [33, 44] },
+  { name: "Enny XIONG", role: "Writer", photo: "/photos/credits/photo11.jpg", frame: "black", size: [30, 42] },
+  { name: "Malisa VAYAKONE", role: "Writer", photo: "/photos/credits/photo12.jpg", frame: "wood", size: [34, 41] },
 ];
 
 /** The words: over the door, on the first wall, and written at the end. */
@@ -49,8 +53,10 @@ export const CREDITS_WORDS = {
  */
 export const CREDITS_SCROLL = {
   /* The walk ends in the dark now - the clip and the message after it play on
-     a clock - so the track is cut to keep each frame the same scroll apart. */
-  length: 1420,
+     a clock - so the track is cut to keep each frame the same scroll apart.
+     Each portrait added is another ~99vh: pan plus hold, at this track's
+     rate. Twelve frames. */
+  length: 1940,
   scrub: 0.6,
 } as const;
 
