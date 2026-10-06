@@ -433,8 +433,12 @@ export const LETTERS: Letter[] = [
       "Thank you for being our guiding star.",
     ],
     signed: "With love and thunder, Anne",
-    /* No cassette: the letter and the postcard only. */
-    holds: [CONTENTS[0], CONTENTS[1]],
+    song: {
+      kind: "file",
+      src: "/audio/tape-anne.m4a",
+      title: "A message for you",
+      by: "Anne",
+    },
     postcard: {
       from: "Anne",
       address: ["Teacher Nueng", "with love, still"],
@@ -689,12 +693,8 @@ export const LETTERS: Letter[] = [
       "and success always💐",
     ],
     signed: "With love, Baifern",
-    song: {
-      kind: "file",
-      src: "/audio/tape-baifern.m4a",
-      title: "A message for you",
-      by: "Baifern",
-    },
+    /* No cassette: the letter and the postcard only. */
+    holds: [CONTENTS[0], CONTENTS[1]],
     postcard: {
       from: "Baifern",
       address: ["Teacher Nueng", "who guides us all"],
