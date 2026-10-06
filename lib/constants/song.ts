@@ -11,15 +11,16 @@ import { publicUrl } from "@/lib/utils/public-url";
 /**
  * The record itself.
  *
- * `src` is the encoded copy, not the master: the original is a 49MB WAV, which
- * is four and a half minutes of silence on a phone before the first note. The
- * mp3 beside it is the same recording at 160kbps.
+ * `src` is the encoded copy, not the master: the original is a 14MB WAV
+ * (`_No_1__Daniii_Hrz.wav`), too big to ship. The m4a beside it is the same
+ * recording re-encoded with `afconvert` (AAC, 160kbps) - macOS has no mp3
+ * encoder built in, so this song is m4a where the last one was mp3.
  */
 export const RECORD_SONG = {
   kind: "file",
-  src: publicUrl("/audio/day-0-hrz.mp3"),
-  /** As the reference prints it: the Lao name, then the artist's mark. */
-  title: "ເພງວັນຄູ | Hrz.",
+  src: publicUrl("/audio/no-1-hrz.m4a"),
+  /** TODO: replace with this song's title, as the reference prints it. */
+  title: "ອັນດັບໜຶ່ງ (No.1) | Daniii Hrz.",
   by: "Daniii Hrz.",
 } as const;
 
@@ -38,69 +39,37 @@ export type Line = { at: number; text: string };
  * changing one number here; nothing else knows about it.
  */
 export const SONG_LYRICS: readonly (readonly Line[])[] = [
-  [
-    { at: 14, text: "ມີຄົນກ່າວ" },
-    { at: 21, text: "ໃຫ້ລອງໄປຄວ້າດວງດາວຢູ່ທີ່ແຫ່ງນັ້ນ" },
-    { at: 31, text: "ໜົນທາງບໍ່ໄດ້ຫ່າງໄກ" },
-    { at: 40, text: "ຖ້າດອກໄມ້ໃນມື" },
-    { at: 43, text: "ຫັກສະຫຼາຍ ຈະຫັກສາໄດ້" },
-    { at: 50, text: "ຫຼືບໍ່" },
-    { at: 54, text: "ໂອ້ ຫົວໃຈເອີຍ" },
-    { at: 61, text: "ຕ້ອງການສິ່ງໃດ" },
-  ],
-  [
-    { at: 86, text: "ໂອ້ ຟ້າ" },
-    { at: 90, text: "ຖ້າກ້າວໄປ" },
-    { at: 93, text: "ອີກຄັ້ງ" },
-    { at: 95, text: "ໃນຄວາມເປັນຈິງ ອາດມີບາດແຜ ກະທົບນ້ຳຕາ" },
-    { at: 106, text: "ທີ່ໄຫຼລິນ" },
-    { at: 110, text: "ວັນໃດທີ່" },
-    { at: 113, text: "ຫັນມາກອດຕົວເອງ" },
-    { at: 117, text: "ຫວັງໃຫ້ບໍ່" },
-    { at: 120, text: "ເຈັບປວດຫົວໃຈ" },
-  ],
-  [
-    { at: 154, text: "ອາດຍັງບໍ່ຮູ້" },
-    { at: 161, text: "ການເລີ່ມຕົ້ນໃນຕອນນີ້" },
-    { at: 168, text: "ແຕ່ກໍອາດຈະດີ" },
-    { at: 175, text: "ຫາກເປັນດັ່ງທີ່ຜູ້ຄົນ" },
-    { at: 182, text: "ຖືດອກໄມ້ໃນມື" },
-    { at: 185, text: "ບໍ່ສະຫຼາຍ ຈະຮັກສາໄດ້" },
-    { at: 193, text: "ດົນເທົ່າໃດ" },
-    { at: 196, text: "ໂອ້ ຫົວໃຈ" },
-    { at: 199, text: "ຄົງ" },
-    { at: 201, text: "ຮູ້ວ່າຕ້ອງການສິ່ງໃດ" },
-  ],
-  [
-    { at: 210, text: "ໂອ້" },
-    { at: 211, text: "ຟ້າ" },
-    { at: 214, text: "ຖ້າກ້າວໄປ" },
-    { at: 218, text: "ອີກຄັ້ງ" },
-    { at: 220, text: "ໃນຄວາມເປັນຈິງ ອາດມີບາດແຜ" },
-    { at: 227, text: "ກະທົບນ້ຳຕາ" },
-    { at: 231, text: "ທີ່ໄຫຼລິນ" },
-    { at: 234, text: "ວັນໃດທີ່" },
-    { at: 237, text: "ຫັນມາກອດຕົວເອງ" },
-  ],
-  [
-    { at: 242, text: "ຟ້າ ຖ້າກ້າວໄປ" },
-    { at: 245, text: "ອີກຄັ້ງ ໃນຄວາມເປັນຈິງ" },
-    { at: 251, text: "ອາດມີບາດແຜ" },
-    { at: 254, text: "ກະທົບນ້ຳຕາ" },
-    { at: 258, text: "ທີ່ໄຫຼລິນ" },
-    { at: 262, text: "ວັນໃດທີ່" },
-    { at: 265, text: "ຫັນມາກອດຕົວເອງ" },
-    { at: 269, text: "ຫວັງໃຫ້ບໍ່" },
-    { at: 272, text: "ເຈັບປວດຫົວໃຈ" },
-  ],
+  // TODO: these were "ເພງວັນຄູ"'s lines, timed to a song this page no longer
+  // plays. Replace with "No. 1"'s own lyrics - see the file header for how.
+  [{ at: 0, text: "ເຈົ້າເປັນຄົນນັ້ນ" }],
+  [{ at: 5, text: "ທີ່ຄ່ອຍຢູ່ຄຽງຂ້າງກັນ" }],
+  [{ at: 9, text: "ໃຫ້ຄວາມຮູ້" }],
+  [{ at: 13, text: "ອັນສຳຄັນ ຈາກຫົວໃຈ" }],
+  [{ at: 16, text: "ກວ້າງໃຫຍ່ກວ່າທ້ອງຟ້າ " }],
+  [{ at: 19, text: "ທຸກຝັນເປັນໄປໄດ້ ເພາະມີເຈົ້າ" }],
+  [{ at: 23, text: "ໜຶ່ງຄົນທີ່ເຂົ້າມາເພື່ອຢາກໃຫ້ເຮົາໄດ້ດີ" }],
+  [{ at: 31, text: "ເຈົ້າເປັນຄົນທີ່ມີຄວາມຫມາຍ" }],
+  [{ at: 35, text: "ຕໍ່ການເດີນທາງທຸກເວລາ" }],
+  [{ at: 39, text: "ພາໃຫ້ໄດ້ໄປເຖິງ" }],
+  [{ at: 41, text: "ດັ່ງທີ່ໃຈ ເຮົາຕ້ອງການ" }],
+  [{ at: 49, text: "ໃນວັນນີ້ ເປັນວັນຂອງເຈົ້າ" }],
+  [{ at: 52, text: "ທີ່ໜຶ່ງຂອງເຮົາ ບໍ່ວ່າສິ່ງໃດ" }],
+  [{ at: 56, text: "ມີຄຳອວຍພອນ ຫນຶ່ງຄຳໃນໃຈ" }],
+  [{ at: 60, text: "ຂໍໃຫ້ມີຄວາມສຸກຕະຫລອດເລີຍ" }],
+  [{ at: 63, text: "ດ້ວຍຮອຍຍິ້ມ ທີ່ສວຍງາມ" }],
+  [{ at: 67, text: "ດັ່ງອາທິດຍາມເຊົ້າ ທຸກໆວັນ" }],
+  [{ at: 71, text: "ເຈົ້າເປັນອັນດັບໜຶ່ງ ທີ່ເຄີຍຂໍ" }],
+  [{ at: 75, text: "ໃຫ້ໄດ້ພົບ~" }],
+  [{ at: 78, text: "ນຳເຮົາໄປເຖິງຝັນ" }],
+
 ];
 
 /** Who made it. Read off the reference, which prints these in Latin script. */
 export const SONG_CREDITS: readonly { role: string; name: string }[] = [
   { role: "Artists", name: "Daniii Hrz." },
   { role: "", name: "(Anida Thongvanh)" },
-  { role: "Lyrics", name: "BUTNER" },
-  { role: "Mix & Master", name: "BUTNER" },
+  { role: "Lyrics", name: "BUTNER & Daniii" },
+  { role: "Melody", name: "BUTNER" },
 ];
 
 /**

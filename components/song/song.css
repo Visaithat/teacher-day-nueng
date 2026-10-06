@@ -125,9 +125,8 @@
      does not need the size to be found.
      `em`, like everything else here. In `rem` it was the one mark on the page
      that did not scale with the record: smaller than the body text on a
-     monitor and twice its size on a phone, wrong in both directions at once.
-     0.8 of the stage's own type is the 16px it used to be at full size. */
-  font-size: 0.8em;
+     monitor and twice its size on a phone, wrong in both directions at once. */
+  font-size: 1.2em;
   letter-spacing: 0.06em;
   line-height: 1.2;
   text-align: center;
