@@ -18,6 +18,7 @@
  */
 
 import type { Content, Flower, Layer, Photo } from "@/types/mails";
+import { publicUrl } from "@/lib/utils/public-url";
 
 /* --- the paper ----------------------------------------------------------- */
 
@@ -26,7 +27,7 @@ import type { Content, Flower, Layer, Photo } from "@/types/mails";
  * is measured against.
  */
 export const ENVELOPE = {
-  src: "/art/letter/envelope.webp",
+  src: publicUrl("/art/letter/envelope.webp"),
   ratio: 1.408,
 };
 
@@ -40,7 +41,7 @@ export const ENVELOPE_EM = 44;
  * the same.
  */
 export const NAME_CARD: Layer = {
-  src: "/art/letter/name-card.webp",
+  src: publicUrl("/art/letter/name-card.webp"),
   ratio: 1.615,
   left: 2.5,
   top: 61.2,
@@ -49,7 +50,7 @@ export const NAME_CARD: Layer = {
 };
 
 export const SEAL: Layer = {
-  src: "/art/letter/seal.webp",
+  src: publicUrl("/art/letter/seal.webp"),
   ratio: 1.022,
   left: 42,
   top: 55,
@@ -126,7 +127,7 @@ export const SEALS = {
  * ink on the cloth and cream on the envelope's own paper.
  */
 export const ARROW = {
-  src: "/art/letter/arrow.webp",
+  src: publicUrl("/art/letter/arrow.webp"),
   /** 23 by 44, as drawn. */
   ratio: 23 / 44,
   /**
@@ -140,7 +141,7 @@ export const ARROW = {
 
 export const CONTENTS: Content[] = [
   {
-    src: "/art/letter/note.webp",
+    src: publicUrl("/art/letter/note.webp"),
     slug: "letter",
     guide: { left: 103, top: -48, width: 7, turn: 50, ink: "ink" },
     label: "handwritten letter",
@@ -153,7 +154,7 @@ export const CONTENTS: Content[] = [
     tilt: -3,
   },
   {
-    src: "/art/letter/postcard.webp",
+    src: publicUrl("/art/letter/postcard.webp"),
     slug: "postcard",
     guide: { left: -12, top: -13, width: 7, turn: -72, ink: "ink" },
     label: "postcard",
@@ -169,7 +170,7 @@ export const CONTENTS: Content[] = [
     tilt: -1,
   },
   {
-    src: "/art/letter/cassette.webp",
+    src: publicUrl("/art/letter/cassette.webp"),
     slug: "cassette",
     guide: { left: 63, top: 44, width: 6.5, turn: 178, ink: "paper" },
     label: "cassette tape",
@@ -204,7 +205,7 @@ export const CONTENTS: Content[] = [
  * Vector, so the lettering on it stays sharp at any size.
  */
 export const TICKET: Content = {
-  src: "/art/letter/ticket.svg",
+  src: publicUrl("/art/letter/ticket.svg"),
   slug: "ticket",
   goes: "credits",
   /* In the page's red, not the cassette's cream: it is only ever drawn on a
@@ -223,7 +224,7 @@ export const TICKET: Content = {
 };
 
 export const OPEN_BACK: Layer = {
-  src: "/art/letter/open-back.webp",
+  src: publicUrl("/art/letter/open-back.webp"),
   ratio: 0.815,
   left: 0.74,
   top: -75.84,
@@ -231,7 +232,7 @@ export const OPEN_BACK: Layer = {
 };
 
 export const OPEN_FRONT = {
-  src: "/art/letter/open-front.webp",
+  src: publicUrl("/art/letter/open-front.webp"),
   ratio: 1.409,
 };
 
@@ -251,55 +252,55 @@ export const FOLD_AT = 78;
  * sunflower wider than it is tall — so the greeting sizes them by HEIGHT. Match
  * their widths instead and the sunflower reads as the smaller flower.
  */
-export const ROSE: Flower = { src: "/art/letter/flower-rose.webp", ratio: 0.968 };
+export const ROSE: Flower = { src: publicUrl("/art/letter/flower-rose.webp"), ratio: 0.968 };
 
 export const SUNFLOWER: Flower = {
-  src: "/art/letter/flower-sunflower.webp",
+  src: publicUrl("/art/letter/flower-sunflower.webp"),
   ratio: 1.117,
 };
 
-export const LILY: Flower = { src: "/art/letter/flower-lily.webp", ratio: 1.0 };
+export const LILY: Flower = { src: publicUrl("/art/letter/flower-lily.webp"), ratio: 1.0 };
 
 export const DAISY: Flower = {
-  src: "/art/letter/flower-daisy.webp",
+  src: publicUrl("/art/letter/flower-daisy.webp"),
   ratio: 1.334,
 };
 
 export const TULIP: Flower = {
-  src: "/art/letter/flower-tulip.webp",
+  src: publicUrl("/art/letter/flower-tulip.webp"),
   ratio: 0.716,
 };
 
 /* Baby's breath on a torn botanical page. Cut out of the SVG it was sent as,
    which painted a white box behind it and wrapped a raster in a mask. */
 export const BABYS_BREATH: Flower = {
-  src: "/art/letter/flower-timmy.webp",
+  src: publicUrl("/art/letter/flower-timmy.webp"),
   ratio: 0.902,
 };
 
 /* The same torn botanical page, rendered out of its SVG the same way. */
 export const SNOWDROP_LILY: Flower = {
-  src: "/art/letter/flower-mint.webp",
+  src: publicUrl("/art/letter/flower-mint.webp"),
   ratio: 0.902,
 };
 
 export const ORCHID_DAFFODIL: Flower = {
-  src: "/art/letter/flower-southiphon.webp",
+  src: publicUrl("/art/letter/flower-southiphon.webp"),
   ratio: 0.905,
 };
 
 export const RED_TULIP: Flower = {
-  src: "/art/letter/flower-annie.webp",
+  src: publicUrl("/art/letter/flower-annie.webp"),
   ratio: 0.905,
 };
 
 export const LILY_OF_THE_VALLEY: Flower = {
-  src: "/art/letter/flower-anne.webp",
+  src: publicUrl("/art/letter/flower-anne.webp"),
   ratio: 0.902,
 };
 
 export const CHRYSANTHEMUM: Flower = {
-  src: "/art/letter/flower-baifern.webp",
+  src: publicUrl("/art/letter/flower-baifern.webp"),
   ratio: 0.905,
 };
 
@@ -315,61 +316,61 @@ export const CHRYSANTHEMUM: Flower = {
  * picture inside were swapped for another.
  */
 export const PHOTO_NAMPHEUNG: Photo = {
-  src: "/art/letter/snapshot-nampheung.webp",
+  src: publicUrl("/art/letter/snapshot-nampheung.webp"),
   ratio: 1.4825,
 };
 
 export const PHOTO_ANNY: Photo = {
-  src: "/art/letter/snapshot-anny.webp",
+  src: publicUrl("/art/letter/snapshot-anny.webp"),
   ratio: 1.4825,
 };
 
 export const PHOTO_BAIFERN: Photo = {
-  src: "/art/letter/snapshot-baifern.webp",
+  src: publicUrl("/art/letter/snapshot-baifern.webp"),
   ratio: 1.4825,
 };
 
 export const PHOTO_BANK: Photo = {
-  src: "/art/letter/snapshot-bank.webp",
+  src: publicUrl("/art/letter/snapshot-bank.webp"),
   ratio: 1.4825,
 };
 
 export const PHOTO_BOY: Photo = {
-  src: "/art/letter/snapshot-boy.webp",
+  src: publicUrl("/art/letter/snapshot-boy.webp"),
   ratio: 1.4825,
 };
 
 export const PHOTO_SUMO: Photo = {
-  src: "/art/letter/snapshot-sumo.webp",
+  src: publicUrl("/art/letter/snapshot-sumo.webp"),
   ratio: 1.4825,
 };
 
 export const PHOTO_NINA: Photo = {
-  src: "/art/letter/snapshot-nina.webp",
+  src: publicUrl("/art/letter/snapshot-nina.webp"),
   ratio: 1.4825,
 };
 
 export const PHOTO_ANNE: Photo = {
-  src: "/art/letter/snapshot-anne.webp",
+  src: publicUrl("/art/letter/snapshot-anne.webp"),
   ratio: 1.4825,
 };
 
 export const PHOTO_ANNIE: Photo = {
-  src: "/art/letter/snapshot-annie.webp",
+  src: publicUrl("/art/letter/snapshot-annie.webp"),
   ratio: 1.4825,
 };
 
 export const PHOTO_MINT: Photo = {
-  src: "/art/letter/snapshot-mint.webp",
+  src: publicUrl("/art/letter/snapshot-mint.webp"),
   ratio: 1.4825,
 };
 
 export const PHOTO_SOUTHIPHON: Photo = {
-  src: "/art/letter/snapshot-southiphon.webp",
+  src: publicUrl("/art/letter/snapshot-southiphon.webp"),
   ratio: 1.4825,
 };
 
 export const PHOTO_TIMMY: Photo = {
-  src: "/art/letter/snapshot-timmy.webp",
+  src: publicUrl("/art/letter/snapshot-timmy.webp"),
   ratio: 1.4825,
 };

@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 /**
  * `STATIC_EXPORT=1 next build` writes the card to `out/` as plain files, for
- * the GitHub Pages mirror at https://visaithat.github.io/.
+ * the GitHub Pages mirror at https://visaithat.github.io/teacher-day-nueng/.
  *
  * The mirror exists because Lao cellular networks block every `*.vercel.app`
  * name (DNS and TLS alike), so the Vercel address opens on Wi-Fi and nowhere
@@ -12,14 +12,17 @@ import type { NextConfig } from "next";
  * only warn about - so they are left out of that build rather than argued
  * over. Vercel's build is unchanged.
  *
- * At the root of the site, not a subpath: the pictures, tapes and clip are
- * reached by absolute `/art/...`-style paths in some seventy places, and a
- * `basePath` would not reach into those.
+ * A project site on Pages lives under the repository's name, so the export
+ * takes a `basePath` from `NEXT_PUBLIC_BASE_PATH`. That rewrites Next's own
+ * chunks and nothing else: the pictures, tapes and clip are reached by raw
+ * `/art/...`-style paths in some seventy places, and every one of those goes
+ * through `publicUrl()` in `lib/utils/public-url.ts`, which reads the same
+ * variable. `.github/workflows/pages.yml` sets both and publishes `out/`.
  */
 const exporting = process.env.STATIC_EXPORT === "1";
 
 const nextConfig: NextConfig = exporting
-  ? { output: "export" }
+  ? { output: "export", basePath: process.env.NEXT_PUBLIC_BASE_PATH ?? "" }
   : {
   /**
    * The card used to be three URLs. It is one now, and these are the old ones.

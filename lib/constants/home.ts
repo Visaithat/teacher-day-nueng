@@ -7,6 +7,7 @@
  */
 
 import type { PhotoLayer, PhotoMotion } from "@/types/home";
+import { publicUrl } from "@/lib/utils/public-url";
 
 /** The card everything else is laid on. Comes in from the top-right. */
 export const HOME_CARD: PhotoMotion & {
@@ -14,7 +15,7 @@ export const HOME_CARD: PhotoMotion & {
   alt: string;
   ratio: number;
 } = {
-  src: "/photos/happy-teacher-day-card.webp",
+  src: publicUrl("/photos/happy-teacher-day-card.webp"),
   alt: "A pale blue card hand-lettered with the words Happy Teacher Day",
   /** Width / height of the card image. */
   ratio: 1.581,
@@ -25,7 +26,7 @@ export const HOME_CARD: PhotoMotion & {
 
 export const HOME_PHOTOS: PhotoLayer[] = [
   {
-    src: "/photos/graduation-portrait.webp",
+    src: publicUrl("/photos/graduation-portrait.webp"),
     alt: "A graduation portrait: a young woman in a black cap and gown with a maroon and gold hood, smiling at the camera",
     x: 51.6,
     y: 52.7,
@@ -38,7 +39,7 @@ export const HOME_PHOTOS: PhotoLayer[] = [
     walk: -1,
   },
   {
-    src: "/photos/wedding-announcement.webp",
+    src: publicUrl("/photos/wedding-announcement.webp"),
     alt: "A wedding announcement on torn notebook paper reading: Announcing the marriage of Phonesavanh Souliyaseng, Brandon, Missouri",
     x: 18.3,
     y: 57.5,

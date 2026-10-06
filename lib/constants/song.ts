@@ -6,6 +6,8 @@
  * pasted in without opening a component or touching a line of markup.
  */
 
+import { publicUrl } from "@/lib/utils/public-url";
+
 /**
  * The record itself.
  *
@@ -15,7 +17,7 @@
  */
 export const RECORD_SONG = {
   kind: "file",
-  src: "/audio/day-0-hrz.mp3",
+  src: publicUrl("/audio/day-0-hrz.mp3"),
   /** As the reference prints it: the Lao name, then the artist's mark. */
   title: "ເພງວັນຄູ | Hrz.",
   by: "Daniii Hrz.",

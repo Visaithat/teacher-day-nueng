@@ -8,37 +8,39 @@
  * all track the illustration at any size. Retune these, not the CSS.
  */
 
+import { publicUrl } from "@/lib/utils/public-url";
+
 export const MAILBOX_ART = {
-  src: "/art/mailbox.svg",
+  src: publicUrl("/art/mailbox.svg"),
   alt: "A tall red mail box",
   /** Width / height of the artwork. */
   ratio: 0.57,
 };
 
 export const KEY_ART = {
-  src: "/art/key.webp",
+  src: publicUrl("/art/key.webp"),
   width: 690,
   height: 635,
 };
 
 export const ARROW_ART = {
-  src: "/art/arrow.svg",
+  src: publicUrl("/art/arrow.svg"),
 };
 
 /** The present waiting inside, and the flowers at the box's feet. */
 export const GIFT_ART = {
-  src: "/art/gift.webp",
+  src: publicUrl("/art/gift.webp"),
   width: 560,
   height: 590,
 };
 
 export const FLOWERS = [
   {
-    src: "/art/flower-left.svg",
+    src: publicUrl("/art/flower-left.svg"),
     className: "mailbox__flower--left",
   },
   {
-    src: "/art/flower-right.webp",
+    src: publicUrl("/art/flower-right.webp"),
     className: "mailbox__flower--right",
   },
 ] as const;

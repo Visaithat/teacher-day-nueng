@@ -26,6 +26,15 @@ npm run lint    # eslint
 npx tsc --noEmit
 ```
 
+## Where it lives
+
+The card is on Vercel at https://teacher-day-nueng.vercel.app, built from every
+push to `main`. Lao cellular networks block `*.vercel.app`, so the same push also
+builds a static export and publishes it to GitHub Pages at
+https://visaithat.github.io/teacher-day-nueng/ (`.github/workflows/pages.yml`).
+The mirror sits under the repository's name, which is why every path into
+`public/` goes through `publicUrl()` rather than being written bare.
+
 ## Stack
 
 - **Next.js 16** (App Router, Turbopack) · **React 19**

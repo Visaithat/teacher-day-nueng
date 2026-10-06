@@ -11,6 +11,7 @@ import {
   SPIN_MS,
 } from "@/lib/constants/song";
 import type { SongState } from "@/types/song";
+import { publicUrl } from "@/lib/utils/public-url";
 
 interface RecordDeckProps {
   /** What the transport says is happening, so the turn and the rings agree with it. */
@@ -98,7 +99,7 @@ export default function RecordDeck({ state, cued }: RecordDeckProps) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           className="record-deck__base"
-          src="/art/song/deck.webp"
+          src={publicUrl("/art/song/deck.webp")}
           alt="A wooden turntable"
           draggable={false}
         />
@@ -141,7 +142,7 @@ export default function RecordDeck({ state, cued }: RecordDeckProps) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           className="record-deck__arm"
-          src="/art/song/deck-arm.webp"
+          src={publicUrl("/art/song/deck-arm.webp")}
           alt=""
           draggable={false}
         />

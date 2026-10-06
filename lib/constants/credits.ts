@@ -7,6 +7,7 @@
  */
 
 import type { CreditPerson, FrameKind, FrameStyle } from "@/types/credits";
+import { publicUrl } from "@/lib/utils/public-url";
 
 /**
  * Who hangs on the wall, in the order the camera passes them.
@@ -15,18 +16,18 @@ import type { CreditPerson, FrameKind, FrameStyle } from "@/types/credits";
  * its file name on it, so dropping the file in is all a new portrait needs.
  */
 export const CREDITS_PEOPLE: readonly CreditPerson[] = [
-  { name: "Anida THONGVANH", role: "Musician & Designer", photo: "/photos/credits/photo1.jpg", frame: "gold", size: [40, 47] },
-  { name: "Souphonesili KEOMANT", role: "Lead Writer", photo: "/photos/credits/photo2.jpg", frame: "wood", size: [28, 39] },
-  { name: "Visaithat PHATHITMYXAY", role: "Lead Web Developer", photo: "/photos/credits/photo3.jpg", frame: "black", size: [34, 34] },
-  { name: "Mexay PHAIPHITHOUN", role: "Writer", photo: "/photos/credits/photo4.jpg", frame: "goldthin", size: [32, 35] },
-  { name: "Boy SAKONNAVATH", role: "Writer", photo: "/photos/credits/photo5.jpg", frame: "gold", size: [32, 35] },
-  { name: "Seankeo XAICHALEUN", role: "Writer", photo: "/photos/credits/photo6.jpg", frame: "walnut", size: [28, 34] },
-  { name: "Lalita THONGVANH", role: "Writer", photo: "/photos/credits/photo7.jpg", frame: "wood", size: [30, 35] },
-  { name: "Vilaphon MADMANIVONG", role: "Writer", photo: "/photos/credits/photo8.jpg", frame: "goldthin", size: [40, 46] },
-  { name: "Sunida VONGVANDALAT", role: "Writer", photo: "/photos/credits/photo10.jpg", frame: "walnut", size: [32, 43] },
-  { name: "Southiphon VONGVANDALAT", role: "Writer", photo: "/photos/credits/photo9.jpg", frame: "gold", size: [33, 44] },
-  { name: "Enny XIONG", role: "Writer", photo: "/photos/credits/photo11.jpg", frame: "black", size: [30, 42] },
-  { name: "Malisa VAYAKONE", role: "Writer", photo: "/photos/credits/photo12.jpg", frame: "wood", size: [34, 41] },
+  { name: "Anida THONGVANH", role: "Musician & Designer", photo: publicUrl("/photos/credits/photo1.jpg"), frame: "gold", size: [40, 47] },
+  { name: "Souphonesili KEOMANT", role: "Lead Writer", photo: publicUrl("/photos/credits/photo2.jpg"), frame: "wood", size: [28, 39] },
+  { name: "Visaithat PHATHITMYXAY", role: "Lead Web Developer", photo: publicUrl("/photos/credits/photo3.jpg"), frame: "black", size: [34, 34] },
+  { name: "Mexay PHAIPHITHOUN", role: "Writer", photo: publicUrl("/photos/credits/photo4.jpg"), frame: "goldthin", size: [32, 35] },
+  { name: "Boy SAKONNAVATH", role: "Writer", photo: publicUrl("/photos/credits/photo5.jpg"), frame: "gold", size: [32, 35] },
+  { name: "Seankeo XAICHALEUN", role: "Writer", photo: publicUrl("/photos/credits/photo6.jpg"), frame: "walnut", size: [28, 34] },
+  { name: "Lalita THONGVANH", role: "Writer", photo: publicUrl("/photos/credits/photo7.jpg"), frame: "wood", size: [30, 35] },
+  { name: "Vilaphon MADMANIVONG", role: "Writer", photo: publicUrl("/photos/credits/photo8.jpg"), frame: "goldthin", size: [40, 46] },
+  { name: "Sunida VONGVANDALAT", role: "Writer", photo: publicUrl("/photos/credits/photo10.jpg"), frame: "walnut", size: [32, 43] },
+  { name: "Southiphon VONGVANDALAT", role: "Writer", photo: publicUrl("/photos/credits/photo9.jpg"), frame: "gold", size: [33, 44] },
+  { name: "Enny XIONG", role: "Writer", photo: publicUrl("/photos/credits/photo11.jpg"), frame: "black", size: [30, 42] },
+  { name: "Malisa VAYAKONE", role: "Writer", photo: publicUrl("/photos/credits/photo12.jpg"), frame: "wood", size: [34, 41] },
 ];
 
 /** The words: over the door, on the first wall, and written at the end. */
@@ -86,7 +87,7 @@ export const CREDITS_TIMING = {
  * together, ending `tail` seconds before the file does.
  */
 export const CREDITS_CLIP = {
-  src: "/video/credits-clip.mp4",
+  src: publicUrl("/video/credits-clip.mp4"),
   darken: 1.2,
   fadeIn: 1.5,
   fadeOut: 2,

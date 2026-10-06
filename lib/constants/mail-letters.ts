@@ -40,6 +40,7 @@ import {
   TULIP,
 } from "@/lib/constants/mail-art";
 import type { Letter } from "@/types/mails";
+import { publicUrl } from "@/lib/utils/public-url";
 
 export const LETTERS: Letter[] = [
   {
@@ -86,7 +87,7 @@ export const LETTERS: Letter[] = [
     signed: "With love, Nampheung",
     song: {
       kind: "file",
-      src: "/audio/tape-nampheung.m4a",
+      src: publicUrl("/audio/tape-nampheung.m4a"),
       title: "A message for you",
       by: "Nampheung",
     },
@@ -133,7 +134,7 @@ export const LETTERS: Letter[] = [
     signed: "With love and respect, always. ❤️",
     song: {
       kind: "file",
-      src: "/audio/tape-anny.mp3",
+      src: publicUrl("/audio/tape-anny.mp3"),
       title: "A message for you",
       by: "Anny",
     },
@@ -198,7 +199,7 @@ export const LETTERS: Letter[] = [
     signed: "With love and respect, Bank",
     song: {
       kind: "file",
-      src: "/audio/tape-bank.m4a",
+      src: publicUrl("/audio/tape-bank.m4a"),
       title: "A message for you",
       by: "Bank",
     },
@@ -252,7 +253,7 @@ export const LETTERS: Letter[] = [
     signed: "With respect and gratitude, Boy",
     song: {
       kind: "file",
-      src: "/audio/tape-boy.m4a",
+      src: publicUrl("/audio/tape-boy.m4a"),
       title: "A message for you",
       by: "Boy",
     },
@@ -319,7 +320,7 @@ export const LETTERS: Letter[] = [
     signed: "With respect and gratitude, Sumo",
     song: {
       kind: "file",
-      src: "/audio/tape-mexay.m4a",
+      src: publicUrl("/audio/tape-mexay.m4a"),
       title: "A message for you",
       by: "Sumo",
     },
@@ -368,7 +369,7 @@ export const LETTERS: Letter[] = [
     signed: "Always yours, Nina",
     song: {
       kind: "file",
-      src: "/audio/tape-nina.m4a",
+      src: publicUrl("/audio/tape-nina.m4a"),
       title: "A message for you",
       by: "Nina",
     },
@@ -435,7 +436,7 @@ export const LETTERS: Letter[] = [
     signed: "With love and thunder, Anne",
     song: {
       kind: "file",
-      src: "/audio/tape-anne.m4a",
+      src: publicUrl("/audio/tape-anne.m4a"),
       title: "A message for you",
       by: "Anne",
     },
@@ -504,7 +505,7 @@ export const LETTERS: Letter[] = [
     signed: "With love, Mint",
     song: {
       kind: "file",
-      src: "/audio/tape-mint.ogg",
+      src: publicUrl("/audio/tape-mint.ogg"),
       title: "A message for you",
       by: "Mint",
     },
@@ -565,7 +566,7 @@ export const LETTERS: Letter[] = [
     signed: "With love, Southiphon",
     song: {
       kind: "file",
-      src: "/audio/tape-southiphon.ogg",
+      src: publicUrl("/audio/tape-southiphon.ogg"),
       title: "A message for you",
       by: "Southiphon",
     },
