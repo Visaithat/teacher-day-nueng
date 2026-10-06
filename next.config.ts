@@ -1,6 +1,26 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
+/**
+ * `STATIC_EXPORT=1 next build` writes the card to `out/` as plain files, for
+ * the GitHub Pages mirror at https://visaithat.github.io/.
+ *
+ * The mirror exists because Lao cellular networks block every `*.vercel.app`
+ * name (DNS and TLS alike), so the Vercel address opens on Wi-Fi and nowhere
+ * else. `*.github.io` gets through. The card is one client-rendered page that
+ * asks nothing of a server, so it exports whole; what it loses are the two
+ * server-side rules below, which an export cannot carry and which Next would
+ * only warn about - so they are left out of that build rather than argued
+ * over. Vercel's build is unchanged.
+ *
+ * At the root of the site, not a subpath: the pictures, tapes and clip are
+ * reached by absolute `/art/...`-style paths in some seventy places, and a
+ * `basePath` would not reach into those.
+ */
+const exporting = process.env.STATIC_EXPORT === "1";
+
+const nextConfig: NextConfig = exporting
+  ? { output: "export" }
+  : {
   /**
    * The card used to be three URLs. It is one now, and these are the old ones.
    *
@@ -39,6 +59,6 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-};
+    };
 
 export default nextConfig;
