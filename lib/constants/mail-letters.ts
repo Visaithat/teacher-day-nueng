@@ -433,12 +433,8 @@ export const LETTERS: Letter[] = [
       "Thank you for being our guiding star.",
     ],
     signed: "With love and thunder, Anne",
-    song: {
-      kind: "youtube",
-      id: "cL4uhaQ58Rk",
-      title: "Lost Stars",
-      by: "Adam Levine",
-    },
+    /* No cassette: the letter and the postcard only. */
+    holds: [CONTENTS[0], CONTENTS[1]],
     postcard: {
       from: "Anne",
       address: ["Teacher Nueng", "with love, still"],
@@ -646,14 +642,8 @@ export const LETTERS: Letter[] = [
       "tired.",
     ],
     signed: "Sincerely, Mother Pim of the Nation",
-    /* A stand-in, like the others': the song is a placeholder until the real
-       one is sent. */
-    song: {
-      kind: "youtube",
-      id: "cL4uhaQ58Rk",
-      title: "Lost Stars",
-      by: "Adam Levine",
-    },
+    /* No cassette: the letter and the postcard only. */
+    holds: [CONTENTS[0], CONTENTS[1]],
     postcard: {
       from: "Annie",
       address: ["Teacher Nueng", "please get some rest"],
